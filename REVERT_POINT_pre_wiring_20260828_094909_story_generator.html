@@ -860,11 +860,6 @@ body {
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-
-<!-- ═══ SIGNAL DECAY ENGINES (character + power data for stories) ═══ -->
-<script src="character_engines.js"></script>
-<script src="frequency_power_engine.js"></script>
-
 <script>
 
 // === API KEY MANAGEMENT (keys stored in localStorage, never in code) ===
@@ -894,98 +889,6 @@ function promptForKey(service, description) {
 const AZURE_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
 const API_KEY = getApiKey('openai');
 const MODEL = 'gpt-4o';
-
-
-// ═══════════════════════════════════════════════════════════
-// ENGINE INTEGRATION — Character & Power Detail Injection
-// ═══════════════════════════════════════════════════════════
-
-/**
- * getCharacterDetails(characterIds) — pulls personality + power info from engines
- * Returns a string to inject into the system prompt
- */
-function getCharacterDetails(characterIds) {
-  if (!characterIds || characterIds.length === 0) return '';
-  
-  const details = [];
-  
-  for (const id of characterIds) {
-    let charDetail = '';
-    
-    // Try CHARACTER_ENGINES for personality
-    if (typeof CHARACTER_ENGINES !== 'undefined' && CHARACTER_ENGINES[id]) {
-      const engine = CHARACTER_ENGINES[id];
-      const meta = engine.meta || {};
-      const ling = engine.linguistic || {};
-      const psych = engine.psychological || {};
-      const bodyLang = engine.body_language || {};
-      
-      charDetail += `\n\n=== ${meta.full_name || id.toUpperCase()} ===`;
-      charDetail += `\nAppearance: ${meta.appearance || 'not specified'}`;
-      charDetail += `\nSpeech: ${ling.register || 'natural'}. Avg ${ling.avg_sentence_length || '?'} words/sentence.`;
-      if (ling.humor_style) charDetail += ` Humor: ${ling.humor_style}.`;
-      if (ling.profanity_level) charDetail += ` Profanity: ${ling.profanity_level}.`;
-      charDetail += `\nCore: ${psych.core_fear ? 'Fears: ' + psych.core_fear.split('.')[0] + '.' : ''} ${psych.core_desire ? 'Wants: ' + psych.core_desire.split('.')[0] + '.' : ''}`;
-      if (psych.trauma_response) charDetail += `\nUnder pressure: ${psych.trauma_response} response.`;
-      
-      // Body language for action descriptions
-      const habits = bodyLang.nervous_habits || bodyLang.idle || [];
-      if (Array.isArray(habits) && habits.length > 0) {
-        charDetail += `\nPhysical habits: ${habits.slice(0, 3).join(', ')}`;
-      }
-    }
-    
-    // Try FREQUENCY_POWERS for ability details
-    if (typeof FREQUENCY_POWERS !== 'undefined') {
-      const charKey = id.toUpperCase();
-      const powers = FREQUENCY_POWERS[charKey];
-      if (powers) {
-        charDetail += `\nPower: ${powers.power_name} — ${(powers.description || '').slice(0, 120)}`;
-        if (powers.activation?.trigger) {
-          charDetail += `\nActivation: ${powers.activation.trigger.split('.')[0]}.`;
-        }
-        if (powers.limitations?.length > 0) {
-          charDetail += `\nLimits: ${powers.limitations.slice(0, 2).join('. ')}`;
-        }
-        if (powers.physical_cost) {
-          charDetail += `\nCost: ${typeof powers.physical_cost === 'string' ? powers.physical_cost.split('.')[0] : powers.physical_cost}`;
-        }
-      }
-    }
-    
-    if (charDetail) details.push(charDetail);
-  }
-  
-  return details.join('');
-}
-
-/**
- * getPowerInteractions(characterIds) — gets interaction rules between selected characters' powers
- */
-function getPowerInteractions(characterIds) {
-  if (!characterIds || characterIds.length < 2) return '';
-  if (typeof FREQUENCY_POWERS === 'undefined') return '';
-  
-  const interactions = [];
-  
-  // Check if FREQUENCY_POWERS has an INTERACTIONS section
-  if (FREQUENCY_POWERS.INTERACTIONS) {
-    for (const interaction of Object.values(FREQUENCY_POWERS.INTERACTIONS)) {
-      if (!interaction.characters) continue;
-      const involved = interaction.characters.filter(c => characterIds.includes(c.toLowerCase()));
-      if (involved.length >= 2) {
-        interactions.push(interaction.description || interaction.effect || '');
-      }
-    }
-  }
-  
-  // Generic combo rules based on power types
-  if (interactions.length === 0 && characterIds.length >= 2) {
-    interactions.push('When multiple Harmonics are present, their frequencies interact — amplifying, harmonizing, or creating interference patterns. Their powers are stronger together but also more unpredictable.');
-  }
-  
-  return interactions.length > 0 ? '\n\nPOWER INTERACTIONS: ' + interactions.join(' ') : '';
-}
 
 // ─── CHARACTERS ───
 const CHARACTERS = [
@@ -1127,16 +1030,6 @@ async function generateStory() {
   if (selectedChars.length > 0) {
     const charNames = selectedChars.map(id => CHARACTERS.find(c => c.id === id)?.name).filter(Boolean);
     userPrompt += `Characters present: ${charNames.join(', ')}\n`;
-    
-    // ═══ ENGINE INJECTION: Pull character details from engines ═══
-    const engineDetails = getCharacterDetails(selectedChars);
-    if (engineDetails) {
-      userPrompt += `\nCHARACTER DETAILS (use these for accuracy):\n${engineDetails}\n`;
-    }
-    const powerInteractions = getPowerInteractions(selectedChars);
-    if (powerInteractions) {
-      userPrompt += powerInteractions + '\n';
-    }
   }
   
   if (selectedMood) {

@@ -658,10 +658,6 @@ body::before {
   <div class="favorites-list" id="favoritesList"></div>
 </div>
 
-
-<!-- ═══ SIGNAL DECAY ORACLE ENGINE (local knowledge) ═══ -->
-<script src="oracle_knowledge_engine.js"></script>
-
 <script>
 
 // === API KEY MANAGEMENT (keys stored in localStorage, never in code) ===
@@ -686,85 +682,6 @@ function promptForKey(service, description) {
 // ═══════════════════════════════════════════════════════════════
 // SIGNAL DECAY LORE ORACLE — AI KNOWLEDGE ENGINE
 // ═══════════════════════════════════════════════════════════════
-
-
-// ═══════════════════════════════════════════════════════════
-// LOCAL KNOWLEDGE SEARCH (checks oracle_knowledge_engine first)
-// ═══════════════════════════════════════════════════════════
-
-/**
- * searchLocalKnowledge(query) — searches ORACLE_KNOWLEDGE entries locally
- * Returns {found: bool, answer: string, source: string, confidence: number}
- */
-function searchLocalKnowledge(query) {
-  try {
-    if (typeof ORACLE_KNOWLEDGE === 'undefined' || !ORACLE_KNOWLEDGE.entries) {
-      return { found: false, answer: '', source: '', confidence: 0 };
-    }
-    
-    const q = query.toLowerCase().trim();
-    const queryWords = q.split(/\s+/).filter(w => w.length > 2);
-    
-    let bestMatch = null;
-    let bestScore = 0;
-    
-    for (const entry of ORACLE_KNOWLEDGE.entries) {
-      let score = 0;
-      
-      // Check keywords (strongest signal)
-      if (entry.keywords) {
-        for (const kw of entry.keywords) {
-          if (q.includes(kw.toLowerCase())) {
-            score += 0.4;
-          }
-        }
-      }
-      
-      // Check question_patterns
-      if (entry.question_patterns) {
-        for (const pattern of entry.question_patterns) {
-          const pLower = pattern.toLowerCase();
-          // Exact or near match
-          if (q.includes(pLower) || pLower.includes(q)) {
-            score += 0.5;
-          }
-          // Partial word overlap
-          const patternWords = pLower.split(/\s+/);
-          const overlap = queryWords.filter(w => patternWords.some(pw => pw.includes(w) || w.includes(pw)));
-          score += (overlap.length / Math.max(queryWords.length, 1)) * 0.3;
-        }
-      }
-      
-      // Check ID match
-      if (entry.id && q.includes(entry.id.replace(/_/g, ' '))) {
-        score += 0.3;
-      }
-      
-      // Cap at 1.0
-      score = Math.min(score, 1.0);
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = entry;
-      }
-    }
-    
-    if (bestMatch && bestScore >= 0.6) {
-      return {
-        found: true,
-        answer: bestMatch.answer,
-        source: bestMatch.source || 'ORACLE_KNOWLEDGE_ENGINE',
-        confidence: bestScore,
-        related: bestMatch.related || []
-      };
-    }
-    
-    return { found: false, answer: '', source: '', confidence: bestScore };
-  } catch(e) {
-    console.warn('[Oracle] Local search error:', e);
-    return { found: false, answer: '', source: '', confidence: 0 };
-  }
-}
 
 const AZURE_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
 const API_KEY = getApiKey('openai');
@@ -1049,23 +966,7 @@ function sendMessage() {
   userInput.value = '';
   sendBtn.disabled = true;
 
-  // ═══ ENGINE CHECK: Try local knowledge FIRST ═══
-  const localResult = searchLocalKnowledge(text);
-  
-  if (localResult.found && localResult.confidence >= 0.6) {
-    // INSTANT local answer — no API call needed!
-    const sourceAttr = localResult.source ? `\n\n[Source: ${localResult.source}]` : '';
-    const fullAnswer = localResult.answer + sourceAttr;
-    
-    appendMessage('oracle', fullAnswer, localResult.source ? [localResult.source] : []);
-    conversationHistory.push({ role: 'assistant', content: fullAnswer });
-    
-    isStreaming = false;
-    sendBtn.disabled = false;
-    return;
-  }
-
-  // Confidence < 0.6 — fall back to AI API call
+  // Get AI response
   getOracleResponse();
 }
 

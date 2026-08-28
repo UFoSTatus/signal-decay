@@ -255,10 +255,6 @@ The night was quiet...
 </div>
 </div>
 
-
-<!-- ═══ SIGNAL DECAY ENGINE (daily life awareness) ═══ -->
-<script src="daily_life_engine.js"></script>
-
 <script>
 window.onerror = function(msg, url, line, col, error) {
   console.warn('Suppressed error:', msg, 'at line', line);
@@ -284,23 +280,6 @@ try{
   const saved = localStorage.getItem('signalDecayReader');
   if(saved) Object.assign(state, JSON.parse(saved));
 }catch(e){console.warn('localStorage unavailable:',e)}
-
-
-// ═══ AMBIENT TIME CONTEXT (from daily_life_engine) ═══
-function getReadingAmbience() {
-  try {
-    if (typeof DAILY_LIFE === 'undefined') return null;
-    const hour = new Date().getHours();
-    // Map time of day to ambient mood
-    if (hour >= 0 && hour < 5) return { period: 'deep_night', mood: 'eerie', suggestion: 'Night reading mode — perfect for horror/mystery sections' };
-    if (hour >= 5 && hour < 8) return { period: 'dawn', mood: 'ethereal', suggestion: 'Early morning — liminal space, perfect for revelations' };
-    if (hour >= 8 && hour < 12) return { period: 'morning', mood: 'clear', suggestion: 'Morning clarity — good for complex lore sections' };
-    if (hour >= 12 && hour < 17) return { period: 'afternoon', mood: 'energetic', suggestion: 'Afternoon energy — action sequences hit different' };
-    if (hour >= 17 && hour < 20) return { period: 'evening', mood: 'transitional', suggestion: 'Evening wind-down — character moments shine' };
-    if (hour >= 20) return { period: 'night', mood: 'intimate', suggestion: 'Night reading — immersion at its peak' };
-    return null;
-  } catch(e) { return null; }
-}
 
 // ===== VOICE MAP =====
 const voiceMap = {

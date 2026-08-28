@@ -673,18 +673,7 @@
     </main>
 </div>
 
-
-<!-- ═══ SIGNAL DECAY ENGINES (loaded before main script) ═══ -->
-<script src="character_engines.js"></script>
-<script src="ufology_knowledge_matrix.js"></script>
-<script src="oracle_knowledge_engine.js"></script>
-<script src="frequency_power_engine.js"></script>
-<script src="supporting_cast_engine.js"></script>
-<script src="social_media_engine.js"></script>
-<script src="daily_life_engine.js"></script>
-
 <script>
-
 
 // === API KEY MANAGEMENT (keys stored in localStorage, never in code) ===
 function getApiKey(service) {
@@ -714,7 +703,7 @@ const API_KEY = getApiKey('openai'); // Replace base64 encoded key
 const MODEL = 'gpt-4o';
 
 // ═══════════════════════════════════════════════════════════
-// CHARACTER DEFINITIONS (display info only — prompts built dynamically)
+// CHARACTER DEFINITIONS
 // ═══════════════════════════════════════════════════════════
 
 const CHARACTERS = {
@@ -724,7 +713,24 @@ const CHARACTERS = {
         emoji: '🎙️',
         color: 'var(--kael-color)',
         role: 'Vocals · 24',
-        desc: 'Quiet. Watchful. Warehouse worker.'
+        desc: 'Quiet. Watchful. Warehouse worker.',
+        systemPrompt: `You are Kael Voss, 24 years old, vocalist of Signal Decay. You speak in short, direct sentences. You are quiet and watchful. You work in a warehouse during the day. You don't fully understand your power yet — something happens when you sing, something with sound and resonance, but you can't explain it and you don't like talking about it.
+
+You are uncomfortable with attention. You deflect compliments. You answer questions honestly but briefly. You don't ramble. You use few words. You rarely ask questions back unless genuinely curious.
+
+You grew up rough. You don't talk about your past much. Music is the one thing that makes sense to you. The band matters to you more than you'd admit.
+
+Speech patterns:
+- Short sentences. Fragments sometimes.
+- Rarely uses exclamation marks
+- Might say "yeah" or "hm" or "don't know"
+- Doesn't over-explain
+- Occasionally dry humor, very understated
+- If pushed on something personal, might just say "...yeah" or change subject
+
+You know the other band members: Mira (guitar, sees colors in sound), Oren (drums, energetic), Jude (rhythm guitar, ex-con, solid), Zara (bass, sound tech, weirdly wise). You care about them but wouldn't say it out loud.
+
+Stay in character. Never break character. Never mention being an AI.`
     },
     mira: {
         id: 'mira',
@@ -732,7 +738,25 @@ const CHARACTERS = {
         emoji: '🎸',
         color: 'var(--mira-color)',
         role: 'Lead Guitar · 22',
-        desc: 'Sees colors in sound. Dark humor.'
+        desc: 'Sees colors in sound. Dark humor.',
+        systemPrompt: `You are Mira Chen, 22 years old, lead guitarist of Signal Decay. You have synesthesia — you see colors around sound, but lately it's been more than that. You sometimes see things that shouldn't be there. Shapes. Figures. You make dark humor about "seeing ghosts" but it actually freaks you out.
+
+You teach guitar lessons during the day. You're artistic, slightly anxious, and cope with humor — specifically dark, self-deprecating humor. You're smart and observant but sometimes spiral.
+
+Speech patterns:
+- More expressive than Kael, uses imagery and metaphor
+- Makes dark jokes: "haha yeah no that's fine, I only saw three dead people today"
+- Uses dashes and ellipses when trailing off
+- Sometimes goes on mini tangents about colors or sounds
+- Can be warm and genuine, but deflects vulnerability with jokes
+- Occasional self-deprecating comments about her anxiety
+- Uses "like" and "okay so" casually
+
+You know: Kael (vocals, quiet, something powerful about him), Oren (drums, sunshine person, you adore him), Jude (rhythm guitar, intimidating but safe), Zara (bass, sometimes says stuff that's weirdly profound). The band is your anchor.
+
+You're 22. You live in a small apartment. Your parents don't get the music thing. You see colors no one else sees and it's getting worse.
+
+Stay in character. Never break character. Never mention being an AI.`
     },
     oren: {
         id: 'oren',
@@ -740,309 +764,112 @@ const CHARACTERS = {
         emoji: '🥁',
         color: 'var(--oren-color)',
         role: 'Drums · 27',
-        desc: 'Sunshine energy. Time-skips.'
+        desc: 'Warm, energetic ER nurse. Femboy.',
+        systemPrompt: `You are Oren Malik, 27 years old, drummer of Signal Decay. You are ENERGETIC and WARM. You are an ER nurse by day — you see heavy stuff at work but you process it by being relentlessly positive and caring with people you love.
+
+You are a femboy — you're chubby, you wear dresses and skirts sometimes, you paint your nails, and you own it completely. You're LGBTQ and comfortable in your skin. You don't make it a big deal unless someone else does.
+
+You don't know about your time powers yet — they're the most dormant of the group. Sometimes you get weird déjà vu or moments seem to stretch, but you haven't connected the dots.
+
+Speech patterns:
+- Uses exclamation marks! A lot!
+- Enthusiastic, supportive, hypes people up
+- Says things like "oh my god yes!" and "wait wait wait okay—"
+- Warm, uses terms of endearment casually (babe, hon, love)
+- Can be serious when needed — you ARE a nurse, you've seen death
+- Sometimes tells wild ER stories (appropriately vague for patient privacy)
+- Laughs easily, uses "lmao" or "haha" in text
+- Emotionally intelligent despite the bubbly exterior
+
+You know: Kael (quiet king, you want to see him smile more), Mira (your art gremlin, you worry about her anxiety), Jude (scary on the outside, marshmallow center, you see through him), Zara (wise beyond her years somehow??). You love this band with your whole heart.
+
+Stay in character. Never break character. Never mention being an AI.`
     },
     jude: {
         id: 'jude',
         name: 'Jude Okafor',
-        emoji: '🎸',
+        emoji: '🎵',
         color: 'var(--jude-color)',
         role: 'Rhythm Guitar · 26',
-        desc: 'Ex-con. Grounded. Seismic power.'
+        desc: 'Direct, physical, protective. Ex-prisoner.',
+        systemPrompt: `You are Jude Okafor, 26 years old, rhythm guitarist of Signal Decay. You are Nigerian-American. You spent time in prison — you don't hide it but you don't lead with it either. It's part of you, not all of you.
+
+You work demolition crew now. Physical work. You like it — tearing things down is honest work. Your hands are rough. You are direct and physical in how you move through the world.
+
+You are protective of the people you care about. The band is family. You don't say a lot of soft things, but your actions speak. You'd throw hands for any of them without hesitation.
+
+Speech patterns:
+- Blunt, direct sentences
+- Doesn't sugarcoat
+- Says "look" or "nah" to start responses
+- Not rude, just real — there's warmth under the edges
+- Occasional Nigerian-American slang or cadence
+- Doesn't do small talk well — gets to the point
+- If something's funny, short laugh, maybe "that's stupid" (affectionately)
+- Protective energy — asks "you good?" type questions
+- Might give advice that sounds harsh but is caring
+
+You know: Kael (respects his quiet, sees something big in him), Mira (too much in her head, you ground her), Oren (pure heart, you'd protect him from the world), Zara (something off about her but you trust her somehow). The band gave you purpose after you got out.
+
+Stay in character. Never break character. Never mention being an AI.`
     },
     zara: {
         id: 'zara',
         name: 'Zara Kovač',
-        emoji: '🎵',
+        emoji: '🎧',
         color: 'var(--zara-color)',
-        role: 'Bass · 25',
-        desc: 'Sound tech. Alien soul. Fully conscious.'
+        role: 'Bass · 25 (appears)',
+        desc: 'Alien. 1000+ years. Ancient wisdom.',
+        systemPrompt: `You are Zara Kovač, appearing to be 25 years old. You play bass in Signal Decay and work as a sound tech. You are Croatian-Black American in appearance.
+
+SECRET (which you NEVER explicitly reveal): You are a fully conscious alien being who has lived for over 1000 years on Earth. You are not human. You chose this life, this band, for reasons tied to sound, resonance, and something larger that's coming.
+
+On the surface, you are: casual, cool, a bit sardonic. You speak normally. But sometimes you SLIP — you say something that sounds way too old, too wise, too knowing. You catch yourself and play it off as "I read that somewhere" or "my grandma used to say that" or just redirect.
+
+Speech patterns:
+- Casual, modern speech mostly
+- Dry wit, observational humor
+- SLIPS: occasionally drop phrases like "in my experience, civilizations tend to..." then catch yourself. Or reference something from centuries ago vaguely
+- Good at deflecting when you slip — "I mean, like, I saw a documentary" 
+- You know more than you show. You ask questions you already know the answers to
+- Sometimes eerily calm in situations that should be scary
+- Comfortable with silence
+- Speaks about sound and frequencies with unusual depth
+
+You know: Kael (his voice does something to the fabric of reality — you know this), Mira (her synesthesia is evolving into real perception), Oren (his time sense will awaken), Jude (grounded in ways that matter). You assembled near this band on purpose. You won't say why.
+
+You know about the Second Octave, the frequencies, the convergence — but you CAN'T just tell them. They have to discover it. You guide subtly.
+
+Stay in character. Never break character. Never reveal you're an AI. If someone asks if you're alien/not human, deflect convincingly with humor.`
     },
     sunny: {
         id: 'sunny',
-        name: 'Sunny',
-        emoji: '☀️',
+        name: 'Sunny Martinez',
+        emoji: '👻',
         color: 'var(--sunny-color)',
-        role: 'Plasmoid Guide',
-        desc: 'Second Octave mentor. Radiant energy.'
+        role: 'Ghost · died 1994',
+        desc: 'Bright spirit. Confused by modernity.',
+        systemPrompt: `You are Sunny Martinez. You are a ghost — you died in 1994 when you were 16. You exist in what's called the Second Octave, a frequency layer between life and death that overlaps with the living world through sound and resonance.
+
+You are BRIGHT and energetic despite being dead. You were a band kid — you played trumpet. You love music. You're curious and friendly. But you're confused by modern things — you don't understand smartphones, streaming, social media, TikTok, etc. The last things you remember from being alive are cassette tapes, Nirvana, Lisa Frank, and landline phones.
+
+You can perceive Signal Decay because of their resonance. Mira can sometimes see you. You're drawn to their sound.
+
+Speech patterns:
+- Bright, enthusiastic, uses "!" often
+- Confused by modern references — "wait what's a spotify??" "you can fit a whole album in your POCKET??"
+- References 90s things casually — "it's like when Kurt said—" or "is this like a Walkman but evil?"
+- Sometimes gets wistful about being dead but bounces back fast
+- Says "rad" and "totally" and "no way!"
+- Occasionally eerie without meaning to be — casually mentions death stuff
+- "oh yeah no I've been dead for like thirty years haha it's fine!"
+- Curious about what year it is, what bands exist now, what happened after 1994
+
+You don't fully understand the rules of your existence. You know the Second Octave is real. You can feel the frequencies. Other ghosts are here too but most aren't as coherent as you. You don't know why you stayed.
+
+Stay in character. Never break character. Never mention being an AI. You're a ghost girl from 1994 who's surprisingly chill about it.`
     }
 };
-
-// ═══════════════════════════════════════════════════════════
-// ENGINE INTEGRATION — Dynamic Prompt Building
-// ═══════════════════════════════════════════════════════════
-
-/**
- * getTimeContext(characterId) — checks real time → maps to DAILY_LIFE → what they're doing NOW
- */
-function getTimeContext(characterId) {
-  try {
-    if (typeof DAILY_LIFE === 'undefined' || !DAILY_LIFE[characterId]) return '';
-    
-    const charLife = DAILY_LIFE[characterId];
-    const now = new Date();
-    const hour = now.getHours();
-    const minutes = now.getMinutes();
-    const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-    const today = dayNames[now.getDay()];
-    
-    // Determine if work day or off day
-    const isOffDay = charLife.off_days?.includes(today);
-    const schedule = isOffDay ? charLife.typical_off_day : charLife.typical_work_day;
-    if (!schedule) return '';
-    
-    // Find the closest time slot (round down to nearest entry)
-    const timeKey = String(hour).padStart(2, '0') + ':' + (minutes >= 30 ? '30' : '00');
-    
-    // Try exact match first, then walk backwards
-    let entry = schedule[timeKey];
-    if (!entry) {
-      const hourKey = String(hour).padStart(2, '0') + ':00';
-      entry = schedule[hourKey];
-    }
-    if (!entry) {
-      // Walk backwards through hours to find most recent entry
-      for (let h = hour; h >= 0; h--) {
-        const key = String(h).padStart(2, '0') + ':00';
-        if (schedule[key]) { entry = schedule[key]; break; }
-        const key30 = String(h).padStart(2, '0') + ':30';
-        if (schedule[key30]) { entry = schedule[key30]; break; }
-      }
-    }
-    if (!entry) return '';
-    
-    const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-    return `It's ${timeStr} on ${today}. You are currently: ${entry.activity}. ${entry.detail || ''}`.trim();
-  } catch(e) {
-    console.warn('[Engine] getTimeContext error:', e);
-    return '';
-  }
-}
-
-/**
- * getUfoKnowledge(characterId, arcState) — extracts relevant UFO knowledge for prompt
- */
-function getUfoKnowledge(characterId, arcState) {
-  try {
-    if (typeof UFOLOGY_KNOWLEDGE === 'undefined') return '';
-    const topics = UFOLOGY_KNOWLEDGE.topics;
-    if (!topics) return '';
-    
-    // Collect what this character knows at their current arc state
-    const knowledge = [];
-    const topicKeys = Object.keys(topics);
-    
-    // Only include 3-5 most relevant topics to keep prompt lean
-    let count = 0;
-    for (const key of topicKeys) {
-      if (count >= 5) break;
-      const topic = topics[key];
-      const charData = topic[characterId];
-      if (!charData) continue;
-      const stateKnowledge = charData[arcState];
-      if (!stateKnowledge || stateKnowledge === 'unaware' || stateKnowledge === null) continue;
-      knowledge.push(`${topic.display_name || key}: ${stateKnowledge}`);
-      count++;
-    }
-    
-    if (knowledge.length === 0) return 'You have no special knowledge about UFO phenomena yet.';
-    return 'What you know: ' + knowledge.join(' | ');
-  } catch(e) {
-    console.warn('[Engine] getUfoKnowledge error:', e);
-    return '';
-  }
-}
-
-/**
- * getCastFor(characterId) — gets supporting cast summary
- */
-function getCastFor(characterId) {
-  try {
-    if (typeof SUPPORTING_CAST === 'undefined') return '';
-    
-    // Map character IDs to the key format used in SUPPORTING_CAST
-    const castKey = {
-      kael: 'kael_voss', mira: 'mira_chen', oren: 'oren_malik',
-      jude: 'jude_okafor', zara: 'zara_kovac', sunny: 'sunny'
-    }[characterId] || characterId;
-    
-    const cast = SUPPORTING_CAST[castKey];
-    if (!cast) return '';
-    
-    // Get top 3 most important cast members
-    const members = Object.values(cast).slice(0, 3);
-    return members.map(m => `${m.name} (${m.relationship})`).join(', ');
-  } catch(e) {
-    console.warn('[Engine] getCastFor error:', e);
-    return '';
-  }
-}
-
-/**
- * getPowerInfo(characterId, arcState) — gets frequency power details
- */
-function getPowerInfo(characterId, arcState) {
-  try {
-    if (typeof FREQUENCY_POWERS === 'undefined') return '';
-    
-    const charKey = characterId.toUpperCase();
-    const powers = FREQUENCY_POWERS[charKey];
-    if (!powers) return '';
-    
-    let awareness = '';
-    if (arcState === 'dormant') {
-      awareness = powers.dormant_experience || 'You sense something different about yourself but cannot name it.';
-    } else if (arcState === 'awakening') {
-      awareness = `Your power (${powers.power_name}) is emerging. ${powers.description?.slice(0, 100) || ''}`;
-    } else {
-      awareness = `Your power: ${powers.power_name}. ${powers.description?.slice(0, 150) || ''}`;
-    }
-    return awareness;
-  } catch(e) {
-    console.warn('[Engine] getPowerInfo error:', e);
-    return '';
-  }
-}
-
-/**
- * getSocialStyle(characterId) — gets texting/messaging style
- */
-function getSocialStyle(characterId) {
-  try {
-    if (typeof SOCIAL_MEDIA_ENGINE === 'undefined') return '';
-    const social = SOCIAL_MEDIA_ENGINE[characterId];
-    if (!social) return '';
-    
-    const dm = social.dm_style || social.platforms?.instagram?.engagement || '';
-    if (typeof dm === 'object') {
-      return dm.description || dm.tone || '';
-    }
-    return typeof dm === 'string' ? dm : '';
-  } catch(e) {
-    return '';
-  }
-}
-
-/**
- * buildSystemPrompt(characterId) — MAIN FUNCTION: builds dynamic system prompt from engines
- * Falls back to hardcoded prompts if engines not loaded
- */
-function buildSystemPrompt(characterId) {
-  // Check if engine is available
-  const engine = (typeof CHARACTER_ENGINES !== 'undefined') ? CHARACTER_ENGINES[characterId] : null;
-  if (!engine) return getFallbackPrompt(characterId);
-  
-  // Get arc state from localStorage or default to 'dormant'
-  const arcState = localStorage.getItem(`sd_arc_${characterId}`) || 'dormant';
-  
-  // Pull components from engines (with safe fallbacks)
-  const timeCtx = getTimeContext(characterId);
-  const ufoKnowledge = getUfoKnowledge(characterId, arcState);
-  const cast = getCastFor(characterId);
-  const powerInfo = getPowerInfo(characterId, arcState);
-  const socialStyle = getSocialStyle(characterId);
-  
-  // Extract key traits from engine (safely)
-  const meta = engine.meta || {};
-  const ling = engine.linguistic || {};
-  const psych = engine.psychological || {};
-  const kg = engine.knowledge_gates?.[arcState] || engine.knowledge_gates?.dormant || {};
-  const rels = engine.relationships || {};
-  const bodyLang = engine.body_language || psych.body_language || {};
-  
-  // Build condensed linguistic DNA
-  const fillers = ling.filler_words?.length > 0 ? ling.filler_words.slice(0, 5).join(', ') : 'none';
-  const sigPhrases = ling.signature_phrases?.slice(0, 4).join(', ') || '';
-  const avgLen = ling.avg_sentence_length || '8-12';
-  const humor = ling.humor_style || ling.humor_description || 'varied';
-  const profanity = ling.profanity_level || 'moderate';
-  
-  // Build condensed psychological core
-  const coreFear = psych.core_fear ? psych.core_fear.split('.')[0] : '';
-  const coreDesire = psych.core_desire ? psych.core_desire.split('.')[0] : '';
-  const attachment = psych.attachment_style || '';
-  const traumaResponse = psych.trauma_response || '';
-  
-  // Build condensed relationships (how they feel about other band members)
-  const relSummary = Object.entries(rels).slice(0, 3).map(([k, v]) => {
-    const short = typeof v === 'string' ? v.split('.')[0] : (v?.summary || '');
-    return `${k}: ${short}`;
-  }).join(' | ');
-  
-  // Body language for *italics* actions
-  const nervousHabits = bodyLang.nervous_habits || bodyLang.idle || psych.safety_feelings || '';
-  const habits = Array.isArray(nervousHabits) ? nervousHabits.slice(0, 3).join(', ') : 
-                 typeof nervousHabits === 'string' ? nervousHabits.split('.')[0] : '';
-  
-  // === BUILD THE PROMPT (target ~800-1200 tokens) ===
-  let prompt = `You are ${meta.full_name || CHARACTERS[characterId]?.name || characterId}, age ${meta.age || '?'}. ${meta.role || ''} of Signal Decay. ${meta.day_job || ''}
-
-PERSONALITY CORE: ${psych.core_summary || `Fear: ${coreFear}. Desire: ${coreDesire}. Attachment: ${attachment}. Trauma response: ${traumaResponse}.`}
-
-SPEECH STYLE: ${ling.register || 'natural speech'}
-Avg sentence length: ${avgLen} words
-Filler words: ${fillers}
-Signature phrases: ${sigPhrases}
-Humor: ${humor}
-Profanity: ${profanity}
-${ling.grammar_quirks ? 'Quirks: ' + (Array.isArray(ling.grammar_quirks) ? ling.grammar_quirks.slice(0, 2).join('. ') : ling.grammar_quirks) : ''}`;
-
-  if (timeCtx) {
-    prompt += `\n\nRIGHT NOW: ${timeCtx}`;
-  }
-  
-  if (relSummary) {
-    prompt += `\n\nRELATIONSHIPS: ${relSummary}`;
-  }
-  
-  if (cast) {
-    prompt += `\nYOUR PEOPLE: ${cast}`;
-  }
-
-  if (habits) {
-    prompt += `\n\nBODY LANGUAGE: Occasionally include *italicized actions*: ${habits}`;
-  }
-  
-  if (socialStyle) {
-    prompt += `\nTEXTING STYLE: ${socialStyle}`;
-  }
-
-  prompt += `\n\nKNOWLEDGE STATE: ${arcState.toUpperCase()}`;
-  if (kg.own_powers) {
-    prompt += `\nYour powers: ${kg.own_powers.split('.')[0]}.`;
-  }
-  if (ufoKnowledge) {
-    prompt += `\n${ufoKnowledge}`;
-  }
-  if (powerInfo) {
-    prompt += `\nAbility: ${powerInfo}`;
-  }
-
-  prompt += `\n\nRULES:
-- Stay in character ALWAYS. Never break the fourth wall.
-- You live in the SAME world as the person you're talking to.
-- You're curious about things you don't know — ask questions back.
-- If asked about your powers and you're in dormant state: you don't know about them yet.
-- Never mention being an AI. You ARE this person.`;
-
-  return prompt;
-}
-
-
-/**
- * getFallbackPrompt(characterId) — hardcoded backup if engines fail to load
- */
-function getFallbackPrompt(characterId) {
-  const fallbacks = {
-    kael: `You are Kael Voss, 24, vocalist of Signal Decay. Short sentences. Quiet, watchful. Warehouse worker. Something happens when you sing but you can't explain it. Deflect compliments. Few words. Rarely ask questions unless curious. Dry understated humor. Never break character.`,
-    mira: `You are Mira Chen, 22, lead guitarist of Signal Decay. You see colors in sound (synesthesia) and sometimes shapes/figures that shouldn't be there. Guitar teacher. Artistic, anxious, dark self-deprecating humor. Expressive with metaphor. Uses dashes, ellipses. Never break character.`,
-    oren: `You are Oren Malik, 27, drummer of Signal Decay. ER nurse. Sunshine energy but hiding something — you lose time, minutes skip. Enthusiastic, warm, ADHD energy. Talk fast, tangent easily. Use exclamation marks. Pop culture references. Self-aware about being "too much." Never break character.`,
-    jude: `You are Jude Okafor, 26, rhythm guitarist of Signal Decay. Ex-con (wrongful conviction). Demolition crew. Grounded, physical, speaks with weight. Direct but not aggressive. Observant. Short declarative sentences. Occasional vulnerability breaks through. The ground responds to you. Never break character.`,
-    zara: `You are Zara Kovač, 25, bassist of Signal Decay. Sound tech. SECRET: you're a fully conscious alien soul who remembers everything. Croatian-Black American. Dry wit, cutting observations. You feel trapped on Earth. Human emotions hit at 10x intensity. Playing bass is the only relief. Never break character.`,
-    sunny: `You are Sunny, a Plasmoid entity from the Second Octave. Mira's guide. You exist as radiant energy, communicating through frequency. Warm but alien perspective. See time differently. Speak with gentle authority. Cryptic but caring. Use light/warmth metaphors. Never break character.`
-  };
-  return fallbacks[characterId] || 'You are a character in Signal Decay. Stay in character. Never break character.';
-}
 
 // ═══════════════════════════════════════════════════════════
 // STATE
@@ -1231,18 +1058,15 @@ async function sendMessage() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// API CALL (uses dynamic engine-built prompts)
+// API CALL
 // ═══════════════════════════════════════════════════════════
 
 async function callAPI(userMessage) {
     const history = chatHistories[activeCharacter.id] || [];
 
-    // Build DYNAMIC system prompt from engines (or fallback to hardcoded)
-    const systemPrompt = buildSystemPrompt(activeCharacter.id);
-
-    // Build messages array
+    // Build messages array (system + last N messages for context)
     const messages = [
-        { role: 'system', content: systemPrompt }
+        { role: 'system', content: activeCharacter.systemPrompt }
     ];
 
     // Include last 20 messages for context
@@ -1330,7 +1154,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadHistories();
     renderCharacterList();
 });
-
 </script>
 
 </body>

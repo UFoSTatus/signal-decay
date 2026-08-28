@@ -1,28 +1,14 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v2';
+const CACHE_NAME = 'signal-decay-v1';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
   './index.html',
   './investigation_board.html',
   './immersive_reader.html',
-  './universe_graph.html',
-  './character_chat.html',
-  './lore_oracle.html',
-  './story_generator.html'
-];
-
-// Engine files — pre-cache for offline support
-const ENGINE_FILES = [
-  './character_engines.js',
-  './ufology_knowledge_matrix.js',
-  './oracle_knowledge_engine.js',
-  './frequency_power_engine.js',
-  './supporting_cast_engine.js',
-  './social_media_engine.js',
-  './daily_life_engine.js'
+  './universe_graph.html'
 ];
 
 // ═══ INSTALL: Pre-cache all HTML apps ═══
@@ -30,7 +16,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Pre-caching HTML apps');
-      return cache.addAll([...HTML_APPS, ...ENGINE_FILES]);
+      return cache.addAll(HTML_APPS);
     })
   );
   self.skipWaiting();
