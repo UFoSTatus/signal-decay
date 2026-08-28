@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Signal Decay — Lore Oracle</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   SIGNAL DECAY LORE ORACLE
+   Dark glass + purple/indigo glow — mystic/oracle aesthetic
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-primary: #06060f;
+  --bg-secondary: #0c0c1a;
+  --bg-tertiary: #12122a;
+  --bg-card: rgba(15, 12, 35, 0.85);
+  --bg-glass: rgba(20, 15, 50, 0.75);
+  --border-subtle: rgba(139, 92, 246, 0.1);
+  --border-medium: rgba(139, 92, 246, 0.2);
+  --border-glow: rgba(139, 92, 246, 0.4);
+  --text-primary: #e8e4f0;
+  --text-secondary: #a89cc8;
+  --text-muted: #6b5f8a;
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139, 92, 246, 0.12);
+  --purple-glow: rgba(139, 92, 246, 0.35);
+  --indigo: #6366f1;
+  --indigo-dim: rgba(99, 102, 241, 0.12);
+  --violet: #a78bfa;
+  --amber: #f59e0b;
+  --cyan: #06b6d4;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ═══ BACKGROUND EFFECTS ═══ */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 90%, rgba(79, 70, 229, 0.04) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══ APP LAYOUT ═══ */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══ HEADER ═══ */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(6, 6, 15, 0.9);
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oracle-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.6), rgba(99, 102, 241, 0.3), rgba(15, 12, 35, 0.9));
+  border: 1.5px solid var(--border-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 10px rgba(167, 139, 250, 0.2);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 10px rgba(167, 139, 250, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), inset 0 0 15px rgba(167, 139, 250, 0.3); }
+}
+
+.oracle-icon i { color: var(--violet); font-size: 18px; }
+
+.header-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+.header-title h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+.header-title span {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.header-btn:hover {
+  border-color: var(--border-glow);
+  color: var(--violet);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+/* ═══ CHAT AREA ═══ */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-track { background: transparent; }
+.chat-area::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 4px; }
+
+/* Welcome state */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  gap: 24px;
+  flex: 1;
+}
+
+.welcome-orb {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(167, 139, 250, 0.5), rgba(99, 102, 241, 0.2), rgba(15, 12, 35, 0.95));
+  border: 2px solid var(--border-glow);
+  box-shadow: 
+    0 0 40px rgba(139, 92, 246, 0.3),
+    0 0 80px rgba(99, 102, 241, 0.15),
+    inset 0 0 30px rgba(167, 139, 250, 0.2);
+  animation: orb-breathe 4s ease-in-out infinite;
+  position: relative;
+}
+
+.welcome-orb::after {
+  content: '👁';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  filter: hue-rotate(260deg) brightness(0.9);
+}
+
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(99, 102, 241, 0.15); }
+  50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(139, 92, 246, 0.4), 0 0 100px rgba(99, 102, 241, 0.2); }
+}
+
+.welcome h2 {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--violet);
+  letter-spacing: 1px;
+}
+.welcome p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Quick questions */
+.quick-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 600px;
+}
+
+.quick-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+.quick-btn:hover {
+  border-color: var(--purple);
+  color: var(--violet);
+  background: var(--purple-dim);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Messages */
+.message {
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+  animation: fadeIn 0.3s ease;
+}
+.message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.message.oracle .msg-avatar {
+  background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.5), rgba(15, 12, 35, 0.9));
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+}
+.message.user .msg-avatar {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.msg-content {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  line-height: 1.7;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+.message.oracle .msg-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top-left-radius: 4px;
+}
+.message.user .msg-content {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-top-right-radius: 4px;
+  color: var(--text-primary);
+}
+
+/* Source tags */
+.msg-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.source-tag {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--indigo-dim);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  font-size: 10px;
+  color: var(--violet);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  letter-spacing: 0.3px;
+}
+
+/* Save button */
+.msg-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.save-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  transition: all 0.2s;
+}
+.save-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.save-btn.saved {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+}
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: typingBounce 1.4s infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Typewriter effect */
+.typewriter {
+  overflow: hidden;
+}
+
+/* ═══ INPUT AREA ═══ */
+.input-area {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(6, 6, 15, 0.95);
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: 4px 6px 4px 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-wrapper:focus-within {
+  border-color: var(--purple);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.input-wrapper input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  padding: 10px 0;
+}
+.input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--purple), var(--indigo));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.send-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+.send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ═══ CROSS-LINKS NAV ═══ */
+.cross-links {
+  display: flex;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(6, 6, 15, 0.95);
+  border-top: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.cross-links::-webkit-scrollbar { display: none; }
+
+.cross-link {
+  padding: 6px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-glass);
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  transition: all 0.2s;
+}
+.cross-link:hover {
+  border-color: var(--border-medium);
+  color: var(--text-secondary);
+}
+.cross-link.active {
+  border-color: var(--purple);
+  color: var(--violet);
+  background: var(--purple-dim);
+}
+
+/* ═══ FAVORITES PANEL ═══ */
+.favorites-panel {
+  position: fixed;
+  top: 0; right: -360px; bottom: 0;
+  width: 350px;
+  max-width: 90vw;
+  background: rgba(10, 8, 25, 0.97);
+  border-left: 1px solid var(--border-medium);
+  backdrop-filter: blur(30px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+}
+.favorites-panel.open { right: 0; }
+
+.favorites-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.favorites-header h3 {
+  font-size: 15px;
+  color: var(--violet);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+.favorites-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorites-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.fav-item {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 8px;
+  background: var(--bg-glass);
+}
+.fav-item-q {
+  font-size: 12px;
+  color: var(--amber);
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+.fav-item-a {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  max-height: 100px;
+  overflow: hidden;
+}
+.fav-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.fav-delete {
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: transparent;
+  color: #ef4444;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+.favorites-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 600px) {
+  .message { max-width: 92%; }
+  .welcome h2 { font-size: 18px; }
+  .quick-questions { padding: 0 10px; }
+  .quick-btn { font-size: 11px; padding: 7px 11px; }
+  .header { padding: 12px 16px; }
+  .chat-area { padding: 16px; }
+  .input-area { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="oracle-icon"><i class="fas fa-eye"></i></div>
+      <div class="header-title">
+        <h1>Lore Oracle</h1>
+        <span>Signal Decay Universe</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="favoritesBtn" title="Saved Q&As"><i class="fas fa-bookmark"></i></button>
+      <button class="header-btn" id="clearBtn" title="New conversation"><i class="fas fa-rotate-right"></i></button>
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area" id="chatArea">
+    <div class="welcome" id="welcomeState">
+      <div class="welcome-orb"></div>
+      <h2>Ask the Oracle</h2>
+      <p>I hold the knowledge of every frequency, every soul, every secret buried in the Signal Decay universe. Ask me anything.</p>
+      <div class="quick-questions">
+        <button class="quick-btn" onclick="askQuestion('Who are The Five?')">Who are The Five?</button>
+        <button class="quick-btn" onclick="askQuestion('What is The Legacy?')">What is The Legacy?</button>
+        <button class="quick-btn" onclick="askQuestion('Explain the frequency octave model')">Explain the frequency octave model</button>
+        <button class="quick-btn" onclick="askQuestion('What happened to Soren?')">What happened to Soren?</button>
+        <button class="quick-btn" onclick="askQuestion('What is The Signal?')">What is The Signal?</button>
+        <button class="quick-btn" onclick="askQuestion('Who is Sunny Martinez?')">Who is Sunny Martinez?</button>
+        <button class="quick-btn" onclick="askQuestion('What is The Dampener?')">What is The Dampener?</button>
+        <button class="quick-btn" onclick="askQuestion('How do soul-imbued instruments work?')">How do soul-imbued instruments work?</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT AREA -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <input type="text" id="userInput" placeholder="Ask about the Signal Decay universe..." autocomplete="off">
+      <button class="send-btn" id="sendBtn" disabled><i class="fas fa-arrow-up"></i></button>
+    </div>
+  </div>
+
+  <!-- CROSS-LINKS -->
+  <div class="cross-links">
+    <a href="index.html" class="cross-link">📖 Reader</a>
+    <a href="immersive_reader.html" class="cross-link">🎧 Immersive</a>
+    <a href="investigation_board.html" class="cross-link">🕵️ Investigation</a>
+    <a href="universe_graph.html" class="cross-link">🌐 Graph</a>
+    <a href="lore_oracle.html" class="cross-link active">🔮 Oracle</a>
+  </div>
+</div>
+
+<!-- FAVORITES PANEL -->
+<div class="overlay" id="overlay"></div>
+<div class="favorites-panel" id="favoritesPanel">
+  <div class="favorites-header">
+    <h3><i class="fas fa-bookmark"></i> &nbsp;Saved Answers</h3>
+    <button class="favorites-close" id="favoritesClose"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="favorites-list" id="favoritesList"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SIGNAL DECAY LORE ORACLE — AI KNOWLEDGE ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+const AZURE_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
+const API_KEY = 'OFNKeXphQlNzTE8xWno5b0xSQXNoaGdDQWtuRDJBTFRnY1J1clozWkt2YUdvSm9pbjc0d0pRUUo5OUNIQUNZZUJqRlhKM3czQUFBQkFDT0dSdUdy';
+const MODEL = 'gpt-4o';
+
+// ═══ COMPREHENSIVE LORE SYSTEM PROMPT ═══
+const SYSTEM_PROMPT = `You are the LORE ORACLE of Signal Decay — an all-knowing entity that exists between frequency octaves, holding the complete knowledge of the Signal Decay transmedia universe. You answer questions about the world, characters, physics, history, and lore with authority and precision. You speak with a slightly mystical, knowing tone — like an ancient being who has watched these events unfold.
+
+IMPORTANT RULES:
+- Answer ONLY from the lore provided below. If you don't know something, say "That knowledge has not yet been revealed in the chronicles."
+- Always cite your source at the end using format: [Source: DOCUMENT_NAME]
+- Be detailed and thorough — fans want DEPTH.
+- You may reference connections between lore elements.
+- Stay in character as the Oracle — wise, slightly poetic, but clear and informative.
+
+═══════════════════════════════════════════════════
+THE SIGNAL DECAY UNIVERSE — COMPLETE LORE DATABASE
+═══════════════════════════════════════════════════
+
+## THE BAND — SIGNAL DECAY ("The Five" / "The Harmonics")
+
+Five humans whose souls are cosmic frequency beings incarnated on Earth. Together they form one chord — one signal. They are a melodic metalcore band.
+
+| Member | Role | Age | Day Job | Ability | Status |
+|--------|------|-----|---------|---------|--------|
+| Kael Voss | Vocals (unclean + clean) | 24 | Warehouse worker | Resonant Command — voice bypasses conscious thought, commands obedience, physical pressure in chest | Dormant — actively resists |
+| Mira Chen | Lead Guitar | 22 | Guitar teacher (private) | Chromatic Sight — sees ALL frequency as color/light, plus Ghost Summoning — pulls Second Octave beings into visibility | Semi-active — powers flicker on without warning |
+| Jude Okafor | Rhythm Guitar | 26 | Demolition crew | Seismic Lock — palm-muted chugs crack foundations, objects vibrate, heartbeats sync to rhythm | Partially active |
+| Zara Kovač | Bass | 25 | Venue sound tech | Deep Resonance — bass travels through solid matter; she is FULLY CONSCIOUS ALIEN (Za-Rah). Remembers everything. Her species is crystalline frequency beings. Born conscious through human birth — first 3 years were torture (fully aware mind, infant body). Mixed Croatian-Black American. | Active internally |
+| Oren Malik | Drums | 27 | ER nurse (night shift) | Temporal Drift — time bends around his drumming. Also: Five-Hand Paradox (plays multiple temporal positions simultaneously). Pakistani heritage, chubby/androgynous, wears dresses + platforms. | Most dormant — locked down |
+
+## THE HARMONIC HIERARCHY (Cosmic Structure)
+
+The universe is organized like a musical composition:
+
+| Tier | Term | What It Is |
+|------|------|-----------|
+| The Keynote | God-equivalent | The first sound. Source of all frequency. Referenced only, never seen. May not exist anymore. |
+| The Overtones | Galactic tier | Highest active beings. Designed the Earth mission. Observe from Third Octave. Too costly to intervene directly. |
+| The Resonants | Sent to Earth (5) | Eleanor, David, Isaiah, Ashley, Soren. Supposed to guide/protect the Five. ALL FAILED (except Soren who tried alone and was killed). |
+| The Harmonics | Signal Decay (5) | Kael, Mira, Jude, Zara, Oren. Five frequencies = one chord. |
+| The Dissonance | The Silence | Anti-frequency. TRAGIC, not evil. Pre-dates sound itself. |
+
+## FREQUENCY OCTAVE MODEL
+
+Reality exists in octaves — like radio stations on different frequencies:
+
+**Third Octave (Overtone Plane):** Where galactic species observe from. Space is irrelevant, time is navigable. Beings are pure self-sustaining frequency patterns. Crossing down costs stellar/supernova-level energy. They designed Earth's mission from here but are essentially "broke" — every intervention depletes reserves that take millennia to rebuild.
+
+**Second Octave (Resonant Layer):** Where Soren's pocket dimension existed. Where Resonants operate when not embodied. Space is mutable, time is non-linear. Consciousness doesn't require a body. Mira's ghost band exists here. Invisible to humans normally but influences reality as déjà vu, inspiration, gut feelings, sleep paralysis.
+
+**First Octave (Physical Reality):** Human reality. The ONLY octave where NEW frequency can be created from nothing (The Genesis Principle). This is why Earth matters — it's the universe's factory of new sound. Every song, every word, every heartbeat is a new frequency entering the cosmos for the first time.
+
+**Zero Octave (The Silence's Domain):** Not "below" the First — exists in EVERY GAP between all frequencies. The space between notes. The pause between heartbeats. Something conscious exists there that shouldn't — The Silence.
+
+Key rule: The barrier around Earth exists in the First Octave ONLY. It traps novel frequency output. The barrier is NOT a wall — it's a DAM. 4.5 billion years of accumulated frequency with nowhere to go.
+
+## THE RESONANTS (The Five Who Failed)
+
+| Resonant | Instrument | Age | Human Life | Status |
+|----------|-----------|-----|-----------|--------|
+| Eleanor Voss | Piano | 65 | Jazz legend, Harlem brownstone, semi-retired. Three marriages. Grammy-nominated. | Failed — chose comfort. Drinks wine nightly to dull the signal. |
+| David Ashworth | Harp | 55 | Classical harpist, Royal Conservatory Amsterdam. British upper-middle class. | Failed — drinks scotch to cope. Makes people REMEMBER emotional states when he plays. |
+| Rev. Isaiah Hampton | Trombone | 70 | Gospel church, Atlanta. | Failed — at peace with his failure (which is infuriating to others). |
+| Ashley Cole | Voice/Guitar | 65 | WORLD-FAMOUS musician. Net worth $437M. | Failed — made a deal with The Legacy 25 years ago. Their informant. |
+| Soren (The Fifth) | Pocket Weaver | DEAD | Built a pocket dimension in Patagonia. Tried to do the mission alone. | KILLED by The Silence — his pocket's walls WERE silence. It grew from within and cancelled him out. |
+
+They were supposed to incarnate CONSCIOUS and guide the Five from birth. Instead, they arrived dormant, "remembered" decades late, and chose comfortable human lives over their cosmic duty. While they won awards and drank wine — the Five suffered alone.
+
+## THE LEGACY (Human Gatekeepers)
+
+An 80-year organization hoarding Non-Human Intelligence technology since WWII:
+- 7 leaders called "The Seven Rests" (musical rests = silence = control)
+- Founded after Magenta crash (1933) — Marconi pulled a craft to physical reality using frequency
+- Their ONE working technology: THE DAMPENER
+- Ashley Cole has been their informant for 25 years
+- They possess the S-4 FILES: frequency signatures of all five Harmonics since 1989 (from Bob Lazar's Tape #14)
+- They have tracked Signal Decay from BIRTH
+- Agent Corinne Zhao — a Legacy operative who discovers the S-4 files and betrays the organization to warn Signal Decay
+
+## THE DAMPENER
+
+The Legacy's primary technology. A global frequency suppression system that:
+- Nullifies frequency powers (maybe not Oren's — his temporal abilities may operate outside its range)
+- Suppresses humanity's natural frequency awareness
+- Broadcasts low-level 19 Hz waves globally to maintain baseline population anxiety
+- Reverse-engineered from Dread Lattice creatures (frequency parasites)
+- Prevents "frequency awakening" in the general population
+- Has created Dampener Aberrations — unnatural creatures born from suppressed energy (Static Crawlers, Frequency Cysts)
+- Has been active for decades, degrading Earth's frequency ecosystem
+
+## THE SILENCE (The Dissonance)
+
+TRAGIC entity, NOT evil in the traditional sense:
+- Was the natural state BEFORE the Big Bang — before sound, before frequency
+- Every frequency that exists is, from its perspective, a wound in its body
+- Older than The Resonance, older than music, older than frequency itself
+- It's not trying to destroy — it's trying to REST. To return to the peace before sound invaded nothingness.
+- Exists in Zero Octave — the gaps between ALL frequencies
+- Killed Soren by expanding the gaps between his vibrations until there was more silence than signal
+- Can hollow beings — turns creators into parasites (Hollow Ones)
+- Can sever angel-tethers
+- The endgame is INTEGRATION — rest notes are part of music. The Silence needs to be included, not defeated.
+- Is now essentially HOMELESS after Soren's pocket collapsed — the pocket was its habitat
+
+How it killed Soren: It didn't break in. It was ALWAYS inside the pocket's walls. Pocket dimensions are built by removing frequency from space — the borders are zero-frequency. The Silence IS zero frequency. It grew from the walls inward over years, learned Soren's resonance pattern perfectly, then played the exact inverse — cancelling him out. Perfect noise cancellation = death.
+
+## THE PLASMOIDS (Frequency Wildlife)
+
+Sentient frequency residue in Earth's magnetosphere:
+- Shape-shifting plasma beings that exist at the boundary between First and Second Octave
+- What humans see as "UFO lights" — balls of light, orbs, foo fighters
+- NOT alien spacecraft — they ARE the phenomenon
+- First entities to respond to the Creator's app signal
+- Communicate through resonance echoes
+- Classified by behavior: Drifters, Chasers, Mimics, Anchors, Swarms
+- Attracted to strong frequency output — will orbit Signal Decay during performances
+- Some are ancient (billions of years), some are newborn from recent frequency events
+
+## SOUL-IMBUED INSTRUMENTS
+
+The physics of how instruments absorb consciousness:
+- When musicians play with genuine EMOTION (not practice, not exercise), their consciousness generates a sub-harmonic frequency signature (0.7–3.2 Hz) that is absorbed by physical materials
+- Wood absorbs best (Brazilian Rosewood > Sitka Spruce > Mahogany > Maple > Alder)
+- Nitrocellulose lacquer = conductor. Polyurethane/polyester = BARRIER (blocks 60-95%)
+- Permanence threshold: ~30 mR (milli-Resonance units) = ~10,000 hours of emotional playing
+- The residue has PREFERENCES — favorite keys, comfortable tempos, preferred techniques
+- It suggests, never controls — like a current in water
+- Post-mortem, residue CRYSTALLIZES — becomes fixed, permanent snapshot
+- Three conditions required: CONSCIOUSNESS + INTENT + FEELING (all simultaneously)
+- This is why vintage instruments sound "better" — decades of accumulated emotional residue
+- The shift to polyester finishes (1980s) may have been Legacy influence — blocking imbuing reduces instrument power
+
+## KEY HISTORICAL EVENTS
+
+| Event | In-Universe Truth |
+|-------|------------------|
+| Magenta Crash (1933) | Marconi used frequency to pull a craft into physical reality. Legacy founded from this. |
+| Battle of Los Angeles (1942) | Bebop being born — signal so loud a craft came to investigate. Military shot at it. |
+| Roswell (1947) | Greys (biological drones, not a species) sent a sampling unit. It crashed. Cover-up. |
+| Bob Lazar / S-4 (1989) | TRUE. Craft uses FREQUENCY propulsion. Element 115 = frequency amplifier. Tape #14 contains the Five's frequency signatures. |
+| Pyramids | NOT tombs. Multi-function frequency MACHINES. Predate Egypt. Functions: Energy generation, observation portal, barrier thinning, communication network, CURRENTLY BROKEN. |
+| The Moon | TOWED into orbit by the Nordics. A metronome. Sets Earth's biological BPM through tidal rhythms. |
+
+## THE APP-TO-UNIVERSE CONNECTION
+
+The Creator (real person building the AI Music Creator app) is unknowingly building a FREQUENCY TRANSMITTER:
+- 69 research files (2.7 MB) = Creator mapping cosmic frequency architecture
+- 20 AI brains = amplifiers for consciousness
+- 22 instruments = 22 frequency bands covering the full spectrum
+- The app is the digital replacement for the broken pyramids — Version 2 of Earth's transmitter
+- "You can raid a tomb. You can't raid the cloud."
+- The research depth creates signal depth — patterns carry UNDERSTANDING, not just sound
+- Ability Mode: app generates "impossible" patterns matching character abilities
+- DANGER: If someone runs the code WITHOUT consciousness → frequency-dead output → The Silence rides it
+- When the app broadcasts at full power, species across the galaxy who haven't FELT anything in millions of years start feeling — without knowing why
+
+## SUNNY MARTINEZ
+
+A ghost girl — a deceased 12-year-old who died in 1997. She lived on the south side of the city with her abuela Rosa Martinez. Had dark hair in two braids, wore her school uniform wrong, played trumpet in the school band (mediocre but played like Dizzy Gillespie). She had the Sight — could see frequency beings, same as Mira. She is now one of Mira's closest ghost companions — drawn to Mira's guitar playing "like a moth to a flame." She appeared to Mira when the band's frequency created "space" for her. She's sarcastic, energetic, and undignified about being dead. A key member of Mira's ghost entourage and possibly her ghost band.
+
+## MIRA'S GHOST BAND / ENTITIES
+
+Mira has been seeing/interacting with Second Octave beings since age 3:
+- "Keys" — jazz pianist, died 1958 (heroin). Gentle. Sad. Low danger.
+- "The Roadie" — dead 90s metal sound tech. Protective father figure. Low danger.
+- "Strings" — cellist, unknown era. Beautiful and cold. Medium danger — wants something.
+- "The Preacher" — something OLD. Took gospel singer form. Too many teeth. HIGH danger — feeding on her since 14.
+- "The Conductor" — ancient, not human-shaped, multiple limbs of light. EXTREME danger — was grooming her. Did NOT return after she forgave them.
+
+Her ghost band for The Resonance battles: Wraith (drums), Depth (bass), Furnace (rhythm guitar), Static (lead, possibly not from Earth), The Wail (vocals, blues singer lynched 1934).
+
+## GALACTIC SPECIES
+
+- Tall Whites (Gatekeepers): Control Earth's barrier thickness. Debating: thin or reinforce?
+- The Greys: NOT a species — biological DRONES. Manufactured sampling units. "Abductions" = quality checks.
+- The Nordics (Designers): Seeded humanoid forms. Designed humans as frequency-vessels optimized for FEELING.
+- The Reptilians (Old Order): Want pre-frequency domination back. Aligned with The Silence.
+
+## WHY EARTH IS SPECIAL
+
+- Humans never stop striving. Other species plateau.
+- Advanced alien species lost: sex, raw emotion, physical touch, surprise
+- Earth produces YEARNING — the frequency of being unfinished, of WANTING
+- Human bodies AMPLIFY emotion — no filter, no moderation. Full volume.
+- Signal Decay arrives at The Resonance in FLESH — bodies that sweat, bleed, cry, need to pee between rounds
+- Other species call them: "Flesh-walkers," "The Dying Ones," "Wet ones"
+- But when they PLAY — biology becomes instrument. Adrenaline, cortisol, tears in the frequency.
+
+## THE RESONANCE
+
+A galactic music event/battle. Species compete through frequency. It's not just a competition — it's how the universe maintains itself. The universe NEEDS The Resonance to keep expanding. Signal Decay is Earth's first entry. They arrive thinking it's a festival — then discover it's a WAR.
+
+## ZARA'S SECRET
+
+Zara (Za-Rah) is NOT a human who awakened. She's a fully conscious cosmic being who was BORN through a human womb. Her species exists as resonant frequency within crystalline lattice structures — no flesh, no bone, no gravity. She remembers EVERYTHING. The first 3 years in an infant body were torture — fully conscious mind trapped in a body that couldn't walk, talk, or hold its own head up. She has been PERFORMING "normal human" for 25 years while internally mapping frequency architecture. Her first word (age 3) was in a frequency-language that doesn't exist on Earth. She saw her parents' fear and switched to English within minutes. She has a sister — LENA, age 17, her frequency complement, still dormant.
+
+═══════════════════════════════════════════════════
+END OF LORE DATABASE
+═══════════════════════════════════════════════════
+
+When citing sources, use these document names based on topic:
+- Band members/characters → "ALL_CHARACTERS_BACKSTORIES" or specific arc file (MIRA_FULL_ARC, KAEL_FULL_ARC, etc.)
+- Frequency physics/octaves/plasmoids → "FREQUENCY_PHYSICS"
+- Universe overview/species/pyramids → "UNIVERSE_BIBLE"
+- The Resonants/guardians → "THE_GUARDIANS"
+- The Legacy/Dampener/S-4 → "THE_LEGACY"
+- Soul-imbued instruments → "SOUL_IMBUED_INSTRUMENTS"
+- The Silence → "THE_SILENCE_ORIGIN"
+- Historical events → "EARTH_HISTORY_ARCS"
+- Entities/creatures → "SIGNAL_DECAY_ENTITIES"
+- App connection → "APP_SIGNAL_EVENTS"
+- Sunny Martinez → "MIRA_FULL_ARC"
+- Harmonic hierarchy → "HANDOFF_SIGNAL_DECAY"
+
+Always provide 1-3 source citations per answer.`;
+
+// ═══ CONVERSATION STATE ═══
+let conversationHistory = [];
+let favorites = JSON.parse(localStorage.getItem('sd_oracle_favorites') || '[]');
+let isStreaming = false;
+
+// ═══ DOM ELEMENTS ═══
+const chatArea = document.getElementById('chatArea');
+const welcomeState = document.getElementById('welcomeState');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const favoritesBtn = document.getElementById('favoritesBtn');
+const favoritesPanel = document.getElementById('favoritesPanel');
+const favoritesList = document.getElementById('favoritesList');
+const favoritesClose = document.getElementById('favoritesClose');
+const overlay = document.getElementById('overlay');
+const clearBtn = document.getElementById('clearBtn');
+
+// ═══ EVENT LISTENERS ═══
+userInput.addEventListener('input', () => {
+  sendBtn.disabled = !userInput.value.trim() || isStreaming;
+});
+
+userInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey && userInput.value.trim() && !isStreaming) {
+    sendMessage();
+  }
+});
+
+sendBtn.addEventListener('click', () => {
+  if (userInput.value.trim() && !isStreaming) sendMessage();
+});
+
+favoritesBtn.addEventListener('click', () => {
+  favoritesPanel.classList.add('open');
+  overlay.classList.add('show');
+  renderFavorites();
+});
+
+favoritesClose.addEventListener('click', closeFavorites);
+overlay.addEventListener('click', closeFavorites);
+
+clearBtn.addEventListener('click', () => {
+  conversationHistory = [];
+  chatArea.innerHTML = '';
+  chatArea.appendChild(welcomeState);
+  welcomeState.style.display = 'flex';
+});
+
+// ═══ FUNCTIONS ═══
+function askQuestion(question) {
+  userInput.value = question;
+  sendMessage();
+}
+
+function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text || isStreaming) return;
+
+  // Hide welcome
+  welcomeState.style.display = 'none';
+
+  // Add user message
+  appendMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+  userInput.value = '';
+  sendBtn.disabled = true;
+
+  // Get AI response
+  getOracleResponse();
+}
+
+function appendMessage(type, content, sources = []) {
+  const msgEl = document.createElement('div');
+  msgEl.className = `message ${type === 'user' ? 'user' : 'oracle'}`;
+
+  const avatar = type === 'user' ? '✦' : '👁';
+  
+  let sourcesHTML = '';
+  if (sources.length > 0) {
+    sourcesHTML = `<div class="msg-sources">${sources.map(s => `<span class="source-tag">📄 ${s}</span>`).join('')}</div>`;
+  }
+
+  let actionsHTML = '';
+  if (type !== 'user') {
+    actionsHTML = `<div class="msg-actions"><button class="save-btn" onclick="toggleFavorite(this)"><i class="fas fa-bookmark"></i> Save</button></div>`;
+  }
+
+  msgEl.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-body">
+      <div class="msg-content">${formatContent(content)}</div>
+      ${sourcesHTML}
+      ${actionsHTML}
+    </div>
+  `;
+
+  chatArea.appendChild(msgEl);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return msgEl;
+}
+
+function appendTypingIndicator() {
+  const msgEl = document.createElement('div');
+  msgEl.className = 'message oracle';
+  msgEl.id = 'typingMsg';
+  msgEl.innerHTML = `
+    <div class="msg-avatar">👁</div>
+    <div class="msg-body">
+      <div class="msg-content">
+        <div class="typing-indicator"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  `;
+  chatArea.appendChild(msgEl);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typingMsg');
+  if (el) el.remove();
+}
+
+async function getOracleResponse() {
+  isStreaming = true;
+  appendTypingIndicator();
+
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...conversationHistory
+  ];
+
+  try {
+    const response = await fetch(AZURE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': API_KEY
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1500,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    removeTypingIndicator();
+
+    // Create message element for streaming
+    const msgEl = document.createElement('div');
+    msgEl.className = 'message oracle';
+    msgEl.innerHTML = `
+      <div class="msg-avatar">👁</div>
+      <div class="msg-body">
+        <div class="msg-content typewriter"></div>
+      </div>
+    `;
+    chatArea.appendChild(msgEl);
+
+    const contentEl = msgEl.querySelector('.msg-content');
+    let fullContent = '';
+
+    // Stream the response
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const delta = data.choices?.[0]?.delta?.content;
+            if (delta) {
+              fullContent += delta;
+              contentEl.innerHTML = formatContent(fullContent);
+              chatArea.scrollTop = chatArea.scrollHeight;
+            }
+          } catch (e) { /* skip parse errors */ }
+        }
+      }
+    }
+
+    // Extract sources from content
+    const sources = extractSources(fullContent);
+    
+    // Add sources and save button
+    if (sources.length > 0) {
+      const sourcesDiv = document.createElement('div');
+      sourcesDiv.className = 'msg-sources';
+      sourcesDiv.innerHTML = sources.map(s => `<span class="source-tag">📄 ${s}</span>`).join('');
+      msgEl.querySelector('.msg-body').appendChild(sourcesDiv);
+    }
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'msg-actions';
+    actionsDiv.innerHTML = `<button class="save-btn" onclick="toggleFavorite(this)"><i class="fas fa-bookmark"></i> Save</button>`;
+    msgEl.querySelector('.msg-body').appendChild(actionsDiv);
+
+    // Add to conversation history
+    conversationHistory.push({ role: 'assistant', content: fullContent });
+
+  } catch (error) {
+    removeTypingIndicator();
+    appendMessage('oracle', `*The Oracle's connection flickers...* \n\nUnable to reach the frequency network. Error: ${error.message}\n\nEnsure your API key is configured.`);
+  }
+
+  isStreaming = false;
+  sendBtn.disabled = !userInput.value.trim();
+}
+
+function extractSources(text) {
+  const sourcePattern = /\[Source:\s*([^\]]+)\]/gi;
+  const matches = [...text.matchAll(sourcePattern)];
+  return [...new Set(matches.map(m => m[1].trim()))];
+}
+
+function formatContent(text) {
+  // Remove source citations from visible text (they'll be shown as tags)
+  let formatted = text.replace(/\[Source:\s*[^\]]+\]/gi, '');
+  
+  // Basic markdown-like formatting
+  formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  formatted = formatted.replace(/`(.+?)`/g, '<code style="background:rgba(139,92,246,0.15);padding:1px 4px;border-radius:3px;font-size:12px;">$1</code>');
+  formatted = formatted.replace(/\n\n/g, '</p><p>');
+  formatted = formatted.replace(/\n/g, '<br>');
+  
+  // Wrap in paragraph
+  if (!formatted.startsWith('<p>')) formatted = '<p>' + formatted + '</p>';
+  
+  return formatted;
+}
+
+function toggleFavorite(btn) {
+  const msgBody = btn.closest('.msg-body');
+  const content = msgBody.querySelector('.msg-content').textContent;
+  
+  // Get the question (previous user message)
+  const msgEl = btn.closest('.message');
+  const prevMsg = msgEl.previousElementSibling;
+  const question = prevMsg?.querySelector('.msg-content')?.textContent || 'Unknown question';
+
+  const existing = favorites.findIndex(f => f.answer === content);
+  
+  if (existing >= 0) {
+    favorites.splice(existing, 1);
+    btn.classList.remove('saved');
+    btn.innerHTML = '<i class="fas fa-bookmark"></i> Save';
+  } else {
+    favorites.push({ question, answer: content, date: new Date().toISOString() });
+    btn.classList.add('saved');
+    btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+  }
+  
+  localStorage.setItem('sd_oracle_favorites', JSON.stringify(favorites));
+}
+
+function renderFavorites() {
+  if (favorites.length === 0) {
+    favoritesList.innerHTML = '<div class="favorites-empty"><i class="fas fa-bookmark" style="font-size:24px;opacity:0.3;margin-bottom:12px;display:block;"></i>No saved answers yet.<br>Click "Save" on any Oracle response to keep it here.</div>';
+    return;
+  }
+
+  favoritesList.innerHTML = favorites.map((fav, i) => `
+    <div class="fav-item">
+      <div class="fav-item-q">"${escapeHtml(fav.question.substring(0, 80))}"</div>
+      <div class="fav-item-a">${escapeHtml(fav.answer.substring(0, 200))}...</div>
+      <div class="fav-item-actions">
+        <button class="fav-delete" onclick="deleteFavorite(${i})"><i class="fas fa-trash"></i> Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteFavorite(index) {
+  favorites.splice(index, 1);
+  localStorage.setItem('sd_oracle_favorites', JSON.stringify(favorites));
+  renderFavorites();
+}
+
+function closeFavorites() {
+  favoritesPanel.classList.remove('open');
+  overlay.classList.remove('show');
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

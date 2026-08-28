@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>Signal Decay — AI Story Generator</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   SIGNAL DECAY — AI STORY GENERATOR
+   Dark glass aesthetic, amber accents, OLED black
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: #141414;
+  --bg-glass: rgba(20, 20, 20, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-amber: rgba(245, 158, 11, 0.3);
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #666666;
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --amber-glow: rgba(245, 158, 11, 0.3);
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --cyan: #06b6d4;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ═══ NAVIGATION ═══ */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-brand .logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--amber), #d97706);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.nav-brand h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.nav-brand .subtitle {
+  font-size: 0.7rem;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+/* ═══ MAIN LAYOUT ═══ */
+.main-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.page-header h2 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--text-primary), var(--amber));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* ═══ INPUT SECTION ═══ */
+.generator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.3s;
+}
+
+.card:hover {
+  border-color: var(--border-medium);
+}
+
+.card-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-label i {
+  font-size: 0.85rem;
+}
+
+.prompt-card {
+  grid-column: 1 / -1;
+}
+
+.prompt-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-dim);
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ═══ CHARACTER SELECTOR ═══ */
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.char-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.char-chip:hover {
+  border-color: var(--border-medium);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.char-chip.selected {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.char-chip .char-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.char-chip .char-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ═══ MOOD & LENGTH SELECTORS ═══ */
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  color: var(--text-secondary);
+}
+
+.pill:hover {
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+.pill.selected {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.pill .pill-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.pill.selected .pill-sub {
+  color: rgba(245, 158, 11, 0.7);
+}
+
+/* ═══ GENERATE BUTTON ═══ */
+.generate-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.btn-generate {
+  padding: 16px 48px;
+  background: linear-gradient(135deg, var(--amber), #d97706);
+  border: none;
+  border-radius: var(--radius-xl);
+  color: #000;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px var(--amber-glow);
+}
+
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--amber-glow);
+}
+
+.btn-generate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-generate i {
+  font-size: 1.1rem;
+}
+
+/* ═══ LOADING ANIMATION ═══ */
+.loading-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  margin-bottom: 2rem;
+}
+
+.loading-container.active {
+  display: flex;
+}
+
+.frequency-wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.frequency-wave .bar {
+  width: 4px;
+  height: 20px;
+  background: var(--amber);
+  border-radius: 2px;
+  animation: freqBounce 1.2s ease-in-out infinite;
+}
+
+.frequency-wave .bar:nth-child(1) { animation-delay: 0s; }
+.frequency-wave .bar:nth-child(2) { animation-delay: 0.1s; }
+.frequency-wave .bar:nth-child(3) { animation-delay: 0.2s; }
+.frequency-wave .bar:nth-child(4) { animation-delay: 0.3s; }
+.frequency-wave .bar:nth-child(5) { animation-delay: 0.4s; }
+.frequency-wave .bar:nth-child(6) { animation-delay: 0.5s; }
+.frequency-wave .bar:nth-child(7) { animation-delay: 0.6s; }
+
+@keyframes freqBounce {
+  0%, 100% { height: 8px; opacity: 0.4; }
+  50% { height: 32px; opacity: 1; }
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+
+.loading-subtext {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ═══ OUTPUT SECTION ═══ */
+.output-section {
+  display: none;
+  margin-bottom: 3rem;
+}
+
+.output-section.active {
+  display: block;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.output-header h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.output-header h3 .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.output-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-action:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.btn-action.primary {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.btn-action.primary:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+/* ═══ STORY OUTPUT ═══ */
+.story-output {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-height: 600px;
+  overflow-y: auto;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: #d4d4d8;
+}
+
+.story-output::-webkit-scrollbar {
+  width: 6px;
+}
+
+.story-output::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.story-output::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+
+.story-output .panel-break {
+  display: block;
+  text-align: center;
+  padding: 1.5rem 0;
+  color: var(--amber);
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.story-output .panel-break::before {
+  content: '─── ';
+}
+
+.story-output .panel-break::after {
+  content: ' ───';
+}
+
+.story-output .mood-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: var(--purple);
+  margin: 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.story-output .sfx-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  color: var(--cyan);
+  margin: 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.story-output p {
+  margin-bottom: 1rem;
+}
+
+/* ═══ COLLECTION / SAVED ═══ */
+.collection-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.collection-section h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.collection-item {
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.collection-item:hover {
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+
+.collection-item .item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collection-item .item-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+}
+
+.collection-item .item-preview {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.collection-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ═══ ERROR STATE ═══ */
+.error-msg {
+  display: none;
+  padding: 1rem 1.5rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--red);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.error-msg.active {
+  display: block;
+}
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(20px);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .generator-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-links {
+    display: none;
+  }
+  
+  .nav-links.mobile-open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: rgba(10, 10, 10, 0.98);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 12px;
+  }
+  
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+  
+  .main-container {
+    padding: 1.5rem 1rem 3rem;
+  }
+  
+  .story-output {
+    padding: 1.25rem;
+    max-height: 450px;
+  }
+  
+  .output-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .character-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+}
+
+/* ═══ WORD COUNT ═══ */
+.word-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-align: right;
+  font-family: monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <div class="logo"><i class="fas fa-bolt"></i></div>
+    <div>
+      <h1>Signal Decay</h1>
+      <div class="subtitle">AI Story Generator</div>
+    </div>
+  </div>
+  
+  <button class="mobile-menu-btn" onclick="toggleMobileNav()">
+    <i class="fas fa-bars"></i>
+  </button>
+  
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link"><i class="fas fa-book"></i> Reader</a>
+    <a href="immersive_reader.html" class="nav-link"><i class="fas fa-theater-masks"></i> Immersive</a>
+    <a href="story_generator.html" class="nav-link active"><i class="fas fa-wand-magic-sparkles"></i> Generator</a>
+    <a href="investigation_board.html" class="nav-link"><i class="fas fa-map-pin"></i> Board</a>
+    <a href="universe_graph.html" class="nav-link"><i class="fas fa-project-diagram"></i> Graph</a>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="main-container">
+  
+  <div class="page-header">
+    <h2>Story Generator</h2>
+    <p>Describe a scene and let the AI weave it into the Signal Decay universe, complete with panel breaks and cinematic cues.</p>
+  </div>
+
+  <!-- PROMPT -->
+  <div class="generator-grid">
+    <div class="card prompt-card">
+      <div class="card-label"><i class="fas fa-pen-fancy"></i> Scene Prompt</div>
+      <textarea class="prompt-textarea" id="promptInput" placeholder="Describe the scene you want to generate...&#10;&#10;Examples:&#10;• Mira sees a ghost at the music shop during a thunderstorm&#10;• Oren's first time skip in the ER — he saves a patient who already died&#10;• The Keynote sends a warning through the radio frequencies&#10;• Juno discovers she can silence an entire city block"></textarea>
+    </div>
+
+    <!-- CHARACTERS -->
+    <div class="card">
+      <div class="card-label"><i class="fas fa-users"></i> Characters in Scene</div>
+      <div class="character-grid" id="characterGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+
+    <!-- MOOD -->
+    <div class="card">
+      <div class="card-label"><i class="fas fa-palette"></i> Mood</div>
+      <div class="pill-group" id="moodGroup">
+        <div class="pill" data-mood="tense" onclick="selectMood(this)">🔥 Tense</div>
+        <div class="pill" data-mood="peaceful" onclick="selectMood(this)">🌿 Peaceful</div>
+        <div class="pill" data-mood="eerie" onclick="selectMood(this)">👁️ Eerie</div>
+        <div class="pill" data-mood="action" onclick="selectMood(this)">⚡ Action</div>
+        <div class="pill" data-mood="emotional" onclick="selectMood(this)">💔 Emotional</div>
+        <div class="pill" data-mood="surreal" onclick="selectMood(this)">🌀 Surreal</div>
+        <div class="pill" data-mood="ominous" onclick="selectMood(this)">🌑 Ominous</div>
+      </div>
+      
+      <div class="card-label" style="margin-top:1.25rem"><i class="fas fa-ruler-horizontal"></i> Length</div>
+      <div class="pill-group" id="lengthGroup">
+        <div class="pill" data-length="500" onclick="selectLength(this)">Short <span class="pill-sub">~500w</span></div>
+        <div class="pill selected" data-length="1500" onclick="selectLength(this)">Medium <span class="pill-sub">~1500w</span></div>
+        <div class="pill" data-length="3000" onclick="selectLength(this)">Long <span class="pill-sub">~3000w</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE BUTTON -->
+  <div class="generate-row">
+    <button class="btn-generate" id="generateBtn" onclick="generateStory()">
+      <i class="fas fa-wand-magic-sparkles"></i> Generate Scene
+    </button>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- LOADING -->
+  <div class="loading-container" id="loadingContainer">
+    <div class="frequency-wave">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <div class="loading-text">Tuning into the frequency...</div>
+    <div class="loading-subtext" id="loadingSubtext">Generating scene</div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-section" id="outputSection">
+    <div class="output-header">
+      <h3><span class="dot"></span> Generated Scene</h3>
+      <div class="output-actions">
+        <button class="btn-action" onclick="copyStory()"><i class="fas fa-copy"></i> Copy</button>
+        <button class="btn-action" onclick="saveToCollection()"><i class="fas fa-bookmark"></i> Save to Collection</button>
+        <button class="btn-action primary" onclick="sendToReader()"><i class="fas fa-book-open"></i> Send to Reader</button>
+      </div>
+    </div>
+    <div class="story-output" id="storyOutput"></div>
+    <div class="word-count" id="wordCount"></div>
+  </div>
+
+  <!-- COLLECTION -->
+  <div class="collection-section">
+    <h3><i class="fas fa-layer-group"></i> Saved Collection</h3>
+    <div class="collection-grid" id="collectionGrid">
+      <div class="collection-empty">No saved stories yet. Generate a scene and save it to build your collection.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SIGNAL DECAY — AI STORY GENERATOR
+// ═══════════════════════════════════════════════════════════════
+
+// ─── CONFIG ───
+const AZURE_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
+const API_KEY = 'OFNKeXphQlNzTE8xWno5b0xSQXNoaGdDQWtuRDJBTFRnY1J1clozWkt2YUdvSm9pbjc0d0pRUUo5OUNIQUNZZUJqRlhKM3czQUFBQkFDT0dSdUdy';
+const MODEL = 'gpt-4o';
+
+// ─── CHARACTERS ───
+const CHARACTERS = [
+  { id: 'mira', name: 'Mira Vasquez', color: '#f59e0b', desc: 'Resonant — sees frequency ghosts, music prodigy' },
+  { id: 'oren', name: 'Oren Sato', color: '#3b82f6', desc: 'Overtone — time-skips, ER doctor with fractured timeline' },
+  { id: 'juno', name: 'Juno Wren', color: '#8b5cf6', desc: 'Dissonance — silencer, can null frequencies in a radius' },
+  { id: 'keynote', name: 'The Keynote', color: '#ef4444', desc: 'Apex entity — sets the universal frequency, rarely seen' },
+  { id: 'alistair', name: 'Alistair Cole', color: '#10b981', desc: 'Harmonic — frequency diplomat, negotiates between octaves' },
+  { id: 'ren', name: 'Ren Okafor', color: '#06b6d4', desc: 'Resonant — echo-reader, hears residual emotions in objects' },
+  { id: 'the_silence', name: 'The Silence', color: '#666666', desc: 'Void entity — absence given will, from the Zero Octave' },
+  { id: 'nova', name: 'Nova Espinoza', color: '#ec4899', desc: 'Overtone — probability weaver, sees branching futures' },
+];
+
+// ─── SYSTEM PROMPT ───
+const SYSTEM_PROMPT = `You are a prestige television writer and literary author crafting scenes for SIGNAL DECAY — a cinematic dark fantasy series about frequency, consciousness, and power.
+
+═══ THE UNIVERSE ═══
+
+FREQUENCY OCTAVE MODEL:
+• First Octave (Physical) — The material world. Baseline reality. Most humans live here unaware of deeper layers.
+• Second Octave (Spirits) — The echo plane. Residual emotions, ghosts, memory impressions. Overlaps physical world like radio static.
+• Third Octave (Cosmic) — The deep frequency. Universal consciousness, cosmic entities, the song that holds reality together.
+• Zero Octave (The Silence) — Absence. Anti-frequency. A void that consumes sound, memory, and existence. Not death — erasure.
+
+THE HARMONIC HIERARCHY:
+• Keynote — The singular apex. Sets the foundational frequency of reality. Changing the Keynote reshapes existence. Currently dormant/hidden.
+• Overtones — Rare, powerful. Can manipulate time, probability, or causality through frequency harmonics. Maybe 12 exist worldwide.
+• Resonants — Uncommon. Perceive and interact with frequencies beyond the First Octave. Seers, echo-readers, ghost-speakers.
+• Harmonics — Diplomats and translators between octaves. Stabilizers. Keep the frequencies from bleeding into each other.
+• Dissonance — Anti-frequency wielders. Can silence, null, or corrupt frequencies. Feared. Misunderstood. Essential for balance.
+
+KEY CHARACTERS:
+• Mira Vasquez — Resonant. Classical violinist who sees Second Octave ghosts as shimmering frequency shadows. Haunted by her dead mother's echo. Warm but isolated. Her music sometimes accidentally pulls spirits into the First Octave.
+• Oren Sato — Overtone. ER doctor who involuntarily time-skips when stressed. Experiences future trauma before it happens. Exhausted, precise, morally tortured by foreknowledge. Dry humor masks deep pain.
+• Juno Wren — Dissonance. Can create zones of absolute silence — no frequency, no sound, no thought. Terrifying power she barely controls. Fierce exterior, deeply lonely. The Silence whispers to her.
+• The Keynote — Ancient, omnipresent, rarely manifests. Speaks through radio static, instrument harmonics, resonance in architecture. Its will shapes the base frequency of the universe.
+• Alistair Cole — Harmonic. British-Nigerian diplomat who negotiates between octave factions. Charming, multilingual (in frequencies too). Hides that he's slowly losing his ability to hear the Third Octave.
+• Ren Okafor — Resonant. Forensic echo-reader. Touches objects and hears their emotional residue. Works with police but is burning out from absorbing trauma. Non-binary, methodical, quietly compassionate.
+• The Silence — Not a person but a presence. The Zero Octave given will. It doesn't destroy — it un-makes. It's drawn to Juno.
+• Nova Espinoza — Overtone. Sees probability branches like overlapping radio signals. Chooses paths. Cheerful exterior masks existential dread of seeing every way things could go wrong.
+
+═══ WRITING STYLE ═══
+
+TONE: Prestige TV meets literary fiction. Cinematic, atmospheric, character-driven. Think: Severance meets The Leftovers meets Annihilation. Every scene should feel like it could be a cold open.
+
+STRUCTURE RULES — ALWAYS follow these:
+1. Use [PANEL] to mark scene beats/visual breaks (like comic panels or TV cuts). Use them every 2-4 paragraphs.
+2. Use [MOOD: descriptor] when the emotional tone shifts (e.g., [MOOD: creeping dread], [MOOD: tender], [MOOD: electric]).
+3. Use [SFX: description] for significant sounds that carry narrative weight (e.g., [SFX: violin string snaps], [SFX: hospital flatline fading into radio static]).
+4. Write in present tense, third person limited.
+5. Dialogue should be spare, subtext-heavy, naturalistic.
+6. Descriptions should be sensory-rich — especially SOUND. This is a world where sound IS reality.
+7. End scenes on a resonant image or unanswered question.
+
+FORMAT: Plain text with the tags above. No markdown headers. Paragraphs separated by blank lines.`;
+
+// ─── STATE ───
+let selectedChars = [];
+let selectedMood = '';
+let selectedLength = 1500;
+let currentStory = '';
+let isGenerating = false;
+
+// ─── INIT ───
+function init() {
+  renderCharacters();
+  loadCollection();
+  
+  // Default mood selection
+  document.querySelector('[data-length="1500"]').classList.add('selected');
+}
+
+function renderCharacters() {
+  const grid = document.getElementById('characterGrid');
+  grid.innerHTML = CHARACTERS.map(c => `
+    <div class="char-chip" data-id="${c.id}" onclick="toggleCharacter(this, '${c.id}')" title="${c.desc}">
+      <span class="char-dot" style="background:${c.color}"></span>
+      <span class="char-name">${c.name.split(' ')[0]}</span>
+    </div>
+  `).join('');
+}
+
+function toggleCharacter(el, id) {
+  el.classList.toggle('selected');
+  if (selectedChars.includes(id)) {
+    selectedChars = selectedChars.filter(c => c !== id);
+  } else {
+    selectedChars.push(id);
+  }
+}
+
+function selectMood(el) {
+  document.querySelectorAll('#moodGroup .pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMood = el.dataset.mood;
+}
+
+function selectLength(el) {
+  document.querySelectorAll('#lengthGroup .pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedLength = parseInt(el.dataset.length);
+}
+
+// ─── GENERATE ───
+async function generateStory() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  if (!prompt) {
+    showError('Please describe the scene you want to generate.');
+    return;
+  }
+  if (isGenerating) return;
+  
+  isGenerating = true;
+  hideError();
+  
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  
+  document.getElementById('outputSection').classList.remove('active');
+  document.getElementById('loadingContainer').classList.add('active');
+  
+  // Rotate loading messages
+  const loadingMessages = [
+    'Tuning the frequency...',
+    'Channeling the Second Octave...',
+    'Listening for resonance...',
+    'Aligning harmonic patterns...',
+    'The Keynote stirs...',
+  ];
+  let msgIdx = 0;
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMessages.length;
+    document.getElementById('loadingSubtext').textContent = loadingMessages[msgIdx];
+  }, 3000);
+  
+  // Build user prompt
+  let userPrompt = `Write a scene: ${prompt}\n\n`;
+  
+  if (selectedChars.length > 0) {
+    const charNames = selectedChars.map(id => CHARACTERS.find(c => c.id === id)?.name).filter(Boolean);
+    userPrompt += `Characters present: ${charNames.join(', ')}\n`;
+  }
+  
+  if (selectedMood) {
+    userPrompt += `Primary mood: ${selectedMood}\n`;
+  }
+  
+  userPrompt += `Target length: approximately ${selectedLength} words.\n`;
+  userPrompt += `\nRemember to include [PANEL] breaks, [MOOD:] shifts, and [SFX:] cues throughout.`;
+  
+  try {
+    const response = await fetch(AZURE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': API_KEY
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.85,
+        max_tokens: selectedLength <= 500 ? 1500 : selectedLength <= 1500 ? 4000 : 7000,
+        top_p: 0.92,
+        frequency_penalty: 0.3,
+        presence_penalty: 0.4
+      })
+    });
+    
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    currentStory = data.choices[0].message.content;
+    
+    displayStory(currentStory);
+    
+  } catch (err) {
+    showError(`Generation failed: ${err.message}`);
+  } finally {
+    clearInterval(msgInterval);
+    document.getElementById('loadingContainer').classList.remove('active');
+    btn.disabled = false;
+    isGenerating = false;
+  }
+}
+
+// ─── DISPLAY ───
+function displayStory(text) {
+  const output = document.getElementById('storyOutput');
+  
+  // Format the story with styled tags
+  let formatted = escapeHtml(text);
+  
+  // [PANEL] → styled break
+  formatted = formatted.replace(/\[PANEL\]/g, '<span class="panel-break">PANEL</span>');
+  
+  // [MOOD: ...] → styled tag
+  formatted = formatted.replace(/\[MOOD:\s*([^\]]+)\]/g, '<span class="mood-tag">MOOD: $1</span>');
+  
+  // [SFX: ...] → styled tag
+  formatted = formatted.replace(/\[SFX:\s*([^\]]+)\]/g, '<span class="sfx-tag">SFX: $1</span>');
+  
+  // Paragraphs
+  formatted = formatted.split('\n\n').map(p => `<p>${p}</p>`).join('');
+  formatted = formatted.replace(/<p>\s*<\/p>/g, '');
+  
+  output.innerHTML = formatted;
+  
+  // Word count
+  const words = text.split(/\s+/).filter(w => w.length > 0).length;
+  document.getElementById('wordCount').textContent = `${words.toLocaleString()} words`;
+  
+  document.getElementById('outputSection').classList.add('active');
+  
+  // Scroll to output
+  setTimeout(() => {
+    document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ─── ACTIONS ───
+function sendToReader() {
+  if (!currentStory) return;
+  
+  // Format for immersive reader — store in sessionStorage
+  const readerData = {
+    title: generateTitle(),
+    content: currentStory,
+    source: 'ai_generator',
+    timestamp: Date.now()
+  };
+  
+  sessionStorage.setItem('signaldecay_reader_payload', JSON.stringify(readerData));
+  window.open('immersive_reader.html?source=generator', '_blank');
+  showToast('Opening in Immersive Reader...');
+}
+
+function saveToCollection() {
+  if (!currentStory) return;
+  
+  const collection = JSON.parse(localStorage.getItem('signaldecay_story_collection') || '[]');
+  
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    title: generateTitle(),
+    prompt: document.getElementById('promptInput').value.trim(),
+    characters: [...selectedChars],
+    mood: selectedMood,
+    length: selectedLength,
+    content: currentStory,
+    wordCount: currentStory.split(/\s+/).filter(w => w.length > 0).length,
+    createdAt: new Date().toISOString()
+  };
+  
+  collection.unshift(entry);
+  
+  // Keep max 50 stories
+  if (collection.length > 50) collection.pop();
+  
+  localStorage.setItem('signaldecay_story_collection', JSON.stringify(collection));
+  loadCollection();
+  showToast('<i class="fas fa-check"></i> Saved to collection');
+}
+
+function copyStory() {
+  if (!currentStory) return;
+  navigator.clipboard.writeText(currentStory).then(() => {
+    showToast('<i class="fas fa-check"></i> Copied to clipboard');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = currentStory;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('<i class="fas fa-check"></i> Copied to clipboard');
+  });
+}
+
+function generateTitle() {
+  const prompt = document.getElementById('promptInput').value.trim();
+  // Take first ~40 chars of prompt as title
+  if (prompt.length <= 45) return prompt;
+  return prompt.slice(0, 42) + '...';
+}
+
+// ─── COLLECTION ───
+function loadCollection() {
+  const collection = JSON.parse(localStorage.getItem('signaldecay_story_collection') || '[]');
+  const grid = document.getElementById('collectionGrid');
+  
+  if (collection.length === 0) {
+    grid.innerHTML = '<div class="collection-empty">No saved stories yet. Generate a scene and save it to build your collection.</div>';
+    return;
+  }
+  
+  grid.innerHTML = collection.map(item => {
+    const date = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const chars = item.characters.map(id => CHARACTERS.find(c => c.id === id)?.name.split(' ')[0] || id).join(', ');
+    const preview = item.content.replace(/\[PANEL\]|\[MOOD:[^\]]*\]|\[SFX:[^\]]*\]/g, '').trim().slice(0, 120);
+    
+    return `
+      <div class="collection-item" onclick="loadFromCollection('${item.id}')">
+        <div class="item-title">${escapeHtml(item.title)}</div>
+        <div class="item-meta">
+          <span>${date}</span>
+          <span>${item.wordCount || '?'}w</span>
+          ${item.mood ? `<span>${item.mood}</span>` : ''}
+          ${chars ? `<span>${chars}</span>` : ''}
+        </div>
+        <div class="item-preview">${escapeHtml(preview)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadFromCollection(id) {
+  const collection = JSON.parse(localStorage.getItem('signaldecay_story_collection') || '[]');
+  const item = collection.find(i => i.id === id);
+  if (!item) return;
+  
+  currentStory = item.content;
+  document.getElementById('promptInput').value = item.prompt || '';
+  
+  // Restore selections
+  selectedChars = item.characters || [];
+  document.querySelectorAll('.char-chip').forEach(chip => {
+    chip.classList.toggle('selected', selectedChars.includes(chip.dataset.id));
+  });
+  
+  if (item.mood) {
+    document.querySelectorAll('#moodGroup .pill').forEach(p => {
+      p.classList.toggle('selected', p.dataset.mood === item.mood);
+    });
+    selectedMood = item.mood;
+  }
+  
+  displayStory(currentStory);
+  
+  // Scroll to output
+  setTimeout(() => {
+    document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+// ─── UI HELPERS ───
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('active');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('active');
+}
+
+function showToast(html) {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = html;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function toggleMobileNav() {
+  document.getElementById('navLinks').classList.toggle('mobile-open');
+}
+
+// ─── KEYBOARD SHORTCUT ───
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    generateStory();
+  }
+});
+
+// ─── INIT ───
+init();
+</script>
+</body>
+</html>
