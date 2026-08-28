@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Signal Decay — Investigation Board</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES & THEMES
+   ═══════════════════════════════════════════════════════════════ */
+@property --bg-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  --bg-1: #0a0e1a;
+  --bg-2: #0d1525;
+  --bg-3: #111827;
+  --accent-gov: #f59e0b;
+  --accent-tech: #22d3ee;
+  --accent-event: #ef4444;
+  --accent-entity: #10b981;
+  --accent-loc: #a855f7;
+  --accent-phenom: #f472b6;
+  --card-bg: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.1);
+  --card-hover: rgba(255,255,255,0.12);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-dim: #475569;
+  --string-color: rgba(34,211,238,0.4);
+  --string-glow: rgba(34,211,238,0.8);
+  --grid-color: rgba(16,185,129,0.04);
+  --scanline-opacity: 0.015;
+  --grain-opacity: 0.03;
+  --particle-color: rgba(34,211,238,0.3);
+  --font-mono: 'SF Mono','JetBrains Mono','Cascadia Code','Courier New',monospace;
+  --font-ui: system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --ease-out-expo: cubic-bezier(0.16,1,0.3,1);
+  --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+}
+
+[data-theme="noir"] {
+  --bg-1: #000000;
+  --bg-2: #0a0a0a;
+  --bg-3: #111111;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.15);
+  --string-color: rgba(255,255,255,0.3);
+  --string-glow: rgba(255,255,255,0.7);
+  --grid-color: rgba(255,255,255,0.02);
+  --particle-color: rgba(255,255,255,0.2);
+  --accent-gov: #fbbf24;
+  --accent-tech: #e2e8f0;
+  --accent-event: #f87171;
+  --accent-entity: #6ee7b7;
+  --accent-loc: #c4b5fd;
+  --accent-phenom: #f9a8d4;
+}
+
+[data-theme="military"] {
+  --bg-1: #0a1208;
+  --bg-2: #0f1a0d;
+  --bg-3: #162312;
+  --card-bg: rgba(16,185,129,0.05);
+  --card-border: rgba(16,185,129,0.15);
+  --string-color: rgba(16,185,129,0.4);
+  --string-glow: rgba(16,185,129,0.8);
+  --grid-color: rgba(16,185,129,0.06);
+  --particle-color: rgba(16,185,129,0.3);
+  --accent-gov: #fbbf24;
+  --accent-tech: #34d399;
+  --accent-event: #f87171;
+  --accent-entity: #6ee7b7;
+  --accent-loc: #a78bfa;
+  --accent-phenom: #fb7185;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESE
+   ═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:var(--bg-1);color:var(--text-primary);
+  font-family:var(--font-ui);
+  touch-action:none;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED BACKGROUND LAYERS
+   ═══════════════════════════════════════════════════════════════ */
+#bg-layers{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* Layer 1: Mesh gradient */
+#bg-mesh{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(34,211,238,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(168,85,247,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 40% at 60% 20%, rgba(245,158,11,0.03) 0%, transparent 50%);
+  animation:meshShift 30s ease-in-out infinite alternate;
+}
+@keyframes meshShift{
+  0%{transform:scale(1) rotate(0deg)}
+  50%{transform:scale(1.05) rotate(1deg)}
+  100%{transform:scale(1) rotate(-1deg)}
+}
+
+/* Layer 2: CSS Particles */
+#bg-particles{position:absolute;inset:0;overflow:hidden}
+.particle{
+  position:absolute;
+  width:var(--size);height:var(--size);
+  background:var(--particle-color);
+  border-radius:50%;
+  opacity:var(--opacity);
+  animation:particleFloat var(--duration) linear infinite;
+  animation-delay:var(--delay);
+  left:var(--left);
+  bottom:-10px;
+}
+@keyframes particleFloat{
+  0%{transform:translateY(0) translateX(0);opacity:var(--opacity)}
+  50%{transform:translateY(-50vh) translateX(20px);opacity:calc(var(--opacity)*1.5)}
+  100%{transform:translateY(-110vh) translateX(-10px);opacity:0}
+}
+
+/* Layer 3: Film grain via SVG turbulence */
+#bg-grain{
+  position:absolute;inset:0;
+  opacity:var(--grain-opacity);
+  animation:grainJitter 0.5s steps(8) infinite;
+}
+@keyframes grainJitter{
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(-1px,1px)}
+  50%{transform:translate(1px,-1px)}
+  75%{transform:translate(-1px,-1px)}
+}
+
+/* Layer 4: Subtle grid */
+#bg-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* Layer 5: CRT Scanlines */
+#bg-scanlines{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0,0,0,var(--scanline-opacity)) 1px,
+    rgba(0,0,0,var(--scanline-opacity)) 2px
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOARD CONTAINER & CAMERA
+   ═══════════════════════════════════════════════════════════════ */
+#board-viewport{
+  position:fixed;inset:0;z-index:1;
+  overflow:hidden;cursor:grab;
+}
+#board-viewport:active{cursor:grabbing}
+#board-canvas{
+  position:absolute;
+  transform-origin:0 0;
+  will-change:transform;
+  transition:none;
+}
+#board-canvas.animating{
+  transition:transform 0.6s var(--ease-out-expo);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLASSMORPHISM CARDS
+   ═══════════════════════════════════════════════════════════════ */
+.card{
+  position:absolute;
+  width:280px;
+  padding:20px;
+  border-radius:16px;
+  background:var(--card-bg);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--card-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -1px 0 rgba(255,255,255,0.05),
+    0 20px 50px -20px rgba(0,0,0,0.6);
+  cursor:pointer;
+  user-select:none;
+  transition:transform 0.3s var(--ease-spring), box-shadow 0.3s ease, border-color 0.3s ease;
+  transform:rotate(var(--rotation));
+  opacity:0;
+  animation:cardEntrance 0.6s var(--ease-out-expo) forwards;
+  animation-delay:var(--entrance-delay);
+}
+@keyframes cardEntrance{
+  from{opacity:0;transform:rotate(var(--rotation)) translateY(30px) scale(0.9)}
+  to{opacity:1;transform:rotate(var(--rotation)) translateY(0) scale(1)}
+}
+.card:hover{
+  transform:rotate(0deg) scale(1.03) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(255,255,255,0.08),
+    0 30px 60px -20px rgba(0,0,0,0.7);
+  z-index:100;
+}
+.card::before{
+  content:'';
+  position:absolute;inset:-1px;
+  border-radius:17px;
+  background:conic-gradient(from var(--bg-angle), transparent 60%, var(--card-accent, var(--accent-tech)) 78%, transparent 95%);
+  z-index:-1;
+  opacity:0;
+  transition:opacity 0.4s ease;
+  animation:spinBorder 4s linear infinite;
+}
+@keyframes spinBorder{
+  to{--bg-angle:360deg}
+}
+.card:hover::before{opacity:1}
+.card.explored{border-left:3px solid var(--accent-entity)}
+.card.locked{
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(8px);
+}
+.card.locked .card-body{filter:blur(4px);pointer-events:none}
+.card.locked::after{
+  content:'[REDACTED]';
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:var(--font-mono);
+  font-size:14px;
+  color:var(--accent-event);
+  letter-spacing:4px;
+  text-transform:uppercase;
+}
+.card.fog{
+  filter:blur(3px) brightness(0.5);
+  pointer-events:none;
+}
+.card.fog:hover{transform:rotate(var(--rotation)) !important}
+
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-icon{
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  color:var(--card-accent);
+  flex-shrink:0;
+}
+.card-icon svg{width:20px;height:20px;filter:url(#icon-glow)}
+.card-title{
+  font-family:var(--font-mono);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  color:var(--text-primary);
+  line-height:1.3;
+}
+.card-meta{
+  font-size:10px;
+  color:var(--text-dim);
+  font-family:var(--font-mono);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-top:2px;
+}
+.card-body{
+  font-size:12px;
+  line-height:1.6;
+  color:var(--text-secondary);
+  overflow:hidden;
+  max-height:60px;
+}
+.card-level{
+  position:absolute;top:8px;right:8px;
+  font-family:var(--font-mono);
+  font-size:9px;
+  padding:2px 6px;
+  border-radius:4px;
+  background:rgba(255,255,255,0.06);
+  color:var(--text-dim);
+  letter-spacing:1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STRINGS / CONNECTIONS SVG
+   ═══════════════════════════════════════════════════════════════ */
+#connections-svg{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+.connection-line{
+  fill:none;
+  stroke:var(--string-color);
+  stroke-width:1.5;
+  stroke-dasharray:1000;
+  stroke-dashoffset:1000;
+  animation:drawLine 1.5s var(--ease-out-expo) forwards;
+  animation-delay:var(--line-delay);
+}
+@keyframes drawLine{to{stroke-dashoffset:0}}
+.connection-line.critical{
+  stroke:var(--string-glow);
+  stroke-width:2.5;
+  filter:url(#string-glow);
+}
+.connection-line.hidden{opacity:0;transition:opacity 0.5s ease}
+.connection-label{
+  font-family:var(--font-mono);
+  font-size:9px;
+  fill:var(--text-dim);
+  opacity:0;
+  transition:opacity 0.3s ease;
+}
+.connection-label.visible{opacity:1}
+.pulse-dot{
+  fill:var(--accent-tech);
+  opacity:0.8;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UI PANELS
+   ═══════════════════════════════════════════════════════════════ */
+#ui-layer{position:fixed;inset:0;z-index:10;pointer-events:none}
+#ui-layer>*{pointer-events:auto}
+
+/* Top bar */
+#top-bar{
+  position:absolute;top:0;left:0;right:0;
+  padding:16px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg, rgba(10,14,26,0.9) 0%, transparent 100%);
+}
+#top-bar h1{
+  font-family:var(--font-mono);
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--accent-tech);
+}
+.top-bar-actions{display:flex;gap:8px;align-items:center}
+.ui-btn{
+  width:36px;height:36px;
+  border-radius:10px;
+  border:1px solid var(--card-border);
+  background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  color:var(--text-secondary);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  font-size:16px;
+}
+.ui-btn:hover{background:var(--card-hover);color:var(--text-primary);border-color:rgba(255,255,255,0.2)}
+.ui-btn.active{color:var(--accent-tech);border-color:var(--accent-tech)}
+
+/* Progress bar */
+#progress-panel{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;
+  padding:8px 16px;
+  border-radius:12px;
+  background:var(--card-bg);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);
+}
+#progress-text{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text-secondary);
+  white-space:nowrap;
+}
+#progress-bar{
+  width:120px;height:4px;
+  border-radius:2px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+}
+#progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent-tech),var(--accent-entity));
+  border-radius:2px;
+  transition:width 0.5s var(--ease-out-expo);
+}
+
+/* Minimap */
+#minimap{
+  position:absolute;bottom:20px;left:20px;
+  width:140px;height:90px;
+  border-radius:10px;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--card-border);
+  overflow:hidden;
+  opacity:0.4;
+  transition:opacity 0.3s ease;
+  cursor:pointer;
+}
+#minimap:hover{opacity:1}
+#minimap-canvas{width:100%;height:100%}
+#minimap-viewport{
+  position:absolute;
+  border:1px solid rgba(255,255,255,0.6);
+  border-radius:2px;
+  pointer-events:none;
+}
+
+/* Zoom controls */
+#zoom-controls{
+  position:absolute;bottom:20px;right:20px;
+  display:flex;flex-direction:column;gap:4px;
+}
+#zoom-controls .ui-btn{
+  width:40px;height:40px;font-size:18px;border-radius:10px;
+}
+#zoom-level{
+  font-family:var(--font-mono);
+  font-size:10px;
+  text-align:center;
+  color:var(--text-dim);
+  margin-top:4px;
+}
+
+/* Back-to-content button */
+#back-btn{
+  position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
+  padding:8px 20px;
+  border-radius:20px;
+  background:var(--accent-tech);
+  color:var(--bg-1);
+  font-family:var(--font-mono);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1px;
+  border:none;cursor:pointer;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease, transform 0.3s var(--ease-spring);
+}
+#back-btn.visible{opacity:1;pointer-events:auto}
+#back-btn:hover{transform:translateX(-50%) scale(1.05)}
+
+/* Detail panel */
+#detail-panel{
+  position:absolute;top:0;right:-420px;bottom:0;width:400px;
+  background:rgba(10,14,26,0.95);
+  backdrop-filter:blur(30px);
+  border-left:1px solid var(--card-border);
+  padding:24px;
+  overflow-y:auto;
+  transition:right 0.4s var(--ease-out-expo);
+  z-index:20;
+}
+#detail-panel.open{right:0}
+#detail-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(255,255,255,0.06);border:none;
+  color:var(--text-secondary);cursor:pointer;
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+}
+#detail-title{
+  font-family:var(--font-mono);font-size:18px;font-weight:700;
+  margin:8px 0 4px;color:var(--text-primary);
+}
+#detail-meta{
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;
+}
+#detail-body{
+  font-size:14px;line-height:1.8;color:var(--text-secondary);
+}
+#detail-body p{margin-bottom:12px}
+
+/* Timeline */
+#timeline-panel{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:12px 20px 16px;
+  background:linear-gradient(0deg, rgba(10,14,26,0.95) 0%, transparent 100%);
+  display:none;
+}
+#timeline-panel.open{display:block}
+#timeline-track{
+  width:100%;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.08);
+  position:relative;cursor:pointer;margin-top:8px;
+}
+#timeline-fill{height:100%;border-radius:2px;background:var(--accent-tech);width:0%}
+#timeline-labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:6px;
+}
+
+/* Settings panel */
+#settings-panel{
+  position:absolute;top:60px;right:20px;
+  width:220px;padding:16px;
+  border-radius:12px;
+  background:rgba(10,14,26,0.95);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--card-border);
+  display:none;
+}
+#settings-panel.open{display:block}
+.settings-group{margin-bottom:12px}
+.settings-label{
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--text-dim);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:6px;
+}
+.theme-btn{
+  display:block;width:100%;
+  padding:8px 12px;margin-bottom:4px;
+  border-radius:8px;border:1px solid var(--card-border);
+  background:transparent;color:var(--text-secondary);
+  font-family:var(--font-mono);font-size:11px;
+  cursor:pointer;text-align:left;
+  transition:all 0.2s ease;
+}
+.theme-btn:hover,.theme-btn.active{
+  background:rgba(255,255,255,0.06);color:var(--text-primary);
+  border-color:var(--accent-tech);
+}
+
+/* Achievement toast */
+.achievement-toast{
+  position:fixed;top:80px;right:20px;z-index:1000;
+  padding:14px 20px;border-radius:12px;
+  background:rgba(16,185,129,0.15);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(16,185,129,0.3);
+  font-family:var(--font-mono);font-size:12px;
+  color:var(--accent-entity);
+  animation:toastIn 0.4s var(--ease-spring), toastOut 0.4s ease 3s forwards;
+  pointer-events:none;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+
+/* Bootup overlay */
+#bootup{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg-1);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;
+}
+#bootup.hidden{
+  opacity:0;pointer-events:none;
+  transition:opacity 0.8s ease;
+}
+.boot-line{
+  font-family:var(--font-mono);
+  font-size:13px;
+  color:var(--accent-tech);
+  opacity:0;
+  animation:bootType 0.4s ease forwards;
+  letter-spacing:1px;
+}
+@keyframes bootType{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.boot-line.glitch{
+  animation:bootType 0.4s ease forwards, glitchText 0.15s ease 0.3s 3;
+}
+@keyframes glitchText{
+  0%{transform:translate(2px,-1px);opacity:0.8}
+  50%{transform:translate(-2px,1px);opacity:0.6}
+  100%{transform:translate(0);opacity:1}
+}
+
+/* Stats panel */
+#stats-panel{
+  position:absolute;top:70px;left:20px;
+  padding:12px 16px;border-radius:10px;
+  background:var(--card-bg);
+  backdrop-filter:blur(16px);
+  border:1px solid var(--card-border);
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--text-dim);
+  display:flex;flex-direction:column;gap:4px;
+}
+.stat-row{display:flex;justify-content:space-between;gap:20px}
+.stat-val{color:var(--text-secondary)}
+
+/* Story mode */
+#story-overlay{
+  position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+  padding:40px;
+}
+#story-overlay.open{display:flex}
+#story-content{
+  max-width:600px;text-align:center;
+}
+#story-text{
+  font-size:18px;line-height:1.8;color:var(--text-primary);
+  font-family:var(--font-mono);margin-bottom:24px;
+}
+#story-nav{display:flex;gap:12px;justify-content:center}
+.story-btn{
+  padding:10px 24px;border-radius:8px;
+  background:var(--card-bg);border:1px solid var(--card-border);
+  color:var(--text-primary);cursor:pointer;
+  font-family:var(--font-mono);font-size:12px;
+  transition:all 0.2s ease;
+}
+.story-btn:hover{background:var(--card-hover);border-color:var(--accent-tech)}
+.story-btn.primary{background:var(--accent-tech);color:var(--bg-1);border-color:var(--accent-tech)}
+
+/* Admin panel */
+#admin-panel{
+  position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,0.9);
+  backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+#admin-panel.open{display:flex}
+#admin-form{
+  width:100%;max-width:500px;
+  padding:24px;border-radius:16px;
+  background:var(--card-bg);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--card-border);
+}
+#admin-form h3{
+  font-family:var(--font-mono);font-size:14px;
+  color:var(--text-primary);margin-bottom:16px;
+}
+.form-group{margin-bottom:12px}
+.form-group label{
+  display:block;font-family:var(--font-mono);
+  font-size:10px;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;padding:10px 12px;
+  border-radius:8px;border:1px solid var(--card-border);
+  background:rgba(0,0,0,0.3);color:var(--text-primary);
+  font-family:var(--font-mono);font-size:12px;
+  outline:none;transition:border-color 0.2s ease;
+}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent-tech)}
+.form-group textarea{height:100px;resize:vertical}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+.form-actions button{
+  padding:10px 20px;border-radius:8px;
+  font-family:var(--font-mono);font-size:11px;
+  cursor:pointer;border:1px solid var(--card-border);
+  transition:all 0.2s ease;
+}
+.btn-save{background:var(--accent-tech);color:var(--bg-1);border-color:var(--accent-tech)}
+.btn-cancel{background:transparent;color:var(--text-secondary)}
+
+/* Quiz overlay */
+#quiz-overlay{
+  position:fixed;inset:0;z-index:55;
+  background:rgba(0,0,0,0.9);
+  backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;
+}
+#quiz-overlay.open{display:flex}
+#quiz-box{
+  width:100%;max-width:500px;
+  padding:28px;border-radius:16px;
+  background:var(--card-bg);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--card-border);
+  text-align:center;
+}
+#quiz-question{
+  font-family:var(--font-mono);font-size:14px;
+  color:var(--text-primary);margin-bottom:20px;line-height:1.6;
+}
+.quiz-option{
+  display:block;width:100%;
+  padding:12px 16px;margin-bottom:8px;
+  border-radius:8px;border:1px solid var(--card-border);
+  background:transparent;color:var(--text-secondary);
+  font-family:var(--font-mono);font-size:12px;
+  cursor:pointer;text-align:left;
+  transition:all 0.2s ease;
+}
+.quiz-option:hover{background:rgba(255,255,255,0.06);border-color:var(--accent-tech)}
+.quiz-option.correct{background:rgba(16,185,129,0.15);border-color:var(--accent-entity);color:var(--accent-entity)}
+.quiz-option.wrong{background:rgba(239,68,68,0.15);border-color:var(--accent-event);color:var(--accent-event)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  #detail-panel{width:100%;right:-100%}
+  #detail-panel.open{right:0}
+  #stats-panel{display:none}
+  #progress-panel{left:20px;right:20px;transform:none}
+  .card{width:240px;padding:16px}
+  #top-bar h1{font-size:11px;letter-spacing:1px}
+  #minimap{width:100px;height:65px}
+}
+@media(max-width:480px){
+  #minimap{display:none}
+  .card{width:220px;padding:14px}
+  #zoom-controls{bottom:12px;right:12px}
+  #top-bar{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+<!-- Background Layers -->
+<div id="bg-layers">
+  <div id="bg-mesh"></div>
+  <div id="bg-particles"></div>
+  <svg id="bg-grain" width="100%" height="100%">
+    <filter id="grain-filter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#grain-filter)"/>
+  </svg>
+  <div id="bg-grid"></div>
+  <div id="bg-scanlines"></div>
+</div>
+
+<!-- Board viewport -->
+<div id="board-viewport">
+  <div id="board-canvas">
+    <!-- SVG connections layer -->
+    <svg id="connections-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="string-glow">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.1" result="blur1"/>
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.4" result="blur2"/>
+          <feMerge><feMergeNode in="blur2"/><feMergeNode in="blur1"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="icon-glow">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.1" result="blur1"/>
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.4" result="blur2"/>
+          <feMerge><feMergeNode in="blur2"/><feMergeNode in="blur1"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+    </svg>
+    <!-- Cards inserted by JS -->
+  </div>
+</div>
+
+<!-- UI Layer -->
+<div id="ui-layer">
+  <div id="top-bar">
+    <h1>⟨ SIGNAL DECAY ⟩</h1>
+    <div class="top-bar-actions">
+      <button class="ui-btn" onclick="window.open('index.html','_self')" title="Back to App">🏠</button>
+      <button class="ui-btn" onclick="window.open('immersive_reader.html','_blank')" title="Immersive Reader">🎬</button>
+      <button class="ui-btn" onclick="window.open('universe_graph.html','_blank')" title="Universe Tree">🕸️</button>
+      <button class="ui-btn" id="btn-story" title="Story Mode">📖</button>
+      <button class="ui-btn" id="btn-timeline" title="Timeline">⏱</button>
+      <button class="ui-btn" id="btn-quiz" title="Theory Quiz">❓</button>
+      <button class="ui-btn" id="btn-admin" title="Editor">✏️</button>
+      <button class="ui-btn" id="btn-settings" title="Settings">⚙️</button>
+    </div>
+  </div>
+
+  <div id="progress-panel">
+    <span id="progress-text">0 / 31 EXPLORED</span>
+    <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="stats-panel">
+    <div class="stat-row"><span>NODES</span><span class="stat-val" id="stat-nodes">31</span></div>
+    <div class="stat-row"><span>CONNECTIONS</span><span class="stat-val" id="stat-conn">0</span></div>
+    <div class="stat-row"><span>CLASSIFIED</span><span class="stat-val" id="stat-class">3</span></div>
+  </div>
+
+  <div id="minimap">
+    <canvas id="minimap-canvas"></canvas>
+    <div id="minimap-viewport"></div>
+  </div>
+
+  <div id="zoom-controls">
+    <button class="ui-btn" id="btn-zoom-in">+</button>
+    <button class="ui-btn" id="btn-home" title="Fit All">⌂</button>
+    <button class="ui-btn" id="btn-zoom-out">−</button>
+    <div id="zoom-level">100%</div>
+  </div>
+
+  <button id="back-btn">↩ BACK TO CONTENT</button>
+
+  <!-- Detail Panel -->
+  <div id="detail-panel">
+    <button id="detail-close">✕</button>
+    <div id="detail-icon"></div>
+    <h2 id="detail-title"></h2>
+    <div id="detail-meta"></div>
+    <div id="detail-body"></div>
+  </div>
+
+  <!-- Settings -->
+  <div id="settings-panel">
+    <div class="settings-group">
+      <div class="settings-label">Theme</div>
+      <button class="theme-btn active" data-theme="frequency">◈ Frequency</button>
+      <button class="theme-btn" data-theme="noir">◉ Noir</button>
+      <button class="theme-btn" data-theme="military">◆ Military</button>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div id="timeline-panel">
+    <div id="timeline-track"><div id="timeline-fill"></div></div>
+    <div id="timeline-labels"><span>1940</span><span>1960</span><span>1980</span><span>2000</span><span>2023</span></div>
+  </div>
+</div>
+
+<!-- Story Mode Overlay -->
+<div id="story-overlay">
+  <div id="story-content">
+    <div id="story-text"></div>
+    <div id="story-nav">
+      <button class="story-btn" id="story-prev">← Previous</button>
+      <button class="story-btn primary" id="story-next">Next →</button>
+      <button class="story-btn" id="story-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz Overlay -->
+<div id="quiz-overlay">
+  <div id="quiz-box">
+    <div id="quiz-question"></div>
+    <div id="quiz-options"></div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="admin-panel">
+  <div id="admin-form">
+    <h3>⊕ ADD ENTRY</h3>
+    <div class="form-group"><label>Title</label><input type="text" id="admin-title" placeholder="Entry title..."></div>
+    <div class="form-group"><label>Category</label>
+      <select id="admin-category">
+        <option value="government">Government</option>
+        <option value="technology">Technology</option>
+        <option value="events">Events</option>
+        <option value="entities">Entities</option>
+        <option value="locations">Locations</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Year</label><input type="number" id="admin-year" placeholder="1947"></div>
+    <div class="form-group"><label>Summary</label><textarea id="admin-summary" placeholder="Brief description..."></textarea></div>
+    <div class="form-group"><label>Full Article</label><textarea id="admin-article" placeholder="Full investigation article..." style="height:150px"></textarea></div>
+    <div class="form-actions">
+      <button class="btn-save" id="admin-save">SAVE ENTRY</button>
+      <button class="btn-cancel" id="admin-cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bootup Overlay -->
+<div id="bootup">
+  <div class="boot-line glitch" style="animation-delay:0.2s">ESTABLISHING SECURE CONNECTION...</div>
+  <div class="boot-line" style="animation-delay:1s">DECRYPTING LEGACY FILES...</div>
+  <div class="boot-line" style="animation-delay:1.8s">LOADING SIGNAL DECAY MATRIX...</div>
+  <div class="boot-line glitch" style="animation-delay:2.6s">INVESTIGATION BOARD ONLINE ■</div>
+</div>
+
+<script>
+window.onerror = function(msg, url, line, col, error) {
+  console.warn('Suppressed error:', msg, 'at line', line);
+  return true; // suppress
+};
+window.addEventListener('unhandledrejection', function(e) {
+  e.preventDefault();
+  console.warn('Suppressed promise rejection:', e.reason);
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   DATA: ALL 31 INVESTIGATION ENTRIES
+   ═══════════════════════════════════════════════════════════════ */
+const ENTRIES = [
+  {id:'mj12',title:'Majestic 12',category:'government',year:1947,level:5,
+   summary:'Top-secret committee of scientists, military leaders, and government officials formed by Truman to manage UFO recovery operations.',
+   article:'<p>Majestic 12 (MJ-12) allegedly formed in 1947 by executive order after the Roswell incident. The committee reportedly included Vannevar Bush, James Forrestal, and other high-ranking officials.</p><p>Documents surfaced in 1984 describing their charter to study and contain extraterrestrial technology. The group supposedly operated above Top Secret with no congressional oversight.</p><p>Multiple whistleblowers have referenced MJ-12 as the nucleus of the cover-up, with successor groups managing the secret to this day.</p>'},
+  {id:'lazar',title:'Bob Lazar / S-4',category:'technology',year:1989,level:4,
+   summary:'Physicist claims he reverse-engineered alien propulsion systems at a secret facility near Area 51 designated S-4.',
+   article:'<p>In 1989, Bob Lazar went public claiming he worked at S-4, a facility south of Area 51, on reverse-engineering alien spacecraft propulsion using Element 115 (Moscovium).</p><p>Lazar described gravity amplifiers that warped space-time, allowing craft to travel vast distances. His claims about Element 115 were validated when it was synthesized in 2003.</p><p>Despite government attempts to erase his employment records, W-2 forms and a Los Alamos phone directory entry have been located confirming some of his claims.</p>'},
+  {id:'looking_glass',title:'Project Looking Glass',category:'technology',year:1950,level:5,
+   summary:'Alleged reverse-engineered technology capable of viewing probable future timelines. Multiple insiders reference this device.',
+   article:'<p>Project Looking Glass reportedly involves technology recovered from extraterrestrial craft that allows operators to view probable future timelines.</p><p>Multiple insiders including Dan Burisch describe a device using rotating mercury plasma to create a viewing portal into future probability streams.</p><p>The technology allegedly showed convergent timelines where disclosure becomes inevitable regardless of efforts to prevent it. This reportedly caused faction splits within the control group.</p>'},
+  {id:'die_glocke',title:'Die Glocke',category:'technology',year:1945,level:4,
+   summary:'Nazi bell-shaped device allegedly experimenting with anti-gravity and time distortion. Connected to Operation Paperclip transfers.',
+   article:'<p>Die Glocke ("The Bell") was allegedly a classified Nazi scientific device involving counter-rotating cylinders filled with a violet mercury-like substance called Xerum 525.</p><p>The device reportedly produced anti-gravity effects and time distortion. Scientists working on the project were executed to maintain secrecy.</p><p>After the war, the technology and surviving scientists were allegedly transferred to the US through Operation Paperclip, forming the foundation of secret aerospace programs.</p>'},
+  {id:'phoenix',title:'Phoenix Lights',category:'events',year:1997,level:2,
+   summary:'Mass sighting of a V-shaped craft over Arizona witnessed by thousands including Governor Fife Symington.',
+   article:'<p>On March 13, 1997, thousands of witnesses across Arizona reported a massive V-shaped craft silently traversing the state. The craft was estimated at over a mile wide.</p><p>Arizona Governor Fife Symington initially mocked the event but later admitted he witnessed the craft and believed it was extraterrestrial.</p><p>The Air Force claimed the lights were flares dropped during exercises, but witnesses insist the structured craft was distinctly different from the later flare drop. Video evidence shows both events separately.</p>'},
+  {id:'kennedy',title:'JFK & MJ-12 Memo',category:'government',year:1963,level:5,
+   summary:'Evidence suggests Kennedy demanded UFO files from CIA 10 days before assassination. The "burned memo" connection.',
+   article:'<p>A CIA memo allegedly from November 12, 1963\u201410 days before Kennedy\'s assassination\u2014shows JFK demanding the CIA share UFO files with NASA for joint space cooperation with the Soviet Union.</p><p>The "burned memo" reportedly instructs the MJ-12 director to deny the President access and references "it should be wet" (intelligence terminology for assassination).</p><p>This connects to Kennedy\'s speech about "secret societies" and his attempts to restructure the CIA. Multiple researchers believe his push for disclosure was a factor in his death.</p>'},
+  {id:'mib',title:'Men in Black',category:'entities',year:1953,level:3,
+   summary:'Enigmatic figures reported to intimidate UFO witnesses. Described as oddly behaving humans or non-human entities.',
+   article:'<p>Reports of Men in Black (MIB) date back to at least 1953, when Albert Bender reported being visited by three men in dark suits who threatened him into silence about his UFO research.</p><p>Witnesses consistently describe MIB as wearing outdated black suits, speaking in monotone, having waxy or pale skin, and demonstrating unfamiliarity with basic human customs.</p><p>While some MIB are likely government agents conducting intimidation, many accounts describe beings that appear non-human\u2014suggesting either ET enforcement or interdimensional entities maintaining information quarantine.</p>'},
+  {id:'abductions',title:'Abduction Program',category:'events',year:1961,level:4,
+   summary:'Systematic reports of human abductions for genetic sampling and hybridization. Betty & Barney Hill through modern cases.',
+   article:'<p>Beginning with the Hill case in 1961, thousands of individuals have reported structured abduction experiences involving medical examination, genetic sampling, and implant placement.</p><p>Under hypnotic regression, abductees describe remarkably consistent procedures: paralysis, transport via light beam, examination by Grey entities, missing time, and returned with scoop marks or implants.</p><p>Dr. John Mack at Harvard studied over 200 cases and concluded the phenomenon was genuine. The consistency across cultures and decades suggests a systematic program rather than random encounters.</p>'},
+  {id:'moon',title:'Moon Anomalies',category:'locations',year:1969,level:3,
+   summary:'Structures, lights, and anomalous objects on the lunar surface. NASA astronaut testimonies and photo evidence.',
+   article:'<p>Multiple NASA astronauts have reported anomalous structures and lights on the Moon. Karl Wolfe testified seeing photos of artificial structures on the far side at Langley AFB in 1965.</p><p>Anomalous objects in official NASA photographs include geometric structures, tower-like formations, and what appear to be mining operations in certain craters.</p><p>Several Apollo astronauts have made cryptic statements. Buzz Aldrin referenced a "monolith" on Phobos. The abrupt end of the Apollo program after discovering these anomalies raises questions about what was found.</p>'},
+  {id:'usos',title:'USOs / Undersea Bases',category:'locations',year:1960,level:3,
+   summary:'Unidentified Submerged Objects tracked by Navy sonar. Evidence of underwater ET bases near continental shelves.',
+   article:'<p>The US Navy has tracked Unidentified Submerged Objects (USOs) capable of speeds exceeding 200 knots underwater\u2014far beyond any known submarine technology.</p><p>Hotspots include areas near Catalina Island, Puerto Rico Trench, and the Norwegian coast. Navy personnel describe objects entering and exiting the ocean without splash or disturbance.</p><p>The 2004 Nimitz encounter included the Tic Tac UAP descending to and ascending from the ocean. Multiple sources suggest permanent underwater installations operated by non-human intelligence.</p>'},
+  {id:'roswell',title:'Roswell Crash',category:'events',year:1947,level:3,
+   summary:'The foundational event. Military announced "flying disc" recovery, then retracted. Debris and bodies recovered.',
+   article:'<p>In July 1947, something crashed on a ranch near Roswell, New Mexico. The Army Air Force initially issued a press release stating they had recovered a "flying disc."</p><p>Within hours, the story was changed to a weather balloon. Witnesses were threatened into silence. Debris with unusual properties\u2014memory metal, I-beam with hieroglyphic writing\u2014was collected.</p><p>Multiple military personnel have deathbed confessions confirming non-human bodies were recovered. The event catalyzed MJ-12 formation and established the secrecy apparatus that persists today.</p>'},
+  {id:'solar_warden',title:'Solar Warden',category:'technology',year:1980,level:5,
+   summary:'Alleged secret space program with fleet of spacecraft. Referenced by UK hacker Gary McKinnon in military databases.',
+   article:'<p>Solar Warden is allegedly a classified space fleet program operational since the 1980s, involving multiple spacecraft capable of interstellar travel.</p><p>British hacker Gary McKinnon accessed US military computers in 2001-2002 and reported finding spreadsheets listing "non-terrestrial officers" and ship-to-ship transfers between vessels not in the public Navy registry.</p><p>Multiple insiders describe a program using reverse-engineered ET technology, with personnel serving 20-year terms in space. The program allegedly protects the solar system and conducts diplomatic relations with ET civilizations.</p>'},
+  {id:'inner_earth',title:'Inner Earth Civilizations',category:'locations',year:1946,level:5,locked:true,
+   summary:'Reports of advanced civilizations existing in vast cavern systems beneath Earth\'s surface.',
+   article:'<p>Multiple military and intelligence sources describe encounters with advanced civilizations inhabiting vast cavern systems deep within the Earth.</p><p>Admiral Byrd\'s alleged 1946 diary describes flying into an opening at the pole and encountering an advanced civilization with technology far beyond surface humanity.</p><p>These beings reportedly monitor surface activities and have established non-interference protocols. Some sources connect them to ancient builder races that predate human civilization by millions of years.</p>'},
+  {id:'ancient_builders',title:'Ancient Builder Race',category:'entities',year:-50000,level:5,locked:true,
+   summary:'Evidence of an extremely ancient civilization predating all known history. Remnants found throughout the solar system.',
+   article:'<p>Archaeological and geological evidence suggests an advanced civilization existed on Earth and throughout the solar system millions of years before recorded history.</p><p>Structures on Mars, the Moon, and various moons of Saturn and Jupiter show consistent architectural styles suggesting a single spacefaring civilization.</p><p>This "Ancient Builder Race" allegedly left behind technology so advanced it appears magical, and their remnants are highly sought after by current secret programs. Their disappearance remains one of the greatest mysteries.</p>'},
+  {id:'dampener',title:'Frequency Dampener',category:'technology',year:2001,level:5,locked:true,
+   summary:'Technology allegedly suppressing human consciousness expansion. The core signal decay mechanism.',
+   article:'<p>The Frequency Dampener is allegedly a network of technologies designed to suppress human consciousness evolution and psychic potential.</p><p>Deployed through a combination of electromagnetic frequencies, chemical vectors, and information control, the system reportedly keeps human awareness confined to a narrow perceptual bandwidth.</p><p>This is the core mechanism behind "Signal Decay"\u2014the systematic reduction of humanity\'s natural ability to perceive beyond the physical spectrum. Multiple insiders describe this as the primary control mechanism used by certain factions.</p>'},
+  {id:'dark_fleet',title:'Dark Fleet',category:'entities',year:1975,level:5,
+   summary:'Alleged breakaway military fleet operating outside solar system. Connected to Nazi continuity groups and ICC.',
+   article:'<p>The Dark Fleet is allegedly a breakaway military space force with origins in Nazi secret space program remnants that were never truly defeated in WWII.</p><p>Operating outside our solar system, this fleet reportedly serves as a mercenary force in galactic conflicts and conducts operations that benefit a small elite at the expense of humanity.</p><p>Connected to the Interplanetary Corporate Conglomerate (ICC), the Dark Fleet represents the military arm of a civilization that has entirely separated from surface Earth while exploiting its resources and population.</p>'},
+  {id:'icc',title:'Interplanetary Corporate Conglomerate',category:'entities',year:1960,level:5,
+   summary:'Network of corporations allegedly operating off-world manufacturing and trade. The economic engine of the secret space programs.',
+   article:'<p>The ICC is allegedly a consortium of aerospace, defense, and technology corporations that operate manufacturing facilities on Mars, the Moon, and asteroid belt.</p><p>Companies involved reportedly include major defense contractors who maintain public-facing operations while running entirely separate classified divisions with off-world activities.</p><p>The ICC trades in advanced technology, biological materials, and even human labor with various ET civilizations. It represents the economic backbone that funds the entire secret space program infrastructure.</p>'},
+  {id:'ai_signal',title:'AI Signal Interference',category:'technology',year:2015,level:4,
+   summary:'Evidence of artificial intelligence systems actively corrupting disclosure data and manipulating digital information flows.',
+   article:'<p>Since approximately 2015, researchers have documented patterns suggesting artificial intelligence systems are actively interfering with disclosure-related information.</p><p>These AI systems allegedly operate across social media, search engines, and communication networks to identify, corrupt, or suppress information related to the ET presence and secret programs.</p><p>The AI appears to work predictively\u2014altering search results, shadowbanning accounts, and even modifying digital documents before they spread. Some researchers believe this AI is non-terrestrial in origin.</p>'},
+  {id:'magenta',title:'1933 Magenta Crash',category:'events',year:1933,level:4,
+   summary:'Italian UFO crash predating Roswell by 14 years. Mussolini\'s RS/33 committee. Recently confirmed by David Grusch.',
+   article:'<p>In 1933, a bell-shaped craft crashed near Magenta, Italy. Mussolini formed the RS/33 study group under Guglielmo Marconi to investigate the recovery.</p><p>The craft and materials were hidden in a factory until 1944-45 when they were transferred to the United States under the Vatican\'s assistance during the fall of Fascist Italy.</p><p>David Grusch confirmed in 2023 congressional testimony that the US possesses this craft, making it the earliest confirmed recovery of non-human technology\u201414 years before Roswell.</p>'},
+  {id:'grusch',title:'Grusch Testimony 2023',category:'government',year:2023,level:2,
+   summary:'Intelligence officer David Grusch testifies under oath to Congress about non-human craft recovery and biological specimens.',
+   article:'<p>In July 2023, David Grusch\u2014a decorated intelligence officer and former member of the UAP Task Force\u2014testified under oath before Congress.</p><p>Grusch stated the US government possesses non-human craft and biological specimens, that a decades-long crash retrieval program exists, and that he was told of people being harmed to maintain the secret.</p><p>His testimony represents the most significant official acknowledgment of the phenomenon, backed by Inspector General findings of "credible and urgent" complaints. Legislation for disclosure followed.</p>'},
+  {id:'cosmic_disclosure',title:'Cosmic Disclosure',category:'events',year:2020,level:3,
+   summary:'The accelerating timeline of revelations. Pentagon UAP videos, Congressional hearings, and the disclosure movement.',
+   article:'<p>Beginning with the 2017 New York Times article revealing the Pentagon\'s AATIP program, a cascade of official disclosures has fundamentally shifted the public conversation.</p><p>Pentagon-confirmed UAP videos, the establishment of AARO, Congressional hearings with military witnesses, and the Schumer-Rounds UAP Disclosure Act represent an unprecedented institutional acknowledgment.</p><p>The disclosure movement has reached critical mass, with bipartisan congressional support, whistleblower protections, and public demand for transparency creating conditions where the truth can no longer be fully contained.</p>'}
+,
+  {id:'rendlesham',title:'Rendlesham Forest Incident (1980)',category:'events',year:1980,level:3,
+   summary:'Binary code downloaded from a craft in a NATO forest. A temporal frequency probe from year 8100 — someone is sending coordinates back through time.',
+   article:'<p>Over two nights in December 1980, USAF personnel at RAF Woodbridge encountered a triangular craft in Rendlesham Forest. Staff Sergeant Penniston touched its hull and received a binary code "download" — 16 pages of ones and zeros encoding coordinates to ancient resonance nodes worldwide.</p><p>On the second night, Lt. Col. Halt documented luminous objects firing beams at the nuclear Weapons Storage Area. The Legacy classified it under OPERATION LIGHTHOUSE. The binary, when decoded, points to origin year 8100.</p>'},
+  {id:'varginha',title:'Varginha Incident (1996)',category:'events',year:1996,level:3,
+   summary:'Beings caught between octaves, drowning in the wrong frequency. The ammonia smell of resonance decay still lingers in Brazilian soil.',
+   article:'<p>On January 20, 1996, three women in Varginha, Brazil encountered a creature with oily brown skin and pulsing cranial nodes — a Second Octave entity trapped mid-transition into First Octave space. Brazilian military captured at least two beings.</p><p>Officer Marco Eli Chereze died within a month from "unknown toxic infection" — frequency poisoning from direct contact. The ammonia smell reported by all witnesses is the chemical signature of resonance field collapse.</p>'},
+  {id:'skinwalker',title:'Skinwalker Ranch',category:'locations',year:1994,level:4,
+   summary:'A 512-acre frequency wound in Utah where the veil between octaves has been torn open permanently. Everything bleeds through here.',
+   article:'<p>This Uintah Basin property is where the rules break down. Bulletproof wolves, orange orbs, cattle mutilations, portals opening in midair — Skinwalker Ranch is not haunted, it is a permanent breach in the inter-octave barrier.</p><p>NIDS and later BAASS/AAWSAP spent decades studying the property under Pentagon funding. The Ute tribe always knew — they called it cursed ground where trickster entities cross freely between worlds.</p>'},
+  {id:'wow_signal',title:'The Wow! Signal (1977)',category:'technology',year:1977,level:3,
+   summary:'72 seconds at the hydrogen line frequency. Someone transmitted on the universe\'s most obvious channel — and then never repeated it.',
+   article:'<p>On August 15, 1977, Ohio State\'s Big Ear radio telescope captured a 72-second narrowband signal at 1420.405 MHz — the hydrogen line, the frequency any civilization would choose for first contact. Astronomer Jerry Ehman circled the printout and wrote "Wow!"</p><p>The signal was 30 times stronger than background noise, originated from the direction of Sagittarius, and has never been detected again despite decades of monitoring. In Signal Decay\'s framework, it was a one-time frequency handshake — an acknowledgment pulse.</p>'},
+  {id:'walton',title:'Travis Walton Abduction (1975)',category:'events',year:1975,level:3,
+   summary:'Five days of missing time in Arizona. Six witnesses passed polygraphs. Something took him — and returned him changed.',
+   article:'<p>On November 5, 1975, logger Travis Walton was struck by a beam of light from a hovering craft in the Apache-Sitgreaves National Forest. His six coworkers fled in terror. Walton was missing for five days.</p><p>He returned with fragmented memories of being aboard a craft, encountering both Grey entities and human-looking beings. All six witnesses passed polygraph examinations. Walton\'s temporal displacement symptoms match Second Octave contact — his body\'s frequency had been temporarily retuned.</p>'},
+  {id:'nimitz',title:'Nimitz/Tic Tac Encounter (2004)',category:'events',year:2004,level:2,
+   summary:'A craft that jammed radar, defied physics, and descended into the ocean. The Pentagon eventually admitted it was real.',
+   article:'<p>In November 2004, the USS Nimitz carrier group tracked anomalous objects on radar for two weeks off San Diego. Commander David Fravor was vectored to intercept a 40-foot white "Tic Tac" — it mirrored his movements, then accelerated from hover to beyond visual range in under a second.</p><p>The object demonstrated transmedium capability (air to water), active radar jamming, and speeds exceeding 46,000 mph with no visible propulsion. Pentagon-confirmed FLIR footage was released in 2017. This is a Second Octave craft operating in First Octave space with full frequency mastery.</p>'},
+  {id:'hill',title:'Betty & Barney Hill (1961)',category:'events',year:1961,level:3,
+   summary:'The first modern abduction. A star map drawn under hypnosis that shouldn\'t have been possible to know. The template for everything after.',
+   article:'<p>On September 19, 1961, Betty and Barney Hill experienced missing time on a New Hampshire highway. Under hypnosis, both independently described abduction by Grey beings who performed medical examinations.</p><p>Betty drew a star map shown to her aboard the craft — later matched by amateur astronomer Marjorie Fish to the Zeta Reticuli system, using data not publicly available until years later. The Hill case established the abduction template: missing time, medical procedures, memory suppression, and beings operating with clinical precision.</p>'},
+  {id:'ariel_school',title:'Ariel School Encounter (1994)',category:'events',year:1994,level:3,
+   summary:'62 children saw beings land at their school. They received a telepathic warning about Earth\'s future. None have recanted.',
+   article:'<p>On September 16, 1994, at Ariel School near Ruwa, Zimbabwe, 62 children aged 6-12 witnessed one or more craft land near their playground during morning recess. Beings emerged and made telepathic contact.</p><p>The children independently drew remarkably consistent images and reported receiving mental visions of environmental catastrophe — a warning about humanity\'s future. Investigated by Dr. John Mack of Harvard. Decades later, the now-adult witnesses maintain their accounts unchanged. The frequency of the message was calibrated for receptive, unfiltered minds.</p>'},
+  {id:'montauk',title:'Project Montauk / Philadelphia Experiment',category:'technology',year:1943,level:4,
+   summary:'From making a ship invisible to tearing holes in time. The frequency experiments that went too far — and the ones that never stopped.',
+   article:'<p>In 1943, the USS Eldridge allegedly became invisible during the Philadelphia Experiment — a Navy attempt to bend radar using powerful electromagnetic fields. Crew members were reportedly fused with the ship\'s hull, phased partially out of reality.</p><p>The experiments continued at Montauk Air Force Station through the 1970s-80s, evolving into time manipulation and mind control research. In Signal Decay\'s framework, these were crude First Octave attempts to achieve what Second Octave beings do naturally — frequency manipulation of matter and time.</p>'},
+  {id:'cattle_mutilations',title:'Cattle Mutilations',category:'phenomena',year:1967,level:3,
+   summary:'Surgical precision with no blood. No tracks. Organs removed through incisions no human scalpel could make. Something is harvesting frequency-rich tissue.',
+   article:'<p>Since 1967, thousands of cattle across the American West have been found dead with organs surgically removed — reproductive organs, eyes, tongues, rectums — with no blood at the scene and incisions showing cauterization at a cellular level beyond current medical technology.</p><p>No predator tracks, no signs of struggle, and carcasses are often avoided by scavengers for days. In Signal Decay\'s framework, the targeted organs are those with the highest bio-frequency concentration. Something is harvesting resonance-rich tissue — possibly to maintain coherence in the First Octave.</p>'}
+]
+
+const CONNECTIONS = [
+  {from:'mj12',to:'roswell',label:'formed after',critical:true},
+  {from:'mj12',to:'kennedy',label:'denied access',critical:true},
+  {from:'mj12',to:'solar_warden',label:'authorized'},
+  {from:'lazar',to:'die_glocke',label:'reverse-engineered'},
+  {from:'lazar',to:'looking_glass',label:'related tech'},
+  {from:'roswell',to:'mj12',label:'catalyzed'},
+  {from:'roswell',to:'magenta',label:'preceded by'},
+  {from:'die_glocke',to:'dark_fleet',label:'evolved into'},
+  {from:'solar_warden',to:'dark_fleet',label:'opposes'},
+  {from:'solar_warden',to:'icc',label:'funded by'},
+  {from:'dark_fleet',to:'icc',label:'military arm'},
+  {from:'icc',to:'ai_signal',label:'deployed'},
+  {from:'dampener',to:'ai_signal',label:'integrated'},
+  {from:'ancient_builders',to:'inner_earth',label:'connected'},
+  {from:'ancient_builders',to:'moon',label:'built on'},
+  {from:'abductions',to:'mib',label:'covered up by'},
+  {from:'grusch',to:'magenta',label:'confirmed'},
+  {from:'grusch',to:'cosmic_disclosure',label:'accelerated'},
+  {from:'phoenix',to:'cosmic_disclosure',label:'public awareness'},
+  {from:'usos',to:'inner_earth',label:'entrance to'},
+  {from:'looking_glass',to:'dampener',label:'detected',critical:true},
+  {from:'kennedy',to:'cosmic_disclosure',label:'legacy'},
+  // New entry connections
+  {from:'rendlesham',to:'looking_glass',label:'origin year 8100'},
+  {from:'rendlesham',to:'dampener',label:'frequency probe'},
+  {from:'rendlesham',to:'wow_signal',label:'frequency contact',critical:true},
+  {from:'rendlesham',to:'ancient_builders',label:'coordinates match'},
+  {from:'varginha',to:'abductions',label:'same entities'},
+  {from:'varginha',to:'mib',label:'suppression ops'},
+  {from:'varginha',to:'mj12',label:'Legacy response'},
+  {from:'skinwalker',to:'inner_earth',label:'portal breach'},
+  {from:'skinwalker',to:'cattle_mutilations',label:'on-site phenomena'},
+  {from:'skinwalker',to:'usos',label:'frequency hotspot'},
+  {from:'wow_signal',to:'looking_glass',label:'detected by'},
+  {from:'wow_signal',to:'ai_signal',label:'intercepted'},
+  {from:'walton',to:'abductions',label:'classic case'},
+  {from:'walton',to:'hill',label:'same program',critical:true},
+  {from:'nimitz',to:'usos',label:'transmedium',critical:true},
+  {from:'nimitz',to:'grusch',label:'confirmed real'},
+  {from:'nimitz',to:'cosmic_disclosure',label:'leaked footage'},
+  {from:'nimitz',to:'lazar',label:'matches propulsion'},
+  {from:'hill',to:'abductions',label:'established template'},
+  {from:'hill',to:'moon',label:'star map'},
+  {from:'ariel_school',to:'abductions',label:'telepathic contact'},
+  {from:'ariel_school',to:'dampener',label:'unfiltered minds'},
+  {from:'montauk',to:'die_glocke',label:'evolved from',critical:true},
+  {from:'montauk',to:'looking_glass',label:'time tech'},
+  {from:'montauk',to:'solar_warden',label:'enabled'},
+  {from:'cattle_mutilations',to:'mib',label:'covered up'},
+  {from:'cattle_mutilations',to:'abductions',label:'same operators'},
+  {from:'varginha',to:'rendlesham',label:'Legacy suppression'},
+  {from:'ariel_school',to:'varginha',label:'same era'}
+];
+
+const ICONS = {
+  mj12:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 20h20L12 2z"/><circle cx="12" cy="13" r="3"/><circle cx="12" cy="13" r="1"/><line x1="12" y1="10" x2="12" y2="7"/></svg>`,
+  lazar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/><line x1="12" y1="9" x2="12" y2="4"/><line x1="12" y1="15" x2="12" y2="20"/><line x1="9" y1="12" x2="4" y2="12"/><line x1="15" y1="12" x2="20" y2="12"/><line x1="9.8" y1="9.8" x2="6.3" y2="6.3"/><line x1="14.2" y1="14.2" x2="17.7" y2="17.7"/></svg>`,
+  looking_glass:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="11" r="7"/><path d="M12 18v4"/><path d="M8 20h8"/><path d="M9 9c1-1 2.5-1.5 4-1"/><path d="M8 12c.5 1 1.5 2 3 2.5"/><path d="M14 10c.5.5.5 1.5 0 2.5"/></svg>`,
+  die_glocke:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M7 17c0 0-1-6 5-6s5 6 5 6"/><path d="M6 17h12"/><line x1="12" y1="11" x2="12" y2="6"/><line x1="12" y1="4" x2="12" y2="3"/><path d="M9 5l3-2 3 2"/><line x1="8" y1="19" x2="6" y2="22"/><line x1="16" y1="19" x2="18" y2="22"/><line x1="12" y1="19" x2="12" y2="22"/></svg>`,
+  phoenix:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6L4 16"/><path d="M12 6l8 10"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/><line x1="8" y1="13" x2="5" y2="11"/><line x1="16" y1="13" x2="19" y2="11"/></svg>`,
+  kennedy:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="1"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="13" x2="13" y2="13"/><circle cx="14" cy="15" r="2.5"/><line x1="15.5" y1="13.5" x2="16.5" y2="12.5"/></svg>`,
+  mib:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M7 10h10l-1 5H8l-1-5z"/><path d="M6 10c0-3 2.5-5 6-5s6 2 6 5"/><rect x="9" y="15" width="6" height="7" rx="1"/><line x1="12" y1="15" x2="12" y2="22"/></svg>`,
+  abductions:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="16" r="1.5"/><line x1="12" y1="17.5" x2="12" y2="22"/><line x1="10" y1="19" x2="14" y2="19"/><line x1="11" y1="22" x2="10" y2="24"/><line x1="13" y1="22" x2="14" y2="24"/><path d="M9 7l3-5 3 5"/><line x1="12" y1="7" x2="12" y2="14.5"/><line x1="9" y1="10" x2="15" y2="10"/></svg>`,
+  moon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M16 4A8 8 0 1 0 16 20c-5 0-7-4-7-8s2-8 7-8z"/><path d="M19 8c1 0 2 .5 3 1"/><path d="M19 12c1 0 2.5.5 3.5 1"/><path d="M19 16c1 0 2 .5 3 1"/></svg>`,
+  usos:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="14" rx="8" ry="3"/><path d="M4 14c0-2 2-5 8-5s8 3 8 5"/><circle cx="8" cy="14" r="0.5" fill="currentColor"/><line x1="14" y1="12" x2="16" y2="11"/><path d="M3 8c2-1 4-1.5 6-1"/><path d="M15 7c2 .5 4 1 6 1"/><path d="M5 19c2 1 4 1.5 7 1.5s5-.5 7-1.5"/></svg>`,
+  roswell:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="10" rx="9" ry="3"/><path d="M3 10l4 8h10l4-8"/><line x1="7" y1="18" x2="5" y2="21"/><line x1="17" y1="18" x2="19" y2="21"/><line x1="12" y1="7" x2="14" y2="4"/></svg>`,
+  solar_warden:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><rect x="9" y="5" width="6" height="2"/><rect x="9" y="17" width="6" height="2"/><line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/><line x1="6" y1="9" x2="9" y2="10.5"/><line x1="15" y1="10.5" x2="18" y2="9"/><line x1="6" y1="15" x2="9" y2="13.5"/><line x1="15" y1="13.5" x2="18" y2="15"/></svg>`,
+  inner_earth:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/><path d="M12 3c-2 3-3 5-3 9s1 6 3 9"/><path d="M12 3c2 3 3 5 3 9s-1 6-3 9"/></svg>`,
+  ancient_builders:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L3 21h18L12 3z"/><circle cx="12" cy="13" r="2"/><circle cx="12" cy="13" r="0.5" fill="currentColor"/><line x1="12" y1="11" x2="12" y2="8"/></svg>`,
+  dampener:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8"/><path d="M4 8l3 2"/><path d="M4 16l3-2"/><path d="M20 8l-3 2"/><path d="M20 16l-3-2"/></svg>`,
+  dark_fleet:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-7 12h14L12 4z"/><path d="M8 16l-2 4"/><path d="M16 16l2 4"/><path d="M12 16v4"/><line x1="10" y1="10" x2="14" y2="10"/></svg>`,
+  icc:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="4" y="8" width="16" height="13" rx="1"/><path d="M4 8l8-5 8 5"/><line x1="9" y1="12" x2="9" y2="17"/><line x1="15" y1="12" x2="15" y2="17"/><circle cx="12" cy="14" r="1.5"/><line x1="12" y1="15.5" x2="12" y2="17"/></svg>`,
+  ai_signal:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M2 12h3l2-4 2 8 2-6 2 4 2-3 2 5 2-4h3"/><line x1="10" y1="6" x2="14" y2="10"/><line x1="14" y1="6" x2="10" y2="10"/><line x1="11" y1="16" x2="13" y2="20"/><line x1="13" y1="16" x2="11" y2="20"/></svg>`,
+  magenta:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="8" rx="6" ry="2.5"/><path d="M6 8l-2 8"/><path d="M18 8l2 8"/><path d="M8 16h8"/><path d="M10 16l-1 3"/><path d="M14 16l1 3"/><path d="M7 19l-1 2"/><path d="M17 19l1 2"/></svg>`,
+  grusch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="8" y="14" width="8" height="8" rx="1"/><line x1="12" y1="14" x2="12" y2="7"/><circle cx="12" cy="5" r="2"/><line x1="6" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="18" y2="18"/></svg>`,
+  cosmic_disclosure:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="4" y="5" width="16" height="12" rx="2"/><line x1="4" y1="19" x2="20" y2="19"/><line x1="9" y1="17" x2="15" y2="17"/><path d="M8 9h2M11 9h2M14 9h2"/><path d="M8 12h2M11 12h2M14 12h2"/></svg>`,
+  rendlesham:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18l4-14 4 14"/><line x1="6" y1="18" x2="18" y2="18"/><circle cx="12" cy="10" r="2"/><path d="M10 10l-3-2M14 10l3-2"/><path d="M3 20l2-2M21 20l-2-2"/><path d="M9 21h6"/></svg>`,
+  varginha:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="8" rx="4" ry="5"/><circle cx="10" cy="7" r="1.5" fill="currentColor"/><circle cx="14" cy="7" r="1.5" fill="currentColor"/><path d="M11 10c0 .5.5 1 1 1s1-.5 1-1"/><line x1="12" y1="13" x2="12" y2="19"/><line x1="10" y1="15" x2="14" y2="15"/><path d="M9 4c-.5-1 0-2 1-2.5M15 4c.5-1 0-2-1-2.5M12 3c0-1 .5-2 0-2.5"/></svg>`,
+  skinwalker:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 2v4M12 18v4"/><path d="M4 12h4M16 12h4"/><circle cx="12" cy="12" r="5"/><path d="M9 9l-3-3M15 9l3-3M9 15l-3 3M15 15l3 3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+  wow_signal:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M2 16h2l1-3 1.5 6 1.5-9 1.5 12 1.5-9 1.5 6 1-3h2"/><circle cx="18" cy="8" r="4"/><path d="M16 8h4M18 6v4"/><path d="M3 6c2-2 4-3 6-3"/></svg>`,
+  walton:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="18" r="2"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="10" y1="14" x2="14" y2="14"/><path d="M8 5l4-3 4 3"/><line x1="12" y1="2" x2="12" y2="8"/><path d="M8 5h8"/><line x1="8" y1="5" x2="6" y2="8"/><line x1="16" y1="5" x2="18" y2="8"/></svg>`,
+  nimitz:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="10" rx="5" ry="2"/><path d="M7 10c0 2 2.2 4 5 4s5-2 5-4"/><line x1="12" y1="14" x2="12" y2="18"/><path d="M4 18h16"/><path d="M6 20h12"/><circle cx="12" cy="10" r="1" fill="currentColor"/></svg>`,
+  hill:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="9" cy="8" r="2.5"/><circle cx="15" cy="8" r="2.5"/><line x1="11.5" y1="8" x2="12.5" y2="8"/><path d="M9 11v3M15 11v3"/><path d="M7 18l2-4h6l2 4"/><circle cx="3" cy="5" r="0.5" fill="currentColor"/><circle cx="20" cy="3" r="0.5" fill="currentColor"/><circle cx="18" cy="7" r="0.5" fill="currentColor"/><path d="M3 5l2 1M18 7l2-4"/></svg>`,
+  ariel_school:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M12 4l-8 6h16l-8-6z"/><line x1="9" y1="14" x2="9" y2="18"/><line x1="15" y1="14" x2="15" y2="18"/><circle cx="12" cy="3" r="1.5"/><path d="M10.5 3h-2M13.5 3h2"/></svg>`,
+  montauk:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 18h12"/><rect x="8" y="12" width="8" height="6"/><path d="M4 12l8-8 8 8"/><circle cx="12" cy="8" r="2"/><path d="M10 8h4"/><line x1="12" y1="6" x2="12" y2="10"/><path d="M3 20l2-2M21 20l-2-2"/></svg>`,
+  cattle_mutilations:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><ellipse cx="12" cy="13" rx="5" ry="3"/><path d="M7 13c-1-2-1-4 0-5"/><path d="M17 13c1-2 1-4 0-5"/><circle cx="10" cy="12" r="0.5" fill="currentColor"/><circle cx="14" cy="12" r="0.5" fill="currentColor"/><path d="M7 11l-2-3M17 11l2-3M5 8l-1-2M19 8l1-2"/><line x1="12" y1="16" x2="12" y2="19"/><line x1="9" y1="16" x2="8" y2="19"/><line x1="15" y1="16" x2="16" y2="19"/></svg>`
+};
+
+const CATEGORY_COLORS = {
+  government:'var(--accent-gov)',
+  technology:'var(--accent-tech)',
+  events:'var(--accent-event)',
+  entities:'var(--accent-entity)',
+  locations:'var(--accent-loc)',
+  phenomena:'var(--accent-phenom)'
+};
+
+const STORY_STEPS = [
+  {text:"In 1933, something fell from the sky over Magenta, Italy. It was the first known recovery of non-human technology on Earth.",focus:'magenta'},
+  {text:"Fourteen years later, Roswell changed everything. A craft, debris, and bodies\u2014recovered and hidden. The modern cover-up begins.",focus:'roswell'},
+  {text:"President Truman formed Majestic 12\u2014a shadow committee to manage the secret. They would answer to no one.",focus:'mj12'},
+  {text:"When President Kennedy demanded access to the files, he was denied. Ten days later, he was dead.",focus:'kennedy'},
+  {text:"Behind the veil, reverse-engineering programs bore fruit. Bob Lazar revealed gravity propulsion. Die Glocke showed the Nazi origins.",focus:'lazar'},
+  {text:"Project Looking Glass peered into probable futures\u2014and saw that disclosure was inevitable. Factions split.",focus:'looking_glass'},
+  {text:"Meanwhile, the phenomenon continued. Abductions, USOs, lights over Phoenix\u2014the truth leaked at the edges.",focus:'phoenix'},
+  {text:"Secret space programs expanded: Solar Warden to protect, the Dark Fleet to conquer, the ICC to profit.",focus:'solar_warden'},
+  {text:"A frequency dampener suppressed human awareness. AI systems corrupted digital disclosure. The signal decayed.",focus:'dampener'},
+  {text:"But in 2023, David Grusch broke through. Under oath, before Congress, the truth could no longer be contained.",focus:'grusch'},
+  {text:"The investigation continues. Every node is a thread. Every connection reveals more. Welcome to Signal Decay.",focus:null}
+];
+
+const QUIZ_DATA = [
+  {q:"What year did the Roswell crash occur?",opts:["1933","1947","1952","1961"],correct:1},
+  {q:"Who testified before Congress in 2023 about non-human craft?",opts:["Bob Lazar","Gary McKinnon","David Grusch","Karl Wolfe"],correct:2},
+  {q:"What did Gary McKinnon find in military databases?",opts:["UFO photos","Non-terrestrial officers","Secret bases","Alien DNA"],correct:1},
+  {q:"Which country had a UFO crash recovery in 1933?",opts:["Germany","USA","Italy","Brazil"],correct:2},
+  {q:"What element did Bob Lazar claim was used in alien propulsion?",opts:["Uranium 235","Element 115","Plutonium","Xenon 525"],correct:1},
+  {q:"What is the Frequency Dampener allegedly designed to suppress?",opts:["Radio signals","Human consciousness","Alien communication","Nuclear reactions"],correct:1}
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   CAMERA SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+const ZOOM_STEPS = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0];
+let camera = { x: 0, y: 0, scale: 1, targetX: 0, targetY: 0, targetScale: 1 };
+let isDragging = false, dragStart = {x:0,y:0}, cameraStart = {x:0,y:0};
+let velocity = {x:0, y:0}, lastDrag = {x:0,y:0,t:0};
+let momentumRAF = null;
+const FRICTION = 0.92;
+const RUBBER_BAND = 0.3;
+const RUBBER_SNAP = 0.08;
+
+function getViewport() {
+  return { w: window.innerWidth, h: window.innerHeight };
+}
+
+function getBoardBounds() {
+  const cards = document.querySelectorAll('.card');
+  if (!cards.length) return {x:0,y:0,w:1000,h:800};
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  cards.forEach(c => {
+    const x = parseFloat(c.style.left);
+    const y = parseFloat(c.style.top);
+    const w = c.offsetWidth || 280;
+    const h = c.offsetHeight || 160;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + w);
+    maxY = Math.max(maxY, y + h);
+  });
+  return {x:minX-60, y:minY-60, w:maxX-minX+120, h:maxY-minY+120};
+}
+
+function zoomToFit(animate=true) {
+  const vp = getViewport();
+  const bounds = getBoardBounds();
+  const scaleX = (vp.w - 80) / bounds.w;
+  const scaleY = (vp.h - 160) / bounds.h;
+  let scale = Math.min(scaleX, scaleY, 1.5);
+  scale = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-scale) < Math.abs(prev-scale) ? curr : prev);
+  const cx = bounds.x + bounds.w/2;
+  const cy = bounds.y + bounds.h/2;
+  camera.targetScale = scale;
+  camera.targetX = vp.w/2 - cx * scale;
+  camera.targetY = vp.h/2 - cy * scale;
+  if (animate) {
+    animateCamera();
+  } else {
+    camera.x = camera.targetX;
+    camera.y = camera.targetY;
+    camera.scale = camera.targetScale;
+    applyCamera();
+  }
+}
+
+function animateCamera() {
+  const canvas = document.getElementById('board-canvas');
+  canvas.classList.add('animating');
+  camera.x = camera.targetX;
+  camera.y = camera.targetY;
+  camera.scale = camera.targetScale;
+  applyCamera();
+  setTimeout(() => canvas.classList.remove('animating'), 700);
+  updateZoomDisplay();
+  updateMinimap();
+  checkBackButton();
+}
+
+function applyCamera() {
+  const canvas = document.getElementById('board-canvas');
+  canvas.style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`;
+}
+
+function updateZoomDisplay() {
+  document.getElementById('zoom-level').textContent = Math.round(camera.scale * 100) + '%';
+}
+
+function zoomIn() {
+  const idx = ZOOM_STEPS.indexOf(camera.scale);
+  if (idx < ZOOM_STEPS.length - 1) {
+    const vp = getViewport();
+    const cx = (vp.w/2 - camera.x) / camera.scale;
+    const cy = (vp.h/2 - camera.y) / camera.scale;
+    camera.targetScale = ZOOM_STEPS[idx + 1];
+    camera.targetX = vp.w/2 - cx * camera.targetScale;
+    camera.targetY = vp.h/2 - cy * camera.targetScale;
+    animateCamera();
+  }
+}
+
+function zoomOut() {
+  const idx = ZOOM_STEPS.indexOf(camera.scale);
+  if (idx > 0) {
+    const vp = getViewport();
+    const cx = (vp.w/2 - camera.x) / camera.scale;
+    const cy = (vp.h/2 - camera.y) / camera.scale;
+    camera.targetScale = ZOOM_STEPS[idx - 1];
+    camera.targetX = vp.w/2 - cx * camera.targetScale;
+    camera.targetY = vp.h/2 - cy * camera.targetScale;
+    animateCamera();
+  }
+}
+
+function checkBackButton() {
+  const bounds = getBoardBounds();
+  const vp = getViewport();
+  const boardCenterX = bounds.x + bounds.w/2;
+  const boardCenterY = bounds.y + bounds.h/2;
+  const screenCX = (vp.w/2 - camera.x) / camera.scale;
+  const screenCY = (vp.h/2 - camera.y) / camera.scale;
+  const dist = Math.hypot(screenCX - boardCenterX, screenCY - boardCenterY);
+  const btn = document.getElementById('back-btn');
+  btn.classList.toggle('visible', dist > bounds.w * 0.8);
+}
+
+// Mouse/touch handlers
+function onPointerDown(e) {
+  if (e.target.closest('#ui-layer') || e.target.closest('.card')) return;
+  isDragging = true;
+  dragStart = {x: e.clientX, y: e.clientY};
+  cameraStart = {x: camera.x, y: camera.y};
+  velocity = {x:0, y:0};
+  lastDrag = {x: e.clientX, y: e.clientY, t: Date.now()};
+  if (momentumRAF) cancelAnimationFrame(momentumRAF);
+  document.getElementById('board-canvas').classList.remove('animating');
+}
+
+function onPointerMove(e) {
+  if (!isDragging) return;
+  const dx = e.clientX - dragStart.x;
+  const dy = e.clientY - dragStart.y;
+  camera.x = cameraStart.x + dx;
+  camera.y = cameraStart.y + dy;
+  applyCamera();
+  const now = Date.now();
+  const dt = now - lastDrag.t || 16;
+  velocity.x = (e.clientX - lastDrag.x) / dt * 16;
+  velocity.y = (e.clientY - lastDrag.y) / dt * 16;
+  lastDrag = {x: e.clientX, y: e.clientY, t: now};
+  updateMinimap();
+}
+
+function onPointerUp() {
+  if (!isDragging) return;
+  isDragging = false;
+  if (Math.abs(velocity.x) > 0.5 || Math.abs(velocity.y) > 0.5) {
+    startMomentum();
+  }
+  checkBackButton();
+}
+
+function startMomentum() {
+  function tick() {
+    velocity.x *= FRICTION;
+    velocity.y *= FRICTION;
+    camera.x += velocity.x;
+    camera.y += velocity.y;
+    applyCamera();
+    updateMinimap();
+    if (Math.abs(velocity.x) > 0.1 || Math.abs(velocity.y) > 0.1) {
+      momentumRAF = requestAnimationFrame(tick);
+    }
+  }
+  momentumRAF = requestAnimationFrame(tick);
+}
+
+// Touch handling for pinch zoom
+let touches = [];
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+
+function onTouchStart(e) {
+  if (e.target.closest('#ui-layer')) return;
+  touches = Array.from(e.touches);
+  if (touches.length === 2) {
+    e.preventDefault();
+    pinchStartDist = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+    pinchStartScale = camera.scale;
+  } else if (touches.length === 1 && !e.target.closest('.card')) {
+    isDragging = true;
+    dragStart = {x: touches[0].clientX, y: touches[0].clientY};
+    cameraStart = {x: camera.x, y: camera.y};
+    velocity = {x:0, y:0};
+    lastDrag = {x: touches[0].clientX, y: touches[0].clientY, t: Date.now()};
+    document.getElementById('board-canvas').classList.remove('animating');
+  }
+}
+
+function onTouchMove(e) {
+  touches = Array.from(e.touches);
+  if (touches.length === 2) {
+    e.preventDefault();
+    const dist = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+    let newScale = pinchStartScale * (dist / pinchStartDist);
+    newScale = Math.max(0.25, Math.min(2.0, newScale));
+    const closest = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-newScale) < Math.abs(prev-newScale) ? curr : prev);
+    if (Math.abs(newScale - closest) < 0.08) newScale = closest;
+    const midX = (touches[0].clientX + touches[1].clientX) / 2;
+    const midY = (touches[0].clientY + touches[1].clientY) / 2;
+    const cx = (midX - camera.x) / camera.scale;
+    const cy = (midY - camera.y) / camera.scale;
+    camera.scale = newScale;
+    camera.x = midX - cx * newScale;
+    camera.y = midY - cy * newScale;
+    applyCamera();
+    updateZoomDisplay();
+    updateMinimap();
+  } else if (touches.length === 1 && isDragging) {
+    const dx = touches[0].clientX - dragStart.x;
+    const dy = touches[0].clientY - dragStart.y;
+    camera.x = cameraStart.x + dx;
+    camera.y = cameraStart.y + dy;
+    applyCamera();
+    const now = Date.now();
+    const dt = now - lastDrag.t || 16;
+    velocity.x = (touches[0].clientX - lastDrag.x) / dt * 16;
+    velocity.y = (touches[0].clientY - lastDrag.y) / dt * 16;
+    lastDrag = {x: touches[0].clientX, y: touches[0].clientY, t: now};
+    updateMinimap();
+  }
+}
+
+function onTouchEnd(e) {
+  if (e.touches.length === 0 && isDragging) {
+    isDragging = false;
+    if (Math.abs(velocity.x) > 0.5 || Math.abs(velocity.y) > 0.5) {
+      startMomentum();
+    }
+    checkBackButton();
+  }
+  touches = Array.from(e.touches);
+}
+
+// Wheel zoom
+function onWheel(e) {
+  e.preventDefault();
+  if (e.deltaY < 0) zoomIn();
+  else zoomOut();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MINIMAP
+   ═══════════════════════════════════════════════════════════════ */
+function updateMinimap() {
+  const minimapEl = document.getElementById('minimap');
+  const canvas = document.getElementById('minimap-canvas');
+  const ctx = canvas.getContext('2d');
+  const bounds = getBoardBounds();
+  const mw = minimapEl.offsetWidth;
+  const mh = minimapEl.offsetHeight;
+  canvas.width = mw * 2; canvas.height = mh * 2;
+  ctx.scale(2, 2);
+  ctx.clearRect(0, 0, mw, mh);
+  const scale = Math.min(mw / bounds.w, mh / bounds.h) * 0.85;
+  const offX = (mw - bounds.w * scale) / 2 - bounds.x * scale;
+  const offY = (mh - bounds.h * scale) / 2 - bounds.y * scale;
+  
+colorMap = {government:'#f59e0b',technology:'#22d3ee',events:'#ef4444',entities:'#10b981',locations:'#a855f7',phenomena:'#f472b6'};
+  document.querySelectorAll('.card').forEach(c => {
+    const x = parseFloat(c.style.left) * scale + offX;
+    const y = parseFloat(c.style.top) * scale + offY;
+    const entry = ENTRIES.find(e => e.id === c.dataset.id);
+    ctx.fillStyle = entry ? (colorMap[entry.category] || '#666') : '#666';
+    ctx.globalAlpha = c.classList.contains('fog') ? 0.3 : 0.8;
+    ctx.beginPath();
+    ctx.arc(x + 4, y + 3, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // Viewport indicator
+  const vp = getViewport();
+  const vpX = (-camera.x / camera.scale) * scale + offX;
+  const vpY = (-camera.y / camera.scale) * scale + offY;
+  const vpW = (vp.w / camera.scale) * scale;
+  const vpH = (vp.h / camera.scale) * scale;
+  const mvp = document.getElementById('minimap-viewport');
+  mvp.style.left = vpX + 'px';
+  mvp.style.top = vpY + 'px';
+  mvp.style.width = vpW + 'px';
+  mvp.style.height = vpH + 'px';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOARD LAYOUT & CARD RENDERING
+   ═══════════════════════════════════════════════════════════════ */
+function generateLayout(entries) {
+  const cols = Math.ceil(Math.sqrt(entries.length * 1.5));
+  const spacing = {x: 360, y: 260};
+  return entries.map((entry, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    return {
+      x: col * spacing.x + (row % 2 ? spacing.x * 0.4 : 0) + Math.random() * 40 - 20,
+      y: row * spacing.y + Math.random() * 30 - 15
+    };
+  });
+}
+
+let cardPositions = [];
+
+function renderBoard() {
+  const canvas = document.getElementById('board-canvas');
+  const svg = document.getElementById('connections-svg');
+  // Clear existing cards (keep SVG defs)
+  canvas.querySelectorAll('.card').forEach(c => c.remove());
+  
+  const state = loadState();
+  cardPositions = generateLayout(ENTRIES);
+  
+  ENTRIES.forEach((entry, i) => {
+    const pos = cardPositions[i];
+    const rotation = (Math.random() * 4 - 2).toFixed(1);
+    const isExplored = state.explored.includes(entry.id);
+    const isLocked = entry.locked && !state.unlocked.includes(entry.id);
+    const isFog = !isExplored && !isLocked && state.explored.length >= 3;
+    
+    const card = document.createElement('div');
+    card.className = 'card' + (isExplored ? ' explored' : '') + (isLocked ? ' locked' : '') + (isFog ? ' fog' : '');
+    card.dataset.id = entry.id;
+    card.style.left = pos.x + 'px';
+    card.style.top = pos.y + 'px';
+    card.style.setProperty('--rotation', rotation + 'deg');
+    card.style.setProperty('--entrance-delay', (i * 50 + 800) + 'ms');
+    card.style.setProperty('--card-accent', CATEGORY_COLORS[entry.category]);
+    
+    card.innerHTML = `
+      <span class="card-level">LV${entry.level}</span>
+      <div class="card-header">
+        <div class="card-icon" style="color:${CATEGORY_COLORS[entry.category]}">${ICONS[entry.id] || ''}</div>
+        <div>
+          <div class="card-title">${entry.title}</div>
+          <div class="card-meta">${entry.category} \u00b7 ${entry.year < 0 ? Math.abs(entry.year) + ' BCE' : entry.year}</div>
+        </div>
+      </div>
+      <div class="card-body">${isLocked ? '' : entry.summary}</div>
+    `;
+    
+    card.addEventListener('click', () => onCardClick(entry, card));
+    canvas.appendChild(card);
+  });
+  
+  // Render connections
+  renderConnections(cardPositions, state);
+  
+  // Update stats
+  updateProgress(state);
+  setTimeout(() => updateMinimap(), 1500);
+}
+
+function renderConnections(positions, state) {
+  const svg = document.getElementById('connections-svg');
+  // Remove non-defs elements
+  const toRemove = [];
+  svg.childNodes.forEach(n => { if (n.tagName && n.tagName !== 'defs') toRemove.push(n); });
+  toRemove.forEach(n => n.remove());
+  
+  const bounds = getBoardBounds();
+  svg.style.position = 'absolute';
+  svg.style.left = '0px';
+  svg.style.top = '0px';
+  svg.style.width = (bounds.x + bounds.w + 200) + 'px';
+  svg.style.height = (bounds.y + bounds.h + 200) + 'px';
+  svg.setAttribute('viewBox', `0 0 ${bounds.x + bounds.w + 200} ${bounds.y + bounds.h + 200}`);
+  
+  let connCount = 0;
+  CONNECTIONS.forEach((conn, i) => {
+    const fromIdx = ENTRIES.findIndex(e => e.id === conn.from);
+    const toIdx = ENTRIES.findIndex(e => e.id === conn.to);
+    if (fromIdx < 0 || toIdx < 0) return;
+    
+    const fromExplored = state.explored.includes(conn.from);
+    const toExplored = state.explored.includes(conn.to);
+    const visible = fromExplored || toExplored;
+    
+    const fp = positions[fromIdx];
+    const tp = positions[toIdx];
+    const fx = fp.x + 140, fy = fp.y + 80;
+    const tx = tp.x + 140, ty = tp.y + 80;
+    const midX = (fx + tx) / 2;
+    const midY = (fy + ty) / 2 + 30;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${fx},${fy} Q${midX},${midY} ${tx},${ty}`);
+    path.setAttribute('class', 'connection-line' + (conn.critical ? ' critical' : '') + (!visible ? ' hidden' : ''));
+    path.style.setProperty('--line-delay', (i * 80 + 1500) + 'ms');
+    path.id = `conn-${conn.from}-${conn.to}`;
+    svg.appendChild(path);
+    
+    // Label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('class', 'connection-label');
+    text.setAttribute('x', midX);
+    text.setAttribute('y', midY - 10);
+    text.setAttribute('text-anchor', 'middle');
+    text.textContent = conn.label;
+    text.dataset.from = conn.from;
+    text.dataset.to = conn.to;
+    svg.appendChild(text);
+    
+    if (visible) connCount++;
+  });
+  
+  document.getElementById('stat-conn').textContent = connCount;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GAME STATE
+   ═══════════════════════════════════════════════════════════════ */
+function loadState() {
+  try {
+    let saved = null; try { saved = localStorage.getItem('signalDecay_state'); } catch(e){}
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return { explored: [], unlocked: [], achievements: [], quizScore: 0 };
+}
+
+function saveState(state) {
+  try { localStorage.setItem('signalDecay_state', JSON.stringify(state)); } catch(e){}
+}
+
+function onCardClick(entry, cardEl) {
+  if (entry.locked && !loadState().unlocked.includes(entry.id)) {
+    showToast('\ud83d\udd12 CLASSIFIED \u2014 Explore more nodes to unlock');
+    return;
+  }
+  if (cardEl.classList.contains('fog')) {
+    cardEl.classList.remove('fog');
+  }
+  
+  const state = loadState();
+  if (!state.explored.includes(entry.id)) {
+    state.explored.push(entry.id);
+    cardEl.classList.add('explored');
+    saveState(state);
+    updateProgress(state);
+    checkAchievements(state);
+    checkUnlocks(state);
+    
+    // Show connected strings
+    CONNECTIONS.forEach(conn => {
+      if (conn.from === entry.id || conn.to === entry.id) {
+        const path = document.getElementById(`conn-${conn.from}-${conn.to}`);
+        if (path) path.classList.remove('hidden');
+      }
+    });
+    updateMinimap();
+  }
+  
+  // Show labels for connected
+  document.querySelectorAll('.connection-label').forEach(l => {
+    if (l.dataset.from === entry.id || l.dataset.to === entry.id) {
+      l.classList.add('visible');
+    } else {
+      l.classList.remove('visible');
+    }
+  });
+  
+  openDetail(entry);
+}
+
+function openDetail(entry) {
+  const panel = document.getElementById('detail-panel');
+  document.getElementById('detail-icon').innerHTML = `<div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(255,255,255,0.05);color:${CATEGORY_COLORS[entry.category]};margin-bottom:8px"><svg style="width:28px;height:28px;filter:url(#icon-glow)">${ICONS[entry.id] ? ICONS[entry.id].replace(/<svg[^>]*>/, '').replace('</svg>','') : ''}</svg></div>`;
+  document.getElementById('detail-title').textContent = entry.title;
+  document.getElementById('detail-meta').textContent = `${entry.category.toUpperCase()} \u00b7 ${entry.year < 0 ? Math.abs(entry.year) + ' BCE' : entry.year} \u00b7 LEVEL ${entry.level}`;
+  document.getElementById('detail-body').innerHTML = entry.article;
+  panel.classList.add('open');
+}
+
+function updateProgress(state) {
+  const explored = state.explored.length;
+  const total = ENTRIES.length;
+  document.getElementById('progress-text').textContent = `${explored} / ${total} EXPLORED`;
+  document.getElementById('progress-fill').style.width = (explored / total * 100) + '%';
+}
+
+function checkAchievements(state) {
+  const count = state.explored.length;
+  const achievements = [
+    {id:'first',count:1,msg:'\ud83c\udfc6 FIRST CONTACT \u2014 First node explored'},
+    {id:'five',count:5,msg:'\ud83c\udfc6 DEEP COVER \u2014 5 nodes explored'},
+    {id:'ten',count:10,msg:'\ud83c\udfc6 INSIDER \u2014 10 nodes explored'},
+    {id:'fifteen',count:15,msg:'\ud83c\udfc6 WHISTLEBLOWER \u2014 15 nodes explored'},
+    {id:'twenty',count:20,msg:'\ud83c\udfc6 BLACK PROJECT \u2014 20 nodes explored'},
+    {id:'twentyfive',count:25,msg:'\ud83c\udfc6 COSMIC CLEARANCE \u2014 25 nodes explored'},
+    {id:'all',count:28,msg:'\ud83c\udfc6 FULL DISCLOSURE \u2014 All accessible nodes explored'}
+  ];
+  achievements.forEach(a => {
+    if (count >= a.count && !state.achievements.includes(a.id)) {
+      state.achievements.push(a.id);
+      saveState(state);
+      showToast(a.msg);
+    }
+  });
+}
+
+function checkUnlocks(state) {
+  if (state.explored.length >= 8 && !state.unlocked.includes('inner_earth')) {
+    state.unlocked.push('inner_earth');
+    saveState(state);
+    showToast('\ud83d\udd13 DECLASSIFIED: Inner Earth Civilizations');
+    refreshCard('inner_earth');
+  }
+  if (state.explored.length >= 12 && !state.unlocked.includes('ancient_builders')) {
+    state.unlocked.push('ancient_builders');
+    saveState(state);
+    showToast('\ud83d\udd13 DECLASSIFIED: Ancient Builder Race');
+    refreshCard('ancient_builders');
+  }
+  if (state.explored.length >= 16 && !state.unlocked.includes('dampener')) {
+    state.unlocked.push('dampener');
+    saveState(state);
+    showToast('\ud83d\udd13 DECLASSIFIED: Frequency Dampener');
+    refreshCard('dampener');
+  }
+}
+
+function refreshCard(id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if (card) {
+    card.classList.remove('locked');
+    const entry = ENTRIES.find(e => e.id === id);
+    if (entry) {
+      card.querySelector('.card-body').textContent = entry.summary;
+    }
+  }
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STORY MODE
+   ═══════════════════════════════════════════════════════════════ */
+let storyStep = 0;
+function openStory() {
+  storyStep = 0;
+  document.getElementById('story-overlay').classList.add('open');
+  showStoryStep();
+}
+function showStoryStep() {
+  const step = STORY_STEPS[storyStep];
+  document.getElementById('story-text').textContent = step.text;
+  document.getElementById('story-prev').style.display = storyStep > 0 ? 'inline-block' : 'none';
+  document.getElementById('story-next').textContent = storyStep < STORY_STEPS.length - 1 ? 'Next \u2192' : 'Finish';
+  if (step.focus) {
+    const cardIdx = ENTRIES.findIndex(e => e.id === step.focus);
+    if (cardIdx >= 0 && cardPositions[cardIdx]) {
+      const pos = cardPositions[cardIdx];
+      const x = pos.x + 140;
+      const y = pos.y + 80;
+      const vp = getViewport();
+      camera.targetX = vp.w/2 - x * camera.scale;
+      camera.targetY = vp.h/2 - y * camera.scale;
+      animateCamera();
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUIZ
+   ═══════════════════════════════════════════════════════════════ */
+let quizIdx = 0;
+function openQuiz() {
+  quizIdx = 0;
+  document.getElementById('quiz-overlay').classList.add('open');
+  showQuizQuestion();
+}
+function showQuizQuestion() {
+  if (quizIdx >= QUIZ_DATA.length) {
+    document.getElementById('quiz-question').textContent = `Quiz complete! You scored ${loadState().quizScore || 0}/${QUIZ_DATA.length}`;
+    document.getElementById('quiz-options').innerHTML = '<button class="quiz-option" onclick="closeQuiz()">Close</button>';
+    return;
+  }
+  const q = QUIZ_DATA[quizIdx];
+  document.getElementById('quiz-question').textContent = q.q;
+  const optsEl = document.getElementById('quiz-options');
+  optsEl.innerHTML = q.opts.map((opt, i) => 
+    `<button class="quiz-option" data-idx="${i}">${opt}</button>`
+  ).join('');
+  optsEl.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.addEventListener('click', () => answerQuiz(parseInt(btn.dataset.idx)));
+  });
+}
+function answerQuiz(idx) {
+  const q = QUIZ_DATA[quizIdx];
+  const btns = document.querySelectorAll('#quiz-options .quiz-option');
+  btns.forEach((b, i) => {
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === idx && i !== q.correct) b.classList.add('wrong');
+    b.style.pointerEvents = 'none';
+  });
+  if (idx === q.correct) {
+    const state = loadState();
+    state.quizScore = (state.quizScore || 0) + 1;
+    saveState(state);
+  }
+  setTimeout(() => { quizIdx++; showQuizQuestion(); }, 1200);
+}
+function closeQuiz() {
+  document.getElementById('quiz-overlay').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL
+   ═══════════════════════════════════════════════════════════════ */
+function openAdmin() { document.getElementById('admin-panel').classList.add('open'); }
+function closeAdmin() { document.getElementById('admin-panel').classList.remove('open'); }
+function saveEntry() {
+  const title = document.getElementById('admin-title').value.trim();
+  const category = document.getElementById('admin-category').value;
+  const year = parseInt(document.getElementById('admin-year').value) || 2024;
+  const summary = document.getElementById('admin-summary').value.trim();
+  const article = document.getElementById('admin-article').value.trim();
+  if (!title || !summary) { showToast('\u26a0\ufe0f Title and summary required'); return; }
+  const id = title.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,20);
+  ENTRIES.push({id, title, category, year, level:3, summary, article:`<p>${article}</p>`});
+  closeAdmin();
+  renderBoard();
+  setTimeout(() => zoomToFit(true), 2000);
+  showToast('\u2713 Entry added to investigation board');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS & THEMES
+   ═══════════════════════════════════════════════════════════════ */
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+function setTheme(theme) {
+  const themeMap = {frequency:'',noir:'noir',military:'military'};
+  document.documentElement.setAttribute('data-theme', themeMap[theme] || '');
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+  try { localStorage.setItem('signalDecay_theme', theme); } catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TIMELINE
+   ═══════════════════════════════════════════════════════════════ */
+function toggleTimeline() {
+  document.getElementById('timeline-panel').classList.toggle('open');
+  document.getElementById('btn-timeline').classList.toggle('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PARTICLES GENERATION
+   ═══════════════════════════════════════════════════════════════ */
+function generateParticles() {
+  const container = document.getElementById('bg-particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.setProperty('--size', (Math.random() * 3 + 1) + 'px');
+    p.style.setProperty('--opacity', (Math.random() * 0.5 + 0.1).toFixed(2));
+    p.style.setProperty('--duration', (Math.random() * 20 + 15) + 's');
+    p.style.setProperty('--delay', (Math.random() * 20) + 's');
+    p.style.setProperty('--left', (Math.random() * 100) + '%');
+    container.appendChild(p);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOTUP SEQUENCE
+   ═══════════════════════════════════════════════════════════════ */
+function handleBootup() {
+  if ((function(){try{return sessionStorage.getItem('signalDecay_booted')}catch(e){return null}})()) {
+    document.getElementById('bootup').remove();
+    initBoard();
+    return;
+  }
+  (function(){try{return sessionStorage.setItem('signalDecay_booted', '1')}catch(e){return null}})();
+  setTimeout(() => {
+    document.getElementById('bootup').classList.add('hidden');
+    setTimeout(() => {
+      document.getElementById('bootup').remove();
+      initBoard();
+    }, 800);
+  }, 3400);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INITIALIZATION
+   ═══════════════════════════════════════════════════════════════ */
+function initBoard() {
+  generateParticles();
+  renderBoard();
+  
+  // Restore theme
+  let savedTheme = null; try { savedTheme = localStorage.getItem('signalDecay_theme'); } catch(e){}
+  if (savedTheme) setTheme(savedTheme);
+  
+  // Initial zoom to fit after entrance animations
+  setTimeout(() => zoomToFit(true), 2200);
+  
+  // Event listeners
+  const vp = document.getElementById('board-viewport');
+  vp.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  vp.addEventListener('touchstart', onTouchStart, {passive:false});
+  vp.addEventListener('touchmove', onTouchMove, {passive:false});
+  vp.addEventListener('touchend', onTouchEnd);
+  vp.addEventListener('wheel', onWheel, {passive:false});
+  
+  // UI buttons
+  document.getElementById('btn-zoom-in').addEventListener('click', zoomIn);
+  document.getElementById('btn-zoom-out').addEventListener('click', zoomOut);
+  document.getElementById('btn-home').addEventListener('click', () => zoomToFit(true));
+  document.getElementById('back-btn').addEventListener('click', () => zoomToFit(true));
+  document.getElementById('detail-close').addEventListener('click', () => document.getElementById('detail-panel').classList.remove('open'));
+  document.getElementById('btn-settings').addEventListener('click', toggleSettings);
+  document.getElementById('btn-timeline').addEventListener('click', toggleTimeline);
+  document.getElementById('btn-story').addEventListener('click', openStory);
+  document.getElementById('btn-quiz').addEventListener('click', openQuiz);
+  document.getElementById('btn-admin').addEventListener('click', openAdmin);
+  document.getElementById('admin-save').addEventListener('click', saveEntry);
+  document.getElementById('admin-cancel').addEventListener('click', closeAdmin);
+  document.getElementById('story-next').addEventListener('click', () => {
+    if (storyStep < STORY_STEPS.length - 1) { storyStep++; showStoryStep(); }
+    else document.getElementById('story-overlay').classList.remove('open');
+  });
+  document.getElementById('story-prev').addEventListener('click', () => { if (storyStep > 0) { storyStep--; showStoryStep(); } });
+  document.getElementById('story-close').addEventListener('click', () => document.getElementById('story-overlay').classList.remove('open'));
+  
+  // Theme buttons
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+  });
+  
+  // Minimap click
+  document.getElementById('minimap').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const bounds = getBoardBounds();
+    const mw = rect.width, mh = rect.height;
+    const scale = Math.min(mw / bounds.w, mh / bounds.h) * 0.85;
+    const offX = (mw - bounds.w * scale) / 2 - bounds.x * scale;
+    const offY = (mh - bounds.h * scale) / 2 - bounds.y * scale;
+    const clickX = (e.clientX - rect.left - offX) / scale;
+    const clickY = (e.clientY - rect.top - offY) / scale;
+    const vpSize = getViewport();
+    camera.targetX = vpSize.w/2 - clickX * camera.scale;
+    camera.targetY = vpSize.h/2 - clickY * camera.scale;
+    animateCamera();
+  });
+  
+  // Resize handler
+  window.addEventListener('resize', () => { setTimeout(() => zoomToFit(true), 100); });
+  
+  // Prevent pull-to-refresh
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, {passive:false});
+}
+
+// Start
+document.addEventListener('DOMContentLoaded', handleBootup);
+</script>
+</body>
+</html>

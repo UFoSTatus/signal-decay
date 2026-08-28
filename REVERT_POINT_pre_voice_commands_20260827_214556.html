@@ -118,18 +118,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .ctrl-btn{width:38px;height:38px;font-size:0.9rem}
 .ctrl-btn.play-btn{width:48px;height:48px}
 }
-
-/* VOICE COMMAND MIC BUTTON */
-.voice-mic-btn{position:fixed;bottom:90px;right:20px;width:52px;height:52px;border-radius:50%;background:rgba(20,20,30,0.85);border:2px solid rgba(255,255,255,0.12);color:#e8e8f0;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:50;transition:all 0.3s ease;backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,0.4)}
-.voice-mic-btn:hover{border-color:var(--warm);background:rgba(245,158,11,0.1);transform:scale(1.08)}
-.voice-mic-btn.listening{border-color:var(--warm);background:rgba(245,158,11,0.15);color:var(--warm);animation:mic-pulse 1.5s infinite}
-@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4)}50%{box-shadow:0 0 0 12px rgba(245,158,11,0)}}
-.voice-toast{position:fixed;bottom:155px;right:20px;padding:8px 16px;background:rgba(20,20,30,0.92);border:1px solid rgba(245,158,11,0.3);border-radius:12px;font-size:0.8rem;color:var(--warm);opacity:0;transform:translateY(8px);transition:all 0.3s ease;pointer-events:none;z-index:51;backdrop-filter:blur(8px);max-width:200px;text-align:center}
-.voice-toast.show{opacity:1;transform:translateY(0)}
-@media(max-width:600px){
-.voice-mic-btn{bottom:80px;right:12px;width:44px;height:44px;font-size:1.2rem}
-.voice-toast{bottom:135px;right:12px}
-}
 </style>
 </head>
 <body>
@@ -1071,105 +1059,5 @@ Outside, the nameless bar sat quiet on its forgotten street. But deep in the cit
   loadStory(data);
 }
 </script>
-
-<!-- VOICE COMMAND UI -->
-<button class="voice-mic-btn" id="voiceMicBtn" onclick="toggleVoiceCmd()" title="Voice Commands (tap to listen)">&#127908;</button>
-<div class="voice-toast" id="voiceToast"></div>
-
-<script>
-// === VOICE COMMAND SYSTEM (webkitSpeechRecognition) ===
-(function(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SpeechRecognition){
-    const btn = document.getElementById('voiceMicBtn');
-    if(btn) btn.style.display='none';
-    console.warn('Voice commands: SpeechRecognition not supported in this browser');
-    return;
-  }
-
-  let recognition = null;
-  let isListening = false;
-  let toastTimeout = null;
-
-  function showToast(msg, duration=2500){
-    const toast = document.getElementById('voiceToast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(()=> toast.classList.remove('show'), duration);
-  }
-
-  function initRecognition(){
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 3;
-
-    recognition.onresult = function(e){
-      const transcript = e.results[0][0].transcript.toLowerCase().trim();
-      showToast('🎤 "' + transcript + '"');
-      processVoiceCommand(transcript);
-    };
-
-    recognition.onerror = function(e){
-      if(e.error !== 'no-speech' && e.error !== 'aborted'){
-        showToast('⚠️ ' + e.error);
-      }
-      stopListening();
-    };
-
-    recognition.onend = function(){
-      stopListening();
-    };
-  }
-
-  function processVoiceCommand(text){
-    const cmds = [
-      { match: ['next panel','next'], action: ()=>{ nextPanel(); showToast('⏭ Next panel'); }},
-      { match: ['previous','back'], action: ()=>{ prevPanel(); showToast('⏮ Previous panel'); }},
-      { match: ['play','start'], action: ()=>{ if(!state.isPlaying) toggleAutoPlay(); showToast('▶️ Playing'); }},
-      { match: ['stop','pause'], action: ()=>{ if(state.isPlaying) toggleAutoPlay(); showToast('⏸ Paused'); }},
-      { match: ['read this','read'], action: ()=>{ if(!state.voicesEnabled){state.voicesEnabled=true;} speakPanel(state.currentPanel); showToast('🗣 Reading...'); }},
-      { match: ['mute','silence'], action: ()=>{ state.voicesEnabled=false; window.speechSynthesis.cancel(); document.getElementById('voiceBtn').classList.remove('active'); showToast('🔇 Muted'); }},
-      { match: ['louder','volume up'], action: ()=>{ state.voiceVolume=Math.min(1,state.voiceVolume+0.2); showToast('🔊 Volume: '+Math.round(state.voiceVolume*100)+'%'); }},
-      { match: ['quieter','volume down'], action: ()=>{ state.voiceVolume=Math.max(0.1,state.voiceVolume-0.2); showToast('🔉 Volume: '+Math.round(state.voiceVolume*100)+'%'); }},
-      { match: ['music off'], action: ()=>{ if(typeof stopMusic==='function') stopMusic(); showToast('🎵 Music off'); }},
-      { match: ['music on'], action: ()=>{ if(typeof startMusic==='function') startMusic(); showToast('🎵 Music on'); }},
-      { match: ['restart'], action: ()=>{ if(state.isPlaying) toggleAutoPlay(); window.speechSynthesis.cancel(); state.currentPanel=0; renderPanel(0); showToast('⏪ Restarted'); }},
-    ];
-
-    for(const cmd of cmds){
-      for(const phrase of cmd.match){
-        if(text.includes(phrase)){
-          cmd.action();
-          return;
-        }
-      }
-    }
-    showToast('❓ Unknown: "'+text+'"', 3000);
-  }
-
-  function startListening(){
-    if(!recognition) initRecognition();
-    try{ recognition.start(); } catch(e){ recognition.stop(); setTimeout(()=>recognition.start(),100); }
-    isListening = true;
-    document.getElementById('voiceMicBtn').classList.add('listening');
-    showToast('🎤 Listening...');
-  }
-
-  function stopListening(){
-    isListening = false;
-    document.getElementById('voiceMicBtn').classList.remove('listening');
-    try{ if(recognition) recognition.stop(); } catch(e){}
-  }
-
-  window.toggleVoiceCmd = function(){
-    if(isListening){ stopListening(); }
-    else { startListening(); }
-  };
-})();
-</script>
-
 </body>
 </html>

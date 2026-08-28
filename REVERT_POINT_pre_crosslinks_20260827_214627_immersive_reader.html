@@ -1070,106 +1070,10 @@ Outside, the nameless bar sat quiet on its forgotten street. But deep in the cit
   const data=parseStory(demo);
   loadStory(data);
 }
-</script>
-
 <!-- VOICE COMMAND UI -->
 <button class="voice-mic-btn" id="voiceMicBtn" onclick="toggleVoiceCmd()" title="Voice Commands (tap to listen)">&#127908;</button>
 <div class="voice-toast" id="voiceToast"></div>
 
-<script>
-// === VOICE COMMAND SYSTEM (webkitSpeechRecognition) ===
-(function(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SpeechRecognition){
-    const btn = document.getElementById('voiceMicBtn');
-    if(btn) btn.style.display='none';
-    console.warn('Voice commands: SpeechRecognition not supported in this browser');
-    return;
-  }
-
-  let recognition = null;
-  let isListening = false;
-  let toastTimeout = null;
-
-  function showToast(msg, duration=2500){
-    const toast = document.getElementById('voiceToast');
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(()=> toast.classList.remove('show'), duration);
-  }
-
-  function initRecognition(){
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 3;
-
-    recognition.onresult = function(e){
-      const transcript = e.results[0][0].transcript.toLowerCase().trim();
-      showToast('🎤 "' + transcript + '"');
-      processVoiceCommand(transcript);
-    };
-
-    recognition.onerror = function(e){
-      if(e.error !== 'no-speech' && e.error !== 'aborted'){
-        showToast('⚠️ ' + e.error);
-      }
-      stopListening();
-    };
-
-    recognition.onend = function(){
-      stopListening();
-    };
-  }
-
-  function processVoiceCommand(text){
-    const cmds = [
-      { match: ['next panel','next'], action: ()=>{ nextPanel(); showToast('⏭ Next panel'); }},
-      { match: ['previous','back'], action: ()=>{ prevPanel(); showToast('⏮ Previous panel'); }},
-      { match: ['play','start'], action: ()=>{ if(!state.isPlaying) toggleAutoPlay(); showToast('▶️ Playing'); }},
-      { match: ['stop','pause'], action: ()=>{ if(state.isPlaying) toggleAutoPlay(); showToast('⏸ Paused'); }},
-      { match: ['read this','read'], action: ()=>{ if(!state.voicesEnabled){state.voicesEnabled=true;} speakPanel(state.currentPanel); showToast('🗣 Reading...'); }},
-      { match: ['mute','silence'], action: ()=>{ state.voicesEnabled=false; window.speechSynthesis.cancel(); document.getElementById('voiceBtn').classList.remove('active'); showToast('🔇 Muted'); }},
-      { match: ['louder','volume up'], action: ()=>{ state.voiceVolume=Math.min(1,state.voiceVolume+0.2); showToast('🔊 Volume: '+Math.round(state.voiceVolume*100)+'%'); }},
-      { match: ['quieter','volume down'], action: ()=>{ state.voiceVolume=Math.max(0.1,state.voiceVolume-0.2); showToast('🔉 Volume: '+Math.round(state.voiceVolume*100)+'%'); }},
-      { match: ['music off'], action: ()=>{ if(typeof stopMusic==='function') stopMusic(); showToast('🎵 Music off'); }},
-      { match: ['music on'], action: ()=>{ if(typeof startMusic==='function') startMusic(); showToast('🎵 Music on'); }},
-      { match: ['restart'], action: ()=>{ if(state.isPlaying) toggleAutoPlay(); window.speechSynthesis.cancel(); state.currentPanel=0; renderPanel(0); showToast('⏪ Restarted'); }},
-    ];
-
-    for(const cmd of cmds){
-      for(const phrase of cmd.match){
-        if(text.includes(phrase)){
-          cmd.action();
-          return;
-        }
-      }
-    }
-    showToast('❓ Unknown: "'+text+'"', 3000);
-  }
-
-  function startListening(){
-    if(!recognition) initRecognition();
-    try{ recognition.start(); } catch(e){ recognition.stop(); setTimeout(()=>recognition.start(),100); }
-    isListening = true;
-    document.getElementById('voiceMicBtn').classList.add('listening');
-    showToast('🎤 Listening...');
-  }
-
-  function stopListening(){
-    isListening = false;
-    document.getElementById('voiceMicBtn').classList.remove('listening');
-    try{ if(recognition) recognition.stop(); } catch(e){}
-  }
-
-  window.toggleVoiceCmd = function(){
-    if(isListening){ stopListening(); }
-    else { startListening(); }
-  };
-})();
 </script>
-
 </body>
 </html>

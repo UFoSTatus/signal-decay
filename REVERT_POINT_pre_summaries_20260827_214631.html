@@ -1065,6 +1065,8 @@ html, body {
   animation: pulse 2s infinite;
 }
 
+
+
 /* Connection Map */
 .ufo-map-container {
   width: 100%;
@@ -1478,34 +1480,6 @@ html, body {
             <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">Structured map of all 187 nodes — characters, lore, physics, history</div>
           </div>
         </div>
-        <div class="story-card" onclick="window.open('character_chat.html','_self')" style="padding:16px;display:flex;align-items:center;gap:14px;">
-          <div style="font-size:1.8rem;">🤖</div>
-          <div>
-            <div class="card-title" style="font-size:0.85rem;">Character Chat</div>
-            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">Talk to Signal Decay characters — AI-powered conversations in-universe</div>
-          </div>
-        </div>
-        <div class="story-card" onclick="window.open('story_generator.html','_self')" style="padding:16px;display:flex;align-items:center;gap:14px;">
-          <div style="font-size:1.8rem;">✍️</div>
-          <div>
-            <div class="card-title" style="font-size:0.85rem;">Story Creator</div>
-            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">Generate new Signal Decay stories with AI — choose characters, arcs, tone</div>
-          </div>
-        </div>
-        <div class="story-card" onclick="window.open('lore_oracle.html','_self')" style="padding:16px;display:flex;align-items:center;gap:14px;">
-          <div style="font-size:1.8rem;">🔮</div>
-          <div>
-            <div class="card-title" style="font-size:0.85rem;">Lore Oracle</div>
-            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">Ask anything about the Signal Decay universe — deep lore answers instantly</div>
-          </div>
-        </div>
-        <div class="story-card" onclick="window.open('panel_art.html','_self')" style="padding:16px;display:flex;align-items:center;gap:14px;">
-          <div style="font-size:1.8rem;">🎨</div>
-          <div>
-            <div class="card-title" style="font-size:0.85rem;">Panel Art</div>
-            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">AI-generated comic panels and concept art from Signal Decay scenes</div>
-          </div>
-        </div>
       </div>
 
       <!-- Featured -->
@@ -1815,7 +1789,6 @@ function renderStoryCard(s) {
       </div>
       ${s.description ? `<div class="card-desc">${s.description}</div>` : ''}
       ${progressBar}
-      <button class="summarize-btn" onclick="event.stopPropagation();summarizeStory('${s.id}')" title="AI Summary"><i class="fa-regular fa-clipboard"></i> Summarize</button>
     </div>
   `;
 }
