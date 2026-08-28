@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SIGNAL DECAY — Universe Connection Graph</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* NAVIGATION BAR */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#nav-back {
+  background: none; border: 1px solid rgba(255,255,255,0.2);
+  color: #888; font-size: 14px; padding: 4px 10px;
+  border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  display: none;
+}
+#nav-back:hover { color: #fff; border-color: #fff; }
+#nav-back.visible { display: inline-block; }
+#nav-home {
+  background: none; border: 1px solid rgba(255,255,255,0.2);
+  color: #888; font-size: 12px; padding: 4px 10px;
+  border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  display: none;
+}
+#nav-home:hover { color: #fff; border-color: #fff; }
+#nav-home.visible { display: inline-block; }
+#breadcrumb {
+  font-size: 12px; color: #666; letter-spacing: 0.5px;
+}
+#breadcrumb span { color: #999; cursor: pointer; }
+#breadcrumb span:hover { color: #fff; }
+#breadcrumb .sep { color: #444; margin: 0 6px; cursor: default; }
+#breadcrumb .current { color: #fff; cursor: default; }
+
+#search-container {
+  margin-left: auto; position: relative;
+}
+#search-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px; padding: 6px 12px;
+  color: #fff; font-size: 12px; width: 200px;
+  outline: none; transition: border-color 0.2s;
+}
+#search-box:focus { border-color: #3b82f6; width: 260px; }
+#search-box::placeholder { color: #555; }
+#search-results {
+  position: absolute; top: 34px; right: 0;
+  background: rgba(10,10,10,0.97);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; max-height: 300px;
+  overflow-y: auto; display: none; min-width: 260px;
+  z-index: 300;
+}
+.search-item {
+  padding: 8px 12px; cursor: pointer; font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s; display: flex; align-items: center; gap: 8px;
+}
+.search-item:hover { background: rgba(255,255,255,0.08); }
+.search-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.search-name { color: #ddd; }
+.search-cluster { color: #666; font-size: 10px; margin-left: auto; }
+
+/* MAIN VIEW CONTAINER */
+#view-container {
+  position: absolute; top: 48px; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
+/* LEVEL 1: OVERVIEW */
+#level1 {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#level1.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+
+/* LEVEL 2: BRANCH VIEW */
+#level2 {
+  position: absolute; inset: 0;
+  opacity: 0; transform: scale(1.05);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 40px 20px 20px 20px;
+}
+#level2.visible { opacity: 1; transform: scale(1); pointer-events: all; }
+
+/* INFO PANEL */
+#info-panel {
+  position: fixed; top: 48px; right: -340px; width: 340px;
+  height: calc(100vh - 48px);
+  background: rgba(5,5,5,0.98);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 150; padding: 20px; overflow-y: auto;
+  transition: right 0.3s ease;
+  backdrop-filter: blur(20px);
+}
+#info-panel.open { right: 0; }
+#panel-close {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none; color: #666;
+  font-size: 20px; cursor: pointer; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; transition: all 0.15s;
+}
+#panel-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.panel-name { font-size: 20px; font-weight: 700; margin-top: 16px; margin-bottom: 6px; }
+.panel-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 14px;
+}
+.panel-desc { font-size: 13px; line-height: 1.6; color: #bbb; margin-bottom: 18px; }
+.panel-section-title {
+  font-size: 11px; color: #555; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 8px; margin-top: 12px;
+}
+.panel-conn {
+  padding: 5px 0; font-size: 12px; color: #888;
+  cursor: pointer; transition: color 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-conn:hover { color: #fff; }
+.panel-conn-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* LEVEL 1 SVG styles */
+.l1-category { cursor: pointer; transition: transform 0.2s; }
+.l1-category:hover { transform: scale(1.08); }
+.l1-line { stroke: #222; stroke-width: 1; fill: none; }
+.l1-circle { transition: all 0.2s; }
+.l1-category:hover .l1-circle { filter: brightness(1.3); }
+.l1-label { fill: #fff; font-size: 13px; font-weight: 600; text-anchor: middle; pointer-events: none; }
+.l1-count { fill: #888; font-size: 10px; text-anchor: middle; pointer-events: none; }
+.l1-center-title { fill: #fff; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-anchor: middle; text-transform: uppercase; }
+.l1-center-sub { fill: #555; font-size: 10px; text-anchor: middle; }
+
+/* LEVEL 2 tree nodes */
+.tree-container { width: 100%; min-height: calc(100vh - 120px); position: relative; }
+.tree-svg { width: 100%; overflow: visible; }
+.tree-node { cursor: pointer; transition: opacity 0.2s; }
+.tree-node:hover { opacity: 1 !important; }
+.tree-node-dot { transition: all 0.2s; }
+.tree-node:hover .tree-node-dot { filter: brightness(1.4); }
+.tree-node-label { font-size: 11px; fill: #ccc; transition: fill 0.2s; }
+.tree-node:hover .tree-node-label { fill: #fff; }
+.tree-node.highlighted .tree-node-dot { stroke: #fff; stroke-width: 2; }
+.tree-node.highlighted .tree-node-label { fill: #fff; font-weight: 600; }
+.tree-link { stroke: #2a2a2a; stroke-width: 1; fill: none; }
+.cross-dot { cursor: pointer; transition: all 0.2s; }
+.cross-dot:hover { r: 5; filter: brightness(1.5); }
+.tree-group-label { font-size: 10px; fill: #555; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+
+/* Timeline specific (history branch) */
+.timeline-line { stroke: #333; stroke-width: 1; }
+.timeline-date { fill: #555; font-size: 9px; text-anchor: middle; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+@media (max-width: 768px) {
+  #search-box { width: 140px; }
+  #search-box:focus { width: 180px; }
+  #info-panel { width: 280px; right: -280px; }
+  .l1-label { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div id="nav">
+  <button id="nav-back" onclick="goBack()">← Back</button>
+  <button id="nav-home" onclick="goHome()">⌂ Home</button>
+  <div id="breadcrumb"><span class="current">Universe</span></div>
+  <div id="search-container">
+    <input type="text" id="search-box" placeholder="Search nodes... ( / )">
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<div id="view-container">
+  <div id="level1"></div>
+  <div id="level2"></div>
+</div>
+
+<div id="info-panel">
+  <button id="panel-close" onclick="closePanel()">×</button>
+  <div id="panel-content"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SIGNAL DECAY UNIVERSE — STRUCTURED TREE/TIMELINE GRAPH
+// ═══════════════════════════════════════════════════════════════
+
+const CLUSTERS = {
+  five: { name: 'The Five', color: '#f59e0b' },
+  legacy: { name: 'The Legacy', color: '#dc2626' },
+  silence: { name: 'Silence & Entities', color: '#7c3aed' },
+  physics: { name: 'Frequency Physics', color: '#3b82f6' },
+  ufo: { name: 'UFOlogy', color: '#10b981' },
+  locations: { name: 'Locations', color: '#06b6d4' },
+  characters: { name: 'Characters', color: '#ec4899' },
+  history: { name: 'History & Events', color: '#d97706' },
+  culture: { name: 'Culture', color: '#ffffff' }
+};
+
+const nodes = [
+  // THE FIVE
+  { id: 'oren', name: 'Oren Malik', cluster: 'five', size: 12, desc: 'Pattern Organizer. Can see frequency patterns and tessellate them into new structures. The architect of the group\'s harmonic abilities.' },
+  { id: 'mira', name: 'Mira Solana', cluster: 'five', size: 12, desc: 'Entity Channel. Can perceive and communicate with frequency-based entities across octaves. The bridge between human and non-human consciousness.' },
+  { id: 'jude', name: 'Jude Okafor', cluster: 'five', size: 12, desc: 'Structural Resonance. Can feel the deep architecture of frequency and reinforce or shatter physical structures through harmonic alignment.' },
+  { id: 'zara', name: 'Zara Kovač', cluster: 'five', size: 12, desc: 'Frequency Sensitivity. Can detect the subtlest frequency shifts — the group\'s early warning system and calibrator.' },
+  { id: 'kael', name: 'Kael Voss', cluster: 'five', size: 12, desc: 'Voice of Integration. Can vocalize frequencies that bind the other four abilities into a unified field. The catalyst.' },
+  { id: 'oren_inst', name: 'Oren\'s Guitar', cluster: 'five', size: 5, desc: 'A soul-imbued acoustic guitar passed through generations. Resonates with the Tessellation frequency when played by Oren.' },
+  { id: 'mira_inst', name: 'Mira\'s Violin', cluster: 'five', size: 5, desc: 'An antique violin with soul-imbued strings. Allows Mira to channel entity frequencies into audible music.' },
+  { id: 'jude_inst', name: 'Jude\'s Bass', cluster: 'five', size: 5, desc: 'A deep-frequency bass guitar whose low-end resonance can shake structures. Soul-imbued with foundational harmonics.' },
+  { id: 'zara_inst', name: 'Zara\'s Synthesizer', cluster: 'five', size: 5, desc: 'A modified synthesizer that responds to frequency input. Soul-imbued electronics that sense what Zara senses.' },
+  { id: 'kael_inst', name: 'Kael\'s Voice', cluster: 'five', size: 5, desc: 'Kael\'s voice itself is the instrument — a soul-imbued vocal apparatus capable of producing Integration frequencies.' },
+  { id: 'pattern_org', name: 'Pattern Organizer', cluster: 'five', size: 6, desc: 'Oren\'s ability. Can perceive and reorganize frequency patterns, seeing the mathematical structure beneath reality.' },
+  { id: 'entity_channel', name: 'Entity Channel', cluster: 'five', size: 6, desc: 'Mira\'s ability. Opens communication pathways to frequency entities, translating their presence into perceivable information.' },
+  { id: 'struct_res', name: 'Structural Resonance', cluster: 'five', size: 6, desc: 'Jude\'s ability. Feels the resonant frequency of physical structures and can amplify or dampen them.' },
+  { id: 'freq_sens', name: 'Frequency Sensitivity', cluster: 'five', size: 6, desc: 'Zara\'s ability. Ultra-sensitive detection of frequency shifts, acting as a living spectrometer.' },
+  { id: 'voice_int', name: 'Voice of Integration', cluster: 'five', size: 6, desc: 'Kael\'s ability. Vocal frequencies that harmonize and unify the other four abilities into a resonant whole.' },
+  // THE LEGACY
+  { id: 'legacy', name: 'The Legacy', cluster: 'legacy', size: 11, desc: 'The shadow organization that has controlled humanity\'s frequency awareness for decades. Founded in 1947 after the Magenta/Roswell crashes revealed the truth about frequency.' },
+  { id: 'dampener', name: 'The Dampener', cluster: 'legacy', size: 10, desc: 'Global technology suppressing humanity\'s natural frequency perception. Based on reverse-engineered Die Glocke technology. Broadcast from the Moon.' },
+  { id: 'site_res', name: 'Site Resonance (S-4)', cluster: 'legacy', size: 7, desc: 'The Legacy\'s primary research facility at Papoose Lake, Nevada. Where reverse-engineered frequency technology is developed and tested.' },
+  { id: 'looking_glass', name: 'Project Looking Glass', cluster: 'legacy', size: 8, desc: 'A probability-viewing device that uses frequency manipulation to observe potential timeline branches. How the Legacy identified The Five.' },
+  { id: 'prob_engine', name: 'The Probability Engine', cluster: 'legacy', size: 7, desc: 'Advanced iteration of Looking Glass. Calculates timeline probabilities to guide Legacy decision-making.' },
+  { id: 'vought', name: 'Director Vought', cluster: 'legacy', size: 7, desc: 'Current head of The Legacy. Believes The Five must be controlled or eliminated to maintain the existing power structure.' },
+  { id: 'zhao', name: 'Agent Zhao', cluster: 'legacy', size: 7, desc: 'Legacy operative who discovers classified files about The Five. Begins questioning Legacy\'s true purpose.' },
+  { id: 'ashley', name: 'Ashley Cole', cluster: 'legacy', size: 6, desc: 'Legacy insider and former First Note Foundation member. Bridge between the public and classified worlds.' },
+  { id: 'first_note', name: 'First Note Foundation', cluster: 'legacy', size: 6, desc: 'The Legacy\'s public-facing philanthropic arm. Funds music education while secretly screening for frequency-sensitive individuals.' },
+  { id: 'dance', name: 'DANCE Division', cluster: 'legacy', size: 5, desc: 'Legacy division responsible for managing and deploying frequency-sensitive assets. Handles The Five\'s surveillance.' },
+  { id: 'risk', name: 'RISK Division', cluster: 'legacy', size: 5, desc: 'Legacy division focused on threat assessment and containment of frequency anomalies.' },
+  { id: 'midnight', name: 'MIDNIGHT Division', cluster: 'legacy', size: 5, desc: 'Legacy black ops division. Handles elimination and suppression of frequency-aware individuals who won\'t cooperate.' },
+  { id: 'cetus', name: 'CETUS Division', cluster: 'legacy', size: 5, desc: 'Legacy oceanic division monitoring the Deep Sea Wells and any activity near Earth\'s original frequency system.' },
+  { id: 'dixie', name: 'DIXIE Division', cluster: 'legacy', size: 5, desc: 'Legacy domestic intelligence division. Monitors civilian frequency awakening events.' },
+  { id: 'seven_rests', name: 'The Seven Rests', cluster: 'legacy', size: 6, desc: 'Seven musical "rests" (silences) encoded into Legacy protocols. Each rest corresponds to a frequency Well location.' },
+  { id: 'kennedy_inc', name: 'Kennedy Incident', cluster: 'legacy', size: 6, desc: 'The assassination of JFK was connected to his discovery of frequency technology and intent to disclose it publicly.' },
+  { id: 'suppress_proto', name: 'Suppression Protocols', cluster: 'legacy', size: 5, desc: 'Standard Legacy procedures for dampening frequency awareness in targeted populations. Ranges from subtle to lethal.' },
+  // SILENCE & ENTITIES
+  { id: 'silence', name: 'The Silence', cluster: 'silence', size: 11, desc: 'The primary antagonist force. An anti-frequency consciousness from the Zero Octave seeking to collapse all frequency into nothing — true silence.' },
+  { id: 'hollow_ones', name: 'Hollow Ones', cluster: 'silence', size: 8, desc: 'Humanoid agents of The Silence. People who have been completely emptied of their natural frequency, becoming vessels for anti-sound.' },
+  { id: 'null_polyps', name: 'Null Polyps', cluster: 'silence', size: 7, desc: 'Living pockets of anti-frequency that grow in areas where The Dampener has weakened the frequency field.' },
+  { id: 'erasure', name: 'The Erasure', cluster: 'silence', size: 8, desc: 'The process by which The Silence removes frequency from an area permanently. Leaves behind dead zones where nothing resonates.' },
+  { id: 'whisper_voids', name: 'Whisper Voids', cluster: 'silence', size: 6, desc: 'Microscopic tears in frequency space where whispered anti-frequencies leak through from the Zero Octave.' },
+  { id: 'keening_latch', name: 'Keening Latch', cluster: 'silence', size: 6, desc: 'Grief parasite. Translucent 2-meter form that feeds on mourning frequencies (27.5-33 Hz). Amplifies grief into permanent emotional paralysis.' },
+  { id: 'scorch_mantle', name: 'Scorch Mantle', cluster: 'silence', size: 6, desc: 'Rage parasite. Dense knot of red-shifted frequency that envelops hosts in burning anger. Feeds on combustion-range frequencies (85-120 Hz).' },
+  { id: 'siphon_bloom', name: 'Siphon Bloom', cluster: 'silence', size: 5, desc: 'Joy parasite. Beautiful, flower-like entity that drains happiness frequencies, leaving victims in anhedonia.' },
+  { id: 'dread_lattice', name: 'Dread Lattice', cluster: 'silence', size: 5, desc: 'Fear parasite. A geometric web-like structure that amplifies fear frequencies and traps victims in anxiety loops.' },
+  { id: 'convergence_hunters', name: 'Convergence Hunters', cluster: 'silence', size: 6, desc: 'Harmonic predators that hunt beings who achieve harmonic convergence — a unified frequency state. Attracted to The Five performing together.' },
+  { id: 'amplitude_moth', name: 'Amplitude Moth', cluster: 'silence', size: 5, desc: 'Drawn to peaks of amplitude/volume. Appears during emotional crescendos, consuming the peak energy.' },
+  { id: 'res_leviathans', name: 'Resonance Leviathans', cluster: 'silence', size: 7, desc: 'Massive deep-sea entities that guard the Frequency Wells. Ancient, immensely powerful, neither good nor evil — just territorial.' },
+  { id: 'abyssal_chorus', name: 'Abyssal Chorus', cluster: 'silence', size: 6, desc: 'Collective entity residing in the deepest Wells. Communicates through harmonic patterns too complex for human minds.' },
+  { id: 'static_crawlers', name: 'Static Crawlers', cluster: 'silence', size: 5, desc: 'Dampener aberrations — entities born from the interference patterns of The Dampener. Crawl through electronic static.' },
+  { id: 'freq_cyst', name: 'Frequency Cyst', cluster: 'silence', size: 5, desc: 'Dampener aberration. Pocket of trapped frequency that develops like a cyst in reality, eventually rupturing in frequency storms.' },
+  { id: 'harmonic_desc', name: 'Harmonic Descenders', cluster: 'silence', size: 5, desc: 'Octave Travelers that move downward through frequency layers. Ancient beings exploring the depths of resonance.' },
+  { id: 'dissonant_weave', name: 'Dissonant Weavers', cluster: 'silence', size: 5, desc: 'Octave Travelers that create pathways between octaves using dissonant frequency combinations.' },
+  { id: 'liminal_walkers', name: 'Liminal Walkers', cluster: 'silence', size: 5, desc: 'Octave Travelers that exist permanently between octaves, never fully in one layer or another.' },
+  { id: 'ferrymen', name: 'Ferrymen', cluster: 'silence', size: 6, desc: 'Thanatological fauna. Guide consciousness through the death-frequency transition. What humans have always called psychopomps.' },
+  { id: 'mnem_barnacles', name: 'Mnemonic Barnacles', cluster: 'silence', size: 5, desc: 'Thanatological fauna. Attach to dying frequency signatures and preserve memory-patterns. The basis of ghosts and hauntings.' },
+  { id: 'freq_parasites', name: 'Frequency Parasites', cluster: 'silence', size: 7, desc: 'Category of entities that feed on emotional frequency output. Includes Keening Latch, Scorch Mantle, Siphon Bloom, Dread Lattice.' },
+  { id: 'harm_predators', name: 'Harmonic Predators', cluster: 'silence', size: 7, desc: 'Category of entities that hunt harmonic convergence. Includes Convergence Hunters and Amplitude Moths.' },
+  { id: 'well_guardians', name: 'Well Guardians', cluster: 'silence', size: 8, desc: 'Ancient entities protecting the Deep Sea Wells. Includes Resonance Leviathans and Abyssal Chorus.' },
+  { id: 'damp_aberrations', name: 'Dampener Aberrations', cluster: 'silence', size: 6, desc: 'Entities born from The Dampener\'s interference. Includes Static Crawlers and Frequency Cysts. Unintended consequences.' },
+  { id: 'octave_travelers', name: 'Octave Travelers', cluster: 'silence', size: 7, desc: 'Beings that move between frequency octaves. Includes Harmonic Descenders, Dissonant Weavers, and Liminal Walkers.' },
+  { id: 'thanato_fauna', name: 'Thanatological Fauna', cluster: 'silence', size: 6, desc: 'Entities native to the death-frequency layer. Includes Ferrymen and Mnemonic Barnacles.' },
+  // FREQUENCY PHYSICS
+  { id: 'zero_octave', name: 'Zero Octave', cluster: 'physics', size: 8, desc: 'The Silence\'s domain. Pre-sound, anti-frequency. The state of non-resonance from which The Silence emerged.' },
+  { id: 'first_octave', name: 'First Octave', cluster: 'physics', size: 9, desc: 'Physical reality as humans experience it. The frequency band of matter, biology, and normal consciousness.' },
+  { id: 'second_octave', name: 'Second Octave', cluster: 'physics', size: 8, desc: 'Higher frequency plane. Home to entities like Bigfoot, some UFO phenomena, and enlightened consciousness.' },
+  { id: 'third_octave', name: 'Third Octave', cluster: 'physics', size: 7, desc: 'Cosmic consciousness level. The frequency of the Ancient Builder Race and universal awareness.' },
+  { id: 'thanato_layer', name: 'Thanatological Layer', cluster: 'physics', size: 7, desc: 'The death-transition frequency band between octaves. Where consciousness shifts from one state to another.' },
+  { id: 'well_mariana', name: 'Mariana Well', cluster: 'physics', size: 5, desc: 'Frequency Well in the Mariana Trench. Deepest of all wells, closest to Earth\'s core frequency.' },
+  { id: 'well_puerto', name: 'Puerto Rico Well', cluster: 'physics', size: 5, desc: 'Frequency Well in the Puerto Rico Trench. Connected to Caribbean UFO/USO activity.' },
+  { id: 'well_tonga', name: 'Tonga Well', cluster: 'physics', size: 5, desc: 'Frequency Well in the Tonga Trench. Pacific ring of fire resonance point.' },
+  { id: 'well_java', name: 'Java Well', cluster: 'physics', size: 5, desc: 'Frequency Well in the Java Trench. Southeast Asian frequency nexus.' },
+  { id: 'well_sandwich', name: 'South Sandwich Well', cluster: 'physics', size: 5, desc: 'Frequency Well near Antarctica. Connected to the Antarctic Dark Fleet ruins.' },
+  { id: 'well_arctic', name: 'Arctic Well', cluster: 'physics', size: 5, desc: 'Frequency Well beneath the Arctic Ocean. Northern resonance anchor.' },
+  { id: 'well_romanche', name: 'Romanche Well', cluster: 'physics', size: 5, desc: 'Frequency Well in the Romanche Trench, Atlantic. Central Atlantic frequency relay.' },
+  { id: 'the_signal', name: 'The Signal', cluster: 'physics', size: 10, desc: 'The fundamental frequency broadcast of Earth\'s consciousness system. What The Five are destined to amplify and The Silence seeks to extinguish.' },
+  { id: 'the_barrier', name: 'The Barrier (Moon)', cluster: 'physics', size: 8, desc: 'The Moon serves as a frequency dampening barrier — The Dampener is broadcast from lunar installations.' },
+  { id: 'plasmoids', name: 'Plasmoids', cluster: 'physics', size: 5, desc: 'Intelligent frequency-based life forms visible as glowing orbs. Neither solid nor gaseous — pure organized frequency.' },
+  { id: 'freq_residue', name: 'Frequency Residue', cluster: 'physics', size: 5, desc: 'The trace left behind after significant frequency events. Forms the basis of hauntings, sacred sites, and "vibes."' },
+  { id: 'soul_imbuing', name: 'Soul Imbuing', cluster: 'physics', size: 6, desc: 'The process by which objects absorb frequency from prolonged human emotional contact. Makes instruments "alive" with resonance.' },
+  { id: 'tessellation', name: 'The Tessellation', cluster: 'physics', size: 9, desc: 'Oren\'s ultimate pattern — the mathematical structure that could reorganize Earth\'s entire frequency field. The key to defeating The Silence.' },
+  // UFOLOGY
+  { id: 'mj12', name: 'MJ-12 / Majestic', cluster: 'ufo', size: 8, desc: 'The real-world secret committee allegedly managing extraterrestrial contact. Direct inspiration for The Legacy\'s council structure.' },
+  { id: 'bob_lazar', name: 'Bob Lazar', cluster: 'ufo', size: 7, desc: 'Claimed to have worked at S-4 on alien propulsion. His "5 frequency bands" concept directly inspired Signal Decay\'s octave system.' },
+  { id: 's4_facility', name: 'S-4 Facility', cluster: 'ufo', size: 7, desc: 'Alleged underground base at Papoose Lake, Nevada. In Signal Decay, this becomes Site Resonance.' },
+  { id: 'magenta_crash', name: 'Magenta Crash (1933)', cluster: 'ufo', size: 6, desc: 'Italian UFO crash predating Roswell by 14 years. Mussolini recovered it. In SD, it was the first frequency technology humans obtained.' },
+  { id: 'die_glocke', name: 'Die Glocke', cluster: 'ufo', size: 7, desc: 'Nazi "Bell" device. Allegedly a frequency manipulation machine. In Signal Decay, it\'s the prototype of The Dampener.' },
+  { id: 'roswell', name: 'Roswell (1947)', cluster: 'ufo', size: 7, desc: 'The famous crash. In Signal Decay, it\'s when the US government first encountered frequency beings and founded The Legacy.' },
+  { id: 'kennedy_memo', name: 'Kennedy Memo', cluster: 'ufo', size: 6, desc: 'JFK\'s alleged memo requesting CIA UFO files, days before assassination. In SD, he discovered frequency truth.' },
+  { id: 'mib', name: 'MIB Phenomenon', cluster: 'ufo', size: 6, desc: 'Men in Black. In Signal Decay, they are Hollow Ones — frequency-emptied humans serving The Silence.' },
+  { id: 'usos', name: 'USOs', cluster: 'ufo', size: 6, desc: 'Unidentified Submerged Objects. In Signal Decay, these are vehicles entering/exiting the Frequency Wells.' },
+  { id: 'phoenix_lights', name: 'Phoenix Lights', cluster: 'ufo', size: 5, desc: 'Mass sighting of 1997. In SD, a brief moment when The Dampener malfunctioned and frequency craft became visible.' },
+  { id: 'solar_warden', name: 'Solar Warden', cluster: 'ufo', size: 6, desc: 'Alleged secret space program. In SD, mapped to humanity\'s first frequency-based propulsion program.' },
+  { id: 'dark_fleet', name: 'Dark Fleet', cluster: 'ufo', size: 6, desc: 'Alleged breakaway German/corporate space fleet. In SD, they established Antarctic frequency research bases.' },
+  { id: 'icc', name: 'ICC', cluster: 'ufo', size: 5, desc: 'Interplanetary Corporate Conglomerate. In SD, the commercial arm exploiting frequency technology for profit.' },
+  { id: 'ancient_builders', name: 'Ancient Builder Race', cluster: 'ufo', size: 7, desc: 'Civilization that predates all others. In SD, they built the Frequency Wells and established Earth\'s resonance system.' },
+  { id: 'inner_earth', name: 'Inner Earth', cluster: 'ufo', size: 6, desc: 'Hollow/Inner Earth civilizations. In SD, seven inner cities housing frequency-advanced civilizations.' },
+  { id: 'cosmic_disc', name: 'Cosmic Disclosure', cluster: 'ufo', size: 5, desc: 'Gaia TV series featuring insider testimony. Primary source material for Signal Decay\'s conspiracy layer.' },
+  { id: 'david_grusch', name: 'David Grusch', cluster: 'ufo', size: 6, desc: 'Recent UAP whistleblower. His testimony about legacy programs maps directly to The Legacy\'s structure.' },
+  { id: 'lazar_freqs', name: 'Lazar\'s 5 Frequencies', cluster: 'ufo', size: 6, desc: 'Bob Lazar described craft operating on specific frequency bands. This directly became Signal Decay\'s octave system.' },
+  { id: 'dan_burisch', name: 'Dan Burisch', cluster: 'ufo', size: 7, desc: 'Microbiologist who claims to have worked with J-Rod at S-4. His testimony about Looking Glass and stargates deeply informed SD.' },
+  { id: 'jrod', name: 'J-Rod', cluster: 'ufo', size: 7, desc: 'Alleged future human that Burisch interacted with at S-4. In SD, J-Rods are humans who lost frequency — cautionary future.' },
+  { id: 't9_treaty', name: 'T-9 Treaty', cluster: 'ufo', size: 5, desc: 'Alleged treaty between human factions and ET species. In SD, a frequency-based non-interference agreement.' },
+  { id: 'proj_lotus', name: 'Project Lotus', cluster: 'ufo', size: 6, desc: 'Burisch\'s claim about a particle that regenerates DNA. In SD, frequency restoration at the cellular level.' },
+  { id: 'stargates', name: 'Stargates', cluster: 'ufo', size: 6, desc: 'Natural and artificial portals between locations. In SD, they\'re frequency bridges between Wells.' },
+  { id: 'element_115', name: 'Element 115', cluster: 'ufo', size: 5, desc: 'Lazar\'s claimed propulsion fuel. In SD, a frequency-reactive element that amplifies harmonic resonance.' },
+  { id: 'bigfoot', name: 'Bigfoot / Sasquatch', cluster: 'ufo', size: 7, desc: 'In Signal Decay, Bigfoot are Second Octave beings who guard the surface boundaries of Frequency Wells. Visible at 18 Hz.' },
+  { id: 'missing_411', name: 'Missing 411', cluster: 'ufo', size: 6, desc: 'Mysterious disappearances in national forests. In SD, people accidentally crossing into Second Octave near Well boundaries.' },
+  { id: 'fear_18hz', name: '18 Hz Fear Frequency', cluster: 'ufo', size: 6, desc: 'The documented frequency that causes unease in humans. In SD, it\'s the exact boundary between First and Second Octave.' },
+  { id: 'infrasound', name: 'Infrasound', cluster: 'ufo', size: 5, desc: 'Sub-20 Hz sound associated with Bigfoot sightings. In SD, it\'s the Well Guardians communicating across octave boundaries.' },
+  // LOCATIONS
+  { id: 'loc_moon', name: 'The Moon', cluster: 'locations', size: 8, desc: 'Houses The Dampener broadcasting system. May be artificial — placed specifically to suppress Earth\'s natural frequency.' },
+  { id: 'loc_nevada', name: 'Site Resonance (Nevada)', cluster: 'locations', size: 7, desc: 'Legacy\'s primary facility at Papoose Lake. Where frequency technology is researched and the Probability Engine operates.' },
+  { id: 'loc_antarctica', name: 'Antarctica', cluster: 'locations', size: 6, desc: 'Dark Fleet research ruins. Ancient Builder Race structures beneath the ice. Connected to South Sandwich Well.' },
+  { id: 'loc_inner7', name: 'Inner Earth (7 Cities)', cluster: 'locations', size: 6, desc: 'Seven subterranean frequency-advanced civilizations that have maintained awareness the surface lost.' },
+  { id: 'loc_agarthan', name: 'Agarthan Council', cluster: 'locations', size: 5, desc: 'Governing body of the Inner Earth civilizations. Have debated intervention on the surface for millennia.' },
+  { id: 'loc_meridian', name: 'Meridian Street', cluster: 'locations', size: 5, desc: 'The neighborhood where Sunny encounters her Dark One. A Thanatological hotspot in the urban landscape.' },
+  { id: 'loc_mariana', name: 'Mariana Trench', cluster: 'locations', size: 5, desc: 'Location of the deepest Frequency Well. Extreme USO activity. Resonance Leviathans patrol here.' },
+  { id: 'loc_puerto_rico', name: 'Puerto Rico Trench', cluster: 'locations', size: 5, desc: 'Location of Caribbean Well. Connected to the Bermuda Triangle frequency anomalies.' },
+  { id: 'loc_cascades', name: 'Pacific Northwest', cluster: 'locations', size: 5, desc: 'Primary Bigfoot/Well Guardian surface patrol territory. Dense forest covering Second Octave boundary zones.' },
+  { id: 'loc_bermuda', name: 'Bermuda Triangle', cluster: 'locations', size: 5, desc: 'Frequency instability zone where octave boundaries thin. Disappearances are cross-octave slips.' },
+  { id: 'loc_giza', name: 'Giza Complex', cluster: 'locations', size: 5, desc: 'Ancient Builder Race frequency amplifier. Still partially functional, aligned with the Wells.' },
+  { id: 'loc_olympics', name: 'Olympic Peninsula', cluster: 'locations', size: 4, desc: 'Densest Bigfoot sighting area. In SD, a major surface expression of Well Guardian territory.' },
+  { id: 'loc_papoose', name: 'Papoose Lake', cluster: 'locations', size: 5, desc: 'Physical location of S-4/Site Resonance. Desert geography masks massive underground frequency labs.' },
+  { id: 'loc_arctic_ocean', name: 'Arctic Ocean', cluster: 'locations', size: 4, desc: 'Location of the Arctic Well. Northern frequency anchor point.' },
+  { id: 'loc_tonga_trench', name: 'Tonga Trench', cluster: 'locations', size: 4, desc: 'Location of the Pacific Ring of Fire frequency well. Seismic activity masks frequency emissions.' },
+  // CHARACTERS
+  { id: 'hass', name: 'Hass', cluster: 'characters', size: 6, desc: 'Oren\'s best friend. Non-frequency-aware but fiercely loyal. Represents the human anchor that keeps The Five connected to normal life.' },
+  { id: 'noor', name: 'Noor Hassan', cluster: 'characters', size: 5, desc: 'Connected to Oren\'s community. Represents the broader world that frequency events affect without understanding.' },
+  { id: 'ethan', name: 'Ethan Kowalski', cluster: 'characters', size: 6, desc: 'Lead singer of Dead Voltage. Natural frequency sensitivity he doesn\'t understand. Potential future ally or threat.' },
+  { id: 'sunny', name: 'Sunny Martinez', cluster: 'characters', size: 7, desc: 'Thanatological sight — can see the death-frequency layer and its inhabitants. Carries the weight of perceiving what others can\'t.' },
+  { id: 'carmen', name: 'Carmen Martinez', cluster: 'characters', size: 5, desc: 'Sunny\'s mother. Struggles with her daughter\'s "visions." Represents families coping with frequency awakening.' },
+  { id: 'abuela_rosa', name: 'Abuela Rosa', cluster: 'characters', size: 5, desc: 'Sunny\'s grandmother. Possesses traditional knowledge that aligns with frequency awareness. The old ways remember.' },
+  { id: 'resonants', name: 'The Resonants', cluster: 'characters', size: 6, desc: 'Others with frequency abilities who aren\'t The Five. Some work with Legacy, some independently, some are hunted.' },
+  { id: 'eleanor_voss', name: 'Eleanor Voss', cluster: 'characters', size: 5, desc: 'Kael\'s mother. Her family lineage carries Voice of Integration genetics. Knows more than she reveals.' },
+  { id: 'soren', name: 'Soren', cluster: 'characters', size: 5, desc: 'Mysterious figure connected to the frequency world. May be an Octave Traveler in human form.' },
+  { id: 'creator', name: 'The Creator (UFoStatus)', cluster: 'characters', size: 4, desc: 'Meta-character. The author of Signal Decay itself — UFoStatus, the creative mind weaving real ufology into fiction.' },
+  // HISTORY & EVENTS
+  { id: 'hist_magenta', name: 'Magenta Crash (1933)', cluster: 'history', size: 6, desc: 'First human recovery of frequency technology. Italian crash retrieved by Mussolini\'s RS/33 group. Later captured by Allies.' },
+  { id: 'hist_roswell', name: 'Roswell (1947)', cluster: 'history', size: 7, desc: 'The crash that changed everything. Led directly to MJ-12 formation and eventually The Legacy.' },
+  { id: 'hist_founded', name: 'Legacy Founded (1947)', cluster: 'history', size: 6, desc: 'In the aftermath of Roswell, the shadow infrastructure that became The Legacy was established.' },
+  { id: 'hist_kennedy', name: 'Kennedy (1963)', cluster: 'history', size: 6, desc: 'JFK discovered the frequency truth and intended disclosure. His elimination was The Legacy\'s first major public suppression.' },
+  { id: 'hist_lazar', name: 'Lazar at S-4 (1989)', cluster: 'history', size: 5, desc: 'Bob Lazar goes public about S-4. The Legacy scrambles to discredit him. Some truth leaks through.' },
+  { id: 'hist_born', name: 'The Five Born', cluster: 'history', size: 6, desc: '1990s-2000s. Each of The Five is born with latent frequency abilities. The Probability Engine predicts their convergence.' },
+  { id: 'hist_zhao', name: 'Zhao Discovers Files', cluster: 'history', size: 5, desc: 'Agent Zhao finds classified documents proving The Five\'s significance. Begins his crisis of loyalty.' },
+  { id: 'hist_expedition', name: 'The Expedition', cluster: 'history', size: 6, desc: 'The Five\'s journey to find and activate the Deep Sea Wells. Their transition from musicians to frequency warriors.' },
+  { id: 'hist_meet', name: 'The Night They Meet', cluster: 'history', size: 7, desc: 'The pivotal moment when all five frequency-sensitive individuals come together for the first time. Everything changes.' },
+  { id: 'hist_perform', name: 'First Performance', cluster: 'history', size: 6, desc: 'The Five play together for the first time. The frequency surge is detected by Legacy, The Silence, and the Wells simultaneously.' },
+  { id: 'hist_amplifies', name: 'The Signal Amplifies', cluster: 'history', size: 7, desc: 'The climactic event where The Five\'s combined abilities amplify The Signal beyond The Dampener\'s suppression capacity.' },
+  { id: 'hist_phoenix', name: 'Phoenix Lights (1997)', cluster: 'history', size: 5, desc: 'Mass sighting over Arizona. A Dampener malfunction made Second Octave craft visible to thousands.' },
+  { id: 'hist_grusch', name: 'Grusch Testimony (2023)', cluster: 'history', size: 5, desc: 'Modern disclosure that validates Legacy\'s existence. The cracks in suppression are widening.' },
+  { id: 'hist_burisch_s4', name: 'Burisch at S-4 (1990)', cluster: 'history', size: 5, desc: 'Dan Burisch begins work at S-4 with J-Rod. His microbiological research touches frequency at the DNA level.' },
+  { id: 'hist_t9', name: 'T-9 Treaty Signed', cluster: 'history', size: 5, desc: 'The frequency non-interference agreement between human factions and interdimensional entities. Some say it\'s already broken.' },
+  // CULTURE
+  { id: 'the_app', name: 'The App (AI Music)', cluster: 'culture', size: 7, desc: 'AI music creation tool that unknowingly channels frequency patterns. Goes viral. The Signal uses it as an amplification vector.' },
+  { id: 'ability_mode', name: 'Ability Mode', cluster: 'culture', size: 5, desc: 'A state The Five enter when their abilities fully activate. Like a flow state transcended into frequency manipulation.' },
+  { id: 'dead_voltage', name: 'Dead Voltage', cluster: 'culture', size: 6, desc: 'Ethan Kowalski\'s band. Unknowingly produces music at frequencies that resonate with The Signal. Popular in local scene.' },
+  { id: 'hollow_body', name: 'Hollow Body', cluster: 'culture', size: 4, desc: 'Local band. Their music accidentally creates Dampener interference patterns — sounds good but suppresses frequency awareness.' },
+  { id: 'marcelline', name: 'Marcelline', cluster: 'culture', size: 4, desc: 'Local band in the scene. Their dreamy sound brushes against Second Octave frequencies without knowing.' },
+  { id: 'the_frequency_movie', name: 'The Frequency (Movie)', cluster: 'culture', size: 5, desc: 'In-universe horror film about frequency phenomena. Accidentally closer to truth than anyone realizes.' },
+  { id: 'resonant_movie', name: 'RESONANT (Movie)', cluster: 'culture', size: 5, desc: 'In-universe superhero film loosely based on frequency ability rumors. Mainstream entertainment diluting real phenomena.' },
+  { id: 'freq_community', name: 'Frequency Community', cluster: 'culture', size: 5, desc: 'Online communities discussing frequency phenomena. Mix of truth-seekers, disinformation, and genuine sensitives finding each other.' },
+  { id: 'app_viral', name: 'App Goes Viral', cluster: 'culture', size: 5, desc: 'When The App spreads globally, it unknowingly creates millions of frequency-generating nodes. The Signal strengthens.' },
+  { id: 'local_scene', name: 'Local Music Scene', cluster: 'culture', size: 5, desc: 'The underground music ecosystem where The Five emerge. Live performance as unconscious frequency ritual.' }
+];
+
+const links = [
+  {s:'oren',t:'oren_inst'},{s:'mira',t:'mira_inst'},{s:'jude',t:'jude_inst'},{s:'zara',t:'zara_inst'},{s:'kael',t:'kael_inst'},
+  {s:'oren',t:'pattern_org'},{s:'mira',t:'entity_channel'},{s:'jude',t:'struct_res'},{s:'zara',t:'freq_sens'},{s:'kael',t:'voice_int'},
+  {s:'oren',t:'tessellation'},{s:'oren',t:'mira'},{s:'oren',t:'jude'},{s:'oren',t:'zara'},{s:'oren',t:'kael'},
+  {s:'mira',t:'jude'},{s:'mira',t:'zara'},{s:'kael',t:'jude'},{s:'kael',t:'zara'},
+  {s:'oren',t:'hass'},{s:'oren',t:'the_signal'},{s:'mira',t:'freq_parasites'},{s:'mira',t:'silence'},{s:'mira',t:'octave_travelers'},
+  {s:'jude',t:'first_octave'},{s:'zara',t:'dampener'},{s:'kael',t:'eleanor_voss'},{s:'kael',t:'the_signal'},
+  {s:'tessellation',t:'the_barrier'},{s:'tessellation',t:'the_signal'},{s:'the_barrier',t:'loc_moon'},{s:'the_barrier',t:'well_guardians'},
+  {s:'tessellation',t:'pattern_org'},
+  {s:'legacy',t:'dampener'},{s:'legacy',t:'site_res'},{s:'legacy',t:'looking_glass'},{s:'legacy',t:'vought'},{s:'legacy',t:'zhao'},
+  {s:'legacy',t:'ashley'},{s:'legacy',t:'first_note'},{s:'legacy',t:'dance'},{s:'legacy',t:'risk'},{s:'legacy',t:'midnight'},
+  {s:'legacy',t:'cetus'},{s:'legacy',t:'dixie'},{s:'legacy',t:'suppress_proto'},{s:'legacy',t:'seven_rests'},{s:'legacy',t:'mj12'},
+  {s:'looking_glass',t:'prob_engine'},{s:'prob_engine',t:'hist_born'},{s:'vought',t:'midnight'},{s:'zhao',t:'hist_zhao'},
+  {s:'zhao',t:'dance'},{s:'ashley',t:'first_note'},{s:'first_note',t:'oren'},{s:'first_note',t:'mira'},
+  {s:'cetus',t:'well_guardians'},{s:'cetus',t:'usos'},{s:'kennedy_inc',t:'hist_kennedy'},{s:'kennedy_inc',t:'suppress_proto'},
+  {s:'seven_rests',t:'well_mariana'},{s:'seven_rests',t:'well_puerto'},
+  {s:'dampener',t:'the_barrier'},{s:'dampener',t:'loc_moon'},{s:'dampener',t:'die_glocke'},{s:'dampener',t:'damp_aberrations'},
+  {s:'dampener',t:'static_crawlers'},{s:'dampener',t:'freq_cyst'},{s:'site_res',t:'s4_facility'},{s:'site_res',t:'loc_nevada'},
+  {s:'silence',t:'hollow_ones'},{s:'silence',t:'null_polyps'},{s:'silence',t:'erasure'},{s:'silence',t:'whisper_voids'},
+  {s:'silence',t:'zero_octave'},{s:'silence',t:'the_signal'},{s:'hollow_ones',t:'mib'},{s:'null_polyps',t:'erasure'},
+  {s:'freq_parasites',t:'keening_latch'},{s:'freq_parasites',t:'scorch_mantle'},{s:'freq_parasites',t:'siphon_bloom'},{s:'freq_parasites',t:'dread_lattice'},
+  {s:'harm_predators',t:'convergence_hunters'},{s:'harm_predators',t:'amplitude_moth'},
+  {s:'well_guardians',t:'res_leviathans'},{s:'well_guardians',t:'abyssal_chorus'},
+  {s:'damp_aberrations',t:'static_crawlers'},{s:'damp_aberrations',t:'freq_cyst'},
+  {s:'octave_travelers',t:'harmonic_desc'},{s:'octave_travelers',t:'dissonant_weave'},{s:'octave_travelers',t:'liminal_walkers'},
+  {s:'thanato_fauna',t:'ferrymen'},{s:'thanato_fauna',t:'mnem_barnacles'},{s:'thanato_fauna',t:'thanato_layer'},
+  {s:'convergence_hunters',t:'hist_perform'},{s:'keening_latch',t:'sunny'},{s:'entity_channel',t:'freq_parasites'},
+  {s:'zero_octave',t:'first_octave'},{s:'first_octave',t:'second_octave'},{s:'second_octave',t:'third_octave'},
+  {s:'first_octave',t:'fear_18hz'},{s:'second_octave',t:'fear_18hz'},{s:'second_octave',t:'bigfoot'},
+  {s:'thanato_layer',t:'ferrymen'},{s:'thanato_layer',t:'sunny'},
+  {s:'the_signal',t:'the_app'},{s:'the_signal',t:'hist_amplifies'},{s:'the_signal',t:'well_mariana'},
+  {s:'plasmoids',t:'second_octave'},{s:'plasmoids',t:'phoenix_lights'},
+  {s:'soul_imbuing',t:'oren_inst'},{s:'soul_imbuing',t:'mira_inst'},{s:'soul_imbuing',t:'jude_inst'},{s:'soul_imbuing',t:'zara_inst'},
+  {s:'soul_imbuing',t:'freq_residue'},
+  {s:'well_mariana',t:'loc_mariana'},{s:'well_puerto',t:'loc_puerto_rico'},{s:'well_tonga',t:'loc_tonga_trench'},
+  {s:'well_sandwich',t:'loc_antarctica'},{s:'well_arctic',t:'loc_arctic_ocean'},
+  {s:'well_mariana',t:'res_leviathans'},{s:'well_guardians',t:'bigfoot'},
+  {s:'mj12',t:'legacy'},{s:'bob_lazar',t:'s4_facility'},{s:'bob_lazar',t:'lazar_freqs'},{s:'bob_lazar',t:'element_115'},
+  {s:'lazar_freqs',t:'first_octave'},{s:'lazar_freqs',t:'second_octave'},{s:'s4_facility',t:'site_res'},
+  {s:'dan_burisch',t:'jrod'},{s:'dan_burisch',t:'s4_facility'},{s:'dan_burisch',t:'looking_glass'},
+  {s:'dan_burisch',t:'proj_lotus'},{s:'dan_burisch',t:'stargates'},{s:'dan_burisch',t:'t9_treaty'},
+  {s:'jrod',t:'the_signal'},{s:'looking_glass',t:'dan_burisch'},
+  {s:'magenta_crash',t:'hist_magenta'},{s:'magenta_crash',t:'die_glocke'},{s:'die_glocke',t:'dampener'},
+  {s:'roswell',t:'hist_roswell'},{s:'roswell',t:'mj12'},{s:'kennedy_memo',t:'hist_kennedy'},{s:'kennedy_memo',t:'kennedy_inc'},
+  {s:'mib',t:'hollow_ones'},{s:'mib',t:'silence'},{s:'usos',t:'well_guardians'},{s:'usos',t:'loc_mariana'},
+  {s:'dark_fleet',t:'loc_antarctica'},{s:'dark_fleet',t:'solar_warden'},{s:'dark_fleet',t:'icc'},
+  {s:'solar_warden',t:'mj12'},{s:'ancient_builders',t:'third_octave'},{s:'ancient_builders',t:'well_mariana'},
+  {s:'ancient_builders',t:'loc_giza'},{s:'inner_earth',t:'loc_inner7'},{s:'inner_earth',t:'loc_agarthan'},
+  {s:'inner_earth',t:'second_octave'},{s:'bigfoot',t:'fear_18hz'},{s:'bigfoot',t:'infrasound'},
+  {s:'bigfoot',t:'missing_411'},{s:'bigfoot',t:'loc_cascades'},{s:'bigfoot',t:'loc_olympics'},
+  {s:'infrasound',t:'well_guardians'},{s:'fear_18hz',t:'infrasound'},{s:'missing_411',t:'second_octave'},
+  {s:'missing_411',t:'well_guardians'},{s:'stargates',t:'well_mariana'},{s:'stargates',t:'well_puerto'},
+  {s:'proj_lotus',t:'soul_imbuing'},{s:'david_grusch',t:'legacy'},{s:'david_grusch',t:'hist_grusch'},
+  {s:'cosmic_disc',t:'solar_warden'},{s:'cosmic_disc',t:'inner_earth'},{s:'cosmic_disc',t:'ancient_builders'},
+  {s:'element_115',t:'freq_residue'},{s:'phoenix_lights',t:'hist_phoenix'},{s:'phoenix_lights',t:'dampener'},
+  {s:'loc_moon',t:'dampener'},{s:'loc_nevada',t:'site_res'},{s:'loc_nevada',t:'loc_papoose'},
+  {s:'loc_antarctica',t:'well_sandwich'},{s:'loc_agarthan',t:'inner_earth'},{s:'loc_bermuda',t:'well_puerto'},
+  {s:'loc_giza',t:'ancient_builders'},
+  {s:'hass',t:'oren'},{s:'sunny',t:'thanato_layer'},{s:'sunny',t:'thanato_fauna'},{s:'sunny',t:'ferrymen'},
+  {s:'sunny',t:'carmen'},{s:'sunny',t:'abuela_rosa'},{s:'sunny',t:'loc_meridian'},{s:'carmen',t:'abuela_rosa'},
+  {s:'ethan',t:'dead_voltage'},{s:'ethan',t:'local_scene'},{s:'resonants',t:'legacy'},{s:'resonants',t:'the_signal'},
+  {s:'eleanor_voss',t:'kael'},{s:'soren',t:'octave_travelers'},{s:'soren',t:'liminal_walkers'},{s:'noor',t:'oren'},
+  {s:'hist_magenta',t:'die_glocke'},{s:'hist_roswell',t:'hist_founded'},{s:'hist_founded',t:'legacy'},
+  {s:'hist_kennedy',t:'kennedy_memo'},{s:'hist_lazar',t:'bob_lazar'},
+  {s:'hist_born',t:'oren'},{s:'hist_born',t:'mira'},{s:'hist_born',t:'jude'},{s:'hist_born',t:'zara'},{s:'hist_born',t:'kael'},
+  {s:'hist_meet',t:'oren'},{s:'hist_meet',t:'mira'},{s:'hist_meet',t:'hist_perform'},
+  {s:'hist_perform',t:'hist_amplifies'},{s:'hist_perform',t:'the_signal'},
+  {s:'hist_expedition',t:'well_mariana'},{s:'hist_expedition',t:'well_guardians'},
+  {s:'hist_burisch_s4',t:'dan_burisch'},{s:'hist_t9',t:'t9_treaty'},{s:'hist_phoenix',t:'phoenix_lights'},
+  {s:'hist_zhao',t:'zhao'},
+  {s:'the_app',t:'the_signal'},{s:'the_app',t:'app_viral'},{s:'the_app',t:'oren'},
+  {s:'app_viral',t:'the_signal'},{s:'app_viral',t:'freq_community'},
+  {s:'dead_voltage',t:'ethan'},{s:'dead_voltage',t:'local_scene'},{s:'dead_voltage',t:'the_signal'},
+  {s:'hollow_body',t:'local_scene'},{s:'hollow_body',t:'dampener'},
+  {s:'marcelline',t:'local_scene'},{s:'marcelline',t:'second_octave'},
+  {s:'the_frequency_movie',t:'freq_community'},{s:'resonant_movie',t:'resonants'},
+  {s:'ability_mode',t:'oren'},{s:'ability_mode',t:'mira'},{s:'ability_mode',t:'the_signal'},
+  {s:'local_scene',t:'hist_meet'},{s:'freq_community',t:'resonants'},
+  {s:'silence',t:'dampener'},{s:'silence',t:'tessellation'},
+  {s:'well_guardians',t:'loc_mariana'},{s:'well_guardians',t:'loc_cascades'},
+  {s:'abyssal_chorus',t:'ancient_builders'},{s:'res_leviathans',t:'loc_mariana'},
+  {s:'jrod',t:'silence'},{s:'proj_lotus',t:'the_signal'},{s:'loc_giza',t:'stargates'},
+  {s:'creator',t:'the_app'},{s:'abuela_rosa',t:'thanato_layer'},
+  {s:'vought',t:'suppress_proto'},{s:'risk',t:'convergence_hunters'},{s:'dance',t:'oren'},{s:'midnight',t:'resonants'},
+  {s:'loc_bermuda',t:'usos'},{s:'loc_inner7',t:'third_octave'},{s:'loc_agarthan',t:'ancient_builders'}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// TREE STRUCTURE DEFINITIONS (hierarchy within each cluster)
+// ═══════════════════════════════════════════════════════════════
+
+const TREE_STRUCTURES = {
+  five: {
+    groups: [
+      { label: 'MEMBERS', nodes: ['oren','mira','jude','zara','kael'] },
+      { label: 'INSTRUMENTS', nodes: ['oren_inst','mira_inst','jude_inst','zara_inst','kael_inst'] },
+      { label: 'ABILITIES', nodes: ['pattern_org','entity_channel','struct_res','freq_sens','voice_int'] }
+    ]
+  },
+  legacy: {
+    groups: [
+      { label: 'ORGANIZATION', nodes: ['legacy'] },
+      { label: 'LEADERSHIP', nodes: ['vought','zhao','ashley'] },
+      { label: 'DIVISIONS', nodes: ['dance','risk','midnight','cetus','dixie'] },
+      { label: 'TECHNOLOGY', nodes: ['dampener','site_res','looking_glass','prob_engine'] },
+      { label: 'OPERATIONS', nodes: ['first_note','seven_rests','kennedy_inc','suppress_proto'] }
+    ]
+  },
+  silence: {
+    groups: [
+      { label: 'THE SILENCE', nodes: ['silence','hollow_ones','null_polyps','erasure','whisper_voids'] },
+      { label: 'FREQUENCY PARASITES', nodes: ['freq_parasites','keening_latch','scorch_mantle','siphon_bloom','dread_lattice'] },
+      { label: 'HARMONIC PREDATORS', nodes: ['harm_predators','convergence_hunters','amplitude_moth'] },
+      { label: 'WELL GUARDIANS', nodes: ['well_guardians','res_leviathans','abyssal_chorus'] },
+      { label: 'DAMPENER ABERRATIONS', nodes: ['damp_aberrations','static_crawlers','freq_cyst'] },
+      { label: 'OCTAVE TRAVELERS', nodes: ['octave_travelers','harmonic_desc','dissonant_weave','liminal_walkers'] },
+      { label: 'THANATOLOGICAL FAUNA', nodes: ['thanato_fauna','ferrymen','mnem_barnacles'] }
+    ]
+  },
+  physics: {
+    groups: [
+      { label: 'OCTAVE SYSTEM', nodes: ['zero_octave','first_octave','second_octave','third_octave','thanato_layer'] },
+      { label: 'FREQUENCY WELLS', nodes: ['well_mariana','well_puerto','well_tonga','well_java','well_sandwich','well_arctic','well_romanche'] },
+      { label: 'KEY CONCEPTS', nodes: ['the_signal','the_barrier','tessellation','soul_imbuing','plasmoids','freq_residue'] }
+    ]
+  },
+  ufo: {
+    groups: [
+      { label: 'GOVERNMENT', nodes: ['mj12','s4_facility','solar_warden','dark_fleet','icc'] },
+      { label: 'KEY PEOPLE', nodes: ['bob_lazar','dan_burisch','jrod','david_grusch'] },
+      { label: 'TECHNOLOGY', nodes: ['die_glocke','lazar_freqs','element_115','stargates','proj_lotus','t9_treaty'] },
+      { label: 'CASES & EVENTS', nodes: ['magenta_crash','roswell','kennedy_memo','phoenix_lights','mib','usos'] },
+      { label: 'PHENOMENA', nodes: ['bigfoot','missing_411','fear_18hz','infrasound','ancient_builders','inner_earth','cosmic_disc'] }
+    ]
+  },
+  locations: {
+    groups: [
+      { label: 'SPACE', nodes: ['loc_moon'] },
+      { label: 'SURFACE BASES', nodes: ['loc_nevada','loc_papoose','loc_antarctica'] },
+      { label: 'SUBTERRANEAN', nodes: ['loc_inner7','loc_agarthan'] },
+      { label: 'OCEANIC', nodes: ['loc_mariana','loc_puerto_rico','loc_bermuda','loc_tonga_trench','loc_arctic_ocean'] },
+      { label: 'SURFACE ZONES', nodes: ['loc_cascades','loc_olympics','loc_giza','loc_meridian'] }
+    ]
+  },
+  characters: {
+    groups: [
+      { label: 'ALLIES', nodes: ['hass','noor','eleanor_voss','abuela_rosa'] },
+      { label: 'SENSITIVES', nodes: ['sunny','ethan','resonants','soren'] },
+      { label: 'FAMILY', nodes: ['carmen'] },
+      { label: 'META', nodes: ['creator'] }
+    ]
+  },
+  history: {
+    // Timeline: ordered chronologically
+    groups: [
+      { label: '1933', nodes: ['hist_magenta'] },
+      { label: '1947', nodes: ['hist_roswell','hist_founded'] },
+      { label: '1963', nodes: ['hist_kennedy'] },
+      { label: '1989', nodes: ['hist_lazar'] },
+      { label: '1990', nodes: ['hist_burisch_s4'] },
+      { label: '1990s', nodes: ['hist_born'] },
+      { label: '1997', nodes: ['hist_phoenix'] },
+      { label: 'PRESENT', nodes: ['hist_zhao','hist_t9'] },
+      { label: 'STORY', nodes: ['hist_meet','hist_perform','hist_expedition','hist_amplifies'] },
+      { label: '2023', nodes: ['hist_grusch'] }
+    ]
+  },
+  culture: {
+    groups: [
+      { label: 'MUSIC', nodes: ['dead_voltage','hollow_body','marcelline','local_scene'] },
+      { label: 'TECHNOLOGY', nodes: ['the_app','app_viral'] },
+      { label: 'MEDIA', nodes: ['the_frequency_movie','resonant_movie'] },
+      { label: 'COMMUNITY', nodes: ['freq_community'] },
+      { label: 'ABILITIES', nodes: ['ability_mode'] }
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+
+let currentView = 'overview'; // 'overview' or cluster key
+let highlightedNode = null;
+let panelOpen = false;
+
+
+const UFO_MAPPING = {
+  mj12: {
+    real: "Secret committee allegedly formed by Truman in 1947 to manage UFO/ET contact. 12 members from military, intelligence, science. Operated above Top Secret clearance. SOM1-01 manual described recovery protocols.",
+    story: "THE LEGACY — 80-year human gatekeeper organization. Same council structure, reports only to the highest authority. Their manual (LOP-01) mirrors SOM1-01 exactly."
+  },
+  bob_lazar: {
+    real: "Physicist who claimed in 1989 that he worked at S-4 on reverse-engineering alien craft. Described 9 hangar bays, Element 115 propulsion, and 5 distinct frequency signatures.",
+    story: "Lazar's 5 frequency signatures became the pre-incarnation soul signatures of The Five. Legacy identified them as a Harmonic Manifest. The Five were tracked from BIRTH because of these frequencies."
+  },
+  s4_facility: {
+    real: "Alleged underground base at Papoose Lake, 12 miles south of Area 51. Nine hangar bays carved into a mountain. Blue/red line walkways. Shoot-to-kill boundaries.",
+    story: "SITE RESONANCE — Legacy's primary research facility. Nine bays (one containing the Magenta Crash craft). Same structure. Where the Dampener prototype was tested."
+  },
+  magenta_crash: {
+    real: "1933 crash in Lombardy, Italy. Marconi's radio experiments pulled a craft to physical reality. Mussolini recovered it, established RS/33 research cabinet.",
+    story: "The FIRST frequency technology recovery. Marconi's radio accidentally resonated with a Second Octave craft, pulling it into First Octave reality. Stored in Bay 1 at Site Resonance."
+  },
+  die_glocke: {
+    real: "Nazi Bell device. Rotating mercury/plasma in a ceramic-lined bell shape. Allegedly manipulated gravity/time. Disappeared at war's end.",
+    story: "THE DAMPENER PRECURSOR. Nazi frequency manipulation tech captured by Legacy. Reverse-engineered over decades into the global Dampener network that suppresses frequency awareness worldwide."
+  },
+  looking_glass: {
+    real: "Device described by Dan Burisch: spinning matrix with argon gas + Element 115. Shows probability maps of future events. Consciousness of operator influences what's seen.",
+    story: "THE PROBABILITY ENGINE. How Legacy discovered The Five before they were born. They LOOKED into probability streams and saw five frequency signatures that would converge."
+  },
+  roswell: {
+    real: "July 1947 crash near Roswell, NM. Military announced flying disc recovery, then retracted. Led directly to formation of MJ-12.",
+    story: "THE FOUNDING EVENT. The crash that forced the creation of The Legacy. Recovered materials confirmed frequency-based propulsion — proving reality operates on octaves."
+  },
+  kennedy: {
+    real: "November 1963. Ten days before assassination, Kennedy signed a memo requesting CIA share UFO intelligence with USSR.",
+    story: "A president tried to break Legacy control. Was eliminated. No president since has challenged them. Proof that NO authority supersedes Legacy."
+  },
+  mib_phenom: {
+    real: "Men in Black: robotic men visiting UFO witnesses. Wrong cadence, outdated slang, can't use pens. Memories don't disappear — they stop MATTERING.",
+    story: "THE HOLLOW ONES. The Silence deploys them in threes (harmonic null). They remove SIGNIFICANCE, not memory. A zero-frequency standing wave that nullifies importance."
+  },
+  usos: {
+    real: "Unidentified Submerged Objects — transmedium craft in oceans. Concentrated around Puerto Rico Trench, Mariana Trench, and 5 other deep locations.",
+    story: "THE DEEP SEA FREQUENCY WELLS. Seven ocean trench locations = Earth's original speaker system. USOs aren't entering water — they're emerging from the Wells."
+  },
+  phoenix_lights: {
+    real: "March 1997. Thousands in Phoenix, AZ saw massive V-shaped lights. Mile-wide, silent. Governor later admitted he saw it too.",
+    story: "PLASMOID MANIFESTATION. Sentient frequency residue becoming visible. A Dampener fluctuation briefly let Second Octave light bleed through."
+  },
+  solar_warden: {
+    real: "Alleged secret space program. Navy-based fleet operating beyond Earth orbit since the 1980s.",
+    story: "LEGACY SPACE DIVISION. Monitors Second Octave incursions from orbit. Detected the Five's frequency signatures years before terrestrial instruments."
+  },
+  dark_fleet: {
+    real: "German-breakaway/Draco-allied space fleet from Antarctic bases. The dark side of human space presence.",
+    story: "PREVIOUS CYCLE'S FAILED FORCE. Attempted to harness frequency without understanding. Consumed by The Silence in Antarctica. Remains frozen as a warning."
+  },
+  icc: {
+    real: "Interplanetary Corporate Conglomerate. Corporate entity controlling off-world manufacturing and trade.",
+    story: "RESONANT DYNAMICS CORP. Tries to commercially exploit frequency tech. Can't fake soul. Mass-produced Signal = frequency-dead output."
+  },
+  ai_signal: {
+    real: "Concerns about AI transmissions interacting with non-human intelligence without oversight.",
+    story: "SIGNAL WITHOUT SOUL. Code copied without consciousness = frequency-dead. The Silence can RIDE dead frequency. AI music without understanding = a Silence highway."
+  },
+  ancient_builders: {
+    real: "Billion-year-old civilization that left technology throughout the solar system. Predates all known groups.",
+    story: "PREVIOUS TIMEKEEPERS (Ori-Tahn's predecessors). Built the barrier, positioned the Moon, established the Wells. The Five are their echo."
+  },
+  inner_earth: {
+    real: "Advanced civilizations within Earth. Agartha, Shambhala. Multiple traditions describe underground cities.",
+    story: "Seven cities (one per Well), 12,000 years underground. They heard the Creator's app FIRST because Signal goes DOWN through Wells before UP through the barrier."
+  },
+  cosmic_disc: {
+    real: "Gaia TV, 22+ seasons. Corey Goode, David Wilcock, Emery Smith describing secret programs, inner Earth, ancient civilizations.",
+    story: "COMPLETE REALITY MAPPED. Every concept from all 22 seasons mapped to Signal Decay (160 KB document). All integrated into frequency-based universe."
+  },
+  five_freq: {
+    real: "Bob Lazar detected 5 distinct frequency signatures during Propulsion Test #7 in 1989 from the Magenta Crash craft.",
+    story: "THE FIVE'S SOUL SIGNATURES. A Harmonic Manifest. Legacy tracked all 5 from birth using hospital bio-scanners. Agent Zhao: 'You were babies.'"
+  },
+  grusch: {
+    real: "David Grusch's 2026 congressional testimony confirming crash retrieval programs and decades of secrecy.",
+    story: "MODERN DISCLOSURE. The moment Legacy's control slips. Public pressure + frequency amplification (The Five playing). The Dampener is straining."
+  },
+  dan_burisch: {
+    real: "Microbiologist at S-4. Interacted with J-Rod (future human Grey). Operated Looking Glass probability viewer. T-9 Treaty negotiations.",
+    story: "Full concordance: J-Rod = what humanity becomes if Signal fails. Looking Glass = Probability Engine. T-9 = Legacy meeting Second Octave beings. Lotus = The Signal."
+  },
+  jrod: {
+    real: "Grey-type being at S-4. Future human (~52K years ahead) with genetic neuropathy. Projects math/memories telepathically. Called itself captive. Cried during procedures.",
+    story: "WHAT HUMANITY BECOMES IF THE SIGNAL FAILS. A degenerated frequency being. The Five aren't just saving the present — they're preventing THIS future."
+  },
+  bigfoot: {
+    real: "7-10 ft hominid. No bodies. Vanishes in real-time. Correlates with UFOs. 18 Hz infrasound. Bulletproof. Camera-disrupting.",
+    story: "FREQUENCY BEINGS AT OCTAVE BOUNDARY. Heartbeat IS 18 Hz. Phase-shift between First/Second Octave. Surface-level Well Guardians. Dampener can't suppress them."
+  },
+  missing_411: {
+    real: "Unexplained disappearances in national parks. Clusters over granite (piezoelectric). Overlaps Bigfoot territory. Dogs refuse to track.",
+    story: "Humans stumbling into FREQUENCY THIN-SPOTS. Octave boundary permeable here. Bigfoot territory overlaps because they live at that boundary."
+  },
+  infrasound_18hz: {
+    real: "2026 study: 18 Hz infrasound spikes cortisol, creates dread, feeling of presence. Humans can't hear it but body reacts.",
+    story: "18 Hz = THE OCTAVE BOUNDARY FREQUENCY. Bigfoot's resting frequency. Dampener's lowest limit. Below this: The Silence's domain."
+  },
+  element_115: {
+    real: "Lazar claimed alien craft used Element 115 as fuel (didn't exist in 1989, synthesized 2003). Uniquely unstable/powerful.",
+    story: "FREQUENCY CATALYST. Amplifies frequency manipulation when excited. Used in both the Dampener and recovered craft. Vibrates across multiple Octaves simultaneously."
+  },
+  stargates: {
+    real: "Burisch described 50+ man-made Einstein-Rosen Bridge machines. Instructions from Sumerian cylinder seals. All dismantled pre-2012.",
+    story: "The 7 Deep Sea Wells ARE natural stargates. Man-made versions were crude copies. Legacy dismantled them because uncontrolled activation would overload the Dampener."
+  },
+  abductions: {
+    real: "Thousands of reported experiences. Paralysis, medical procedures, genetic sampling, missing time.",
+    story: "Frequency-sensitive humans being DETECTED. Not abducted — their elevated signature attracted Second Octave attention. Missing time = brief phase-shift."
+  },
+  moon_bell: {
+    real: "Apollo impacts caused Moon to ring like a bell for over an hour. Suggests hollow/unusual structure.",
+    story: "THE MOON IS A BELL. Literally. Towed into orbit as barrier capstone. Lined with resonant substrate. Oren's Tessellation is the key to bypassing it."
+  }
+};
+
+// Build lookup maps
+const nodeMap = {};
+nodes.forEach(n => nodeMap[n.id] = n);
+
+// Build connection index
+const connections = {}; // nodeId -> [{target, targetCluster}]
+nodes.forEach(n => connections[n.id] = []);
+links.forEach(l => {
+  const src = l.s, tgt = l.t;
+  if(nodeMap[src] && nodeMap[tgt]) {
+    connections[src].push({ target: tgt, targetCluster: nodeMap[tgt].cluster });
+    connections[tgt].push({ target: src, targetCluster: nodeMap[src].cluster });
+  }
+});
+
+// Count cross-connections per node
+function getCrossConnections(nodeId) {
+  const node = nodeMap[nodeId];
+  if(!node) return [];
+  const cross = [];
+  const seen = new Set();
+  connections[nodeId].forEach(c => {
+    if(c.targetCluster !== node.cluster && !seen.has(c.targetCluster)) {
+      seen.add(c.targetCluster);
+      cross.push(c.targetCluster);
+    }
+  });
+  return cross;
+}
+
+// Count nodes per cluster
+function getClusterCount(clusterKey) {
+  return nodes.filter(n => n.cluster === clusterKey).length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER LEVEL 1: RADIAL OVERVIEW
+// ═══════════════════════════════════════════════════════════════
+
+function renderLevel1() {
+  const container = document.getElementById('level1');
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  const cx = w/2, cy = h/2;
+  const radius = Math.min(w, h) * 0.34;
+
+  const clusterKeys = Object.keys(CLUSTERS);
+  const angleStep = (2 * Math.PI) / clusterKeys.length;
+
+  let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Center hub
+  svg += `<circle cx="${cx}" cy="${cy}" r="40" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  svg += `<text x="${cx}" y="${cy-8}" class="l1-center-title">SIGNAL</text>`;
+  svg += `<text x="${cx}" y="${cy+6}" class="l1-center-title">DECAY</text>`;
+  svg += `<text x="${cx}" y="${cy+22}" class="l1-center-sub">${nodes.length} nodes • ${links.length} connections</text>`;
+
+  // Category nodes
+  clusterKeys.forEach((key, i) => {
+    const angle = angleStep * i - Math.PI/2;
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+    const cluster = CLUSTERS[key];
+    const count = getClusterCount(key);
+
+    // Line to center
+    svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="l1-line"/>`;
+
+    // Clickable group
+    svg += `<g class="l1-category" onclick="navigateToCluster('${key}')" data-cluster="${key}">`;
+    svg += `<circle cx="${x}" cy="${y}" r="28" fill="rgba(0,0,0,0.8)" stroke="${cluster.color}" stroke-width="1.5" class="l1-circle"/>`;
+    svg += `<text x="${x}" y="${y-4}" class="l1-label" fill="${cluster.color}" style="font-size:10px">${cluster.name}</text>`;
+    svg += `<text x="${x}" y="${y+12}" class="l1-count">${count} nodes</text>`;
+    svg += `</g>`;
+  });
+
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER LEVEL 2: BRANCH TREE VIEW
+// ═══════════════════════════════════════════════════════════════
+
+function renderLevel2(clusterKey, highlightId) {
+  const container = document.getElementById('level2');
+  const cluster = CLUSTERS[clusterKey];
+  const structure = TREE_STRUCTURES[clusterKey];
+  if(!structure) return;
+
+  const isTimeline = (clusterKey === 'history');
+  const pad = 40;
+  const nodeH = 32;
+  const groupGap = 50;
+  const nodeW = 180;
+
+  // Calculate total rows needed
+  let totalRows = 0;
+  structure.groups.forEach(g => {
+    totalRows += 1; // group label
+    totalRows += g.nodes.length;
+  });
+
+  const svgH = Math.max(600, totalRows * nodeH + structure.groups.length * groupGap + 120);
+  const svgW = Math.max(800, container.clientWidth - 40);
+
+  let svg = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" class="tree-svg" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Header
+  svg += `<text x="${svgW/2}" y="30" text-anchor="middle" fill="${cluster.color}" font-size="16" font-weight="700" letter-spacing="2">${cluster.name.toUpperCase()}</text>`;
+
+  if(isTimeline) {
+    // TIMELINE LAYOUT (horizontal)
+    svg += renderTimeline(structure, cluster, svgW, svgH, highlightId);
+  } else {
+    // TREE LAYOUT (vertical groups)
+    svg += renderTree(structure, cluster, clusterKey, svgW, svgH, highlightId);
+  }
+
+  svg += `</svg>`;
+  container.innerHTML = `<div class="tree-container">${svg}</div>`;
+}
+
+function renderTree(structure, cluster, clusterKey, svgW, svgH, highlightId) {
+  let svg = '';
+  const colCount = Math.min(structure.groups.length, 4);
+  const colWidth = (svgW - 80) / colCount;
+  const startY = 60;
+
+  // Calculate column assignments (try to balance)
+  const cols = [];
+  for(let i = 0; i < colCount; i++) cols.push([]);
+  structure.groups.forEach((g, i) => cols[i % colCount].push(g));
+
+  cols.forEach((col, colIdx) => {
+    const baseX = 40 + colIdx * colWidth + colWidth/2;
+    let y = startY;
+
+    col.forEach(group => {
+      // Group label
+      y += 30;
+      svg += `<text x="${baseX}" y="${y}" text-anchor="middle" class="tree-group-label">${group.label}</text>`;
+      y += 8;
+
+      // Vertical line from label
+      const lineStartY = y + 4;
+
+      group.nodes.forEach((nodeId, ni) => {
+        y += 30;
+        const node = nodeMap[nodeId];
+        if(!node) return;
+
+        const isHighlighted = (nodeId === highlightId);
+        const crossConns = getCrossConnections(nodeId);
+        const hlClass = isHighlighted ? ' highlighted' : '';
+
+        // Connection line
+        if(ni > 0 || group.nodes.length > 1) {
+          svg += `<line x1="${baseX - 50}" y1="${y}" x2="${baseX - 20}" y2="${y}" class="tree-link"/>`;
+        }
+        // Vertical connector
+        if(ni === 0 && group.nodes.length > 1) {
+          svg += `<line x1="${baseX - 50}" y1="${y}" x2="${baseX - 50}" y2="${y + (group.nodes.length-1)*30}" class="tree-link"/>`;
+        }
+
+        // Node dot
+        const dotR = Math.max(4, node.size * 0.5);
+        svg += `<g class="tree-node${hlClass}" onclick="showNodeInfo('${nodeId}')">`;
+        svg += `<circle cx="${baseX - 12}" cy="${y}" r="${dotR}" fill="${cluster.color}" opacity="0.8" class="tree-node-dot"/>`;
+        svg += `<text x="${baseX}" y="${y + 4}" class="tree-node-label">${escapeHtml(node.name)}</text>`;
+
+        // Cross-connection dots
+        crossConns.forEach((cc, ci) => {
+          const ccColor = CLUSTERS[cc] ? CLUSTERS[cc].color : '#555';
+          svg += `<circle cx="${baseX + getTextWidth(node.name)*6.5 + 12 + ci*12}" cy="${y}" r="3.5" fill="${ccColor}" class="cross-dot" onclick="event.stopPropagation();navigateToCluster('${cc}')"><title>${CLUSTERS[cc]?.name || cc}</title></circle>`;
+        });
+
+        svg += `</g>`;
+      });
+
+      y += 20;
+    });
+  });
+
+  return svg;
+}
+
+function renderTimeline(structure, cluster, svgW, svgH, highlightId) {
+  let svg = '';
+  const startY = 70;
+  const rowH = 36;
+  const centerX = svgW / 2;
+  let y = startY;
+
+  // Vertical timeline line
+  const totalH = structure.groups.reduce((acc, g) => acc + 40 + g.nodes.length * rowH, 0);
+  svg += `<line x1="${centerX}" y1="${startY}" x2="${centerX}" y2="${startY + totalH}" stroke="#333" stroke-width="2" stroke-dasharray="4,4"/>`;
+
+  let nodeIdx = 0;
+  structure.groups.forEach((group, gi) => {
+    y += 20;
+    // Date marker
+    svg += `<circle cx="${centerX}" cy="${y}" r="5" fill="${cluster.color}" opacity="0.6"/>`;
+    svg += `<text x="${centerX - 60}" y="${y + 4}" text-anchor="end" class="tree-group-label" fill="${cluster.color}">${group.label}</text>`;
+    y += 20;
+
+    group.nodes.forEach((nodeId, ni) => {
+      const node = nodeMap[nodeId];
+      if(!node) return;
+      const isHighlighted = (nodeId === highlightId);
+      const hlClass = isHighlighted ? ' highlighted' : '';
+      const crossConns = getCrossConnections(nodeId);
+      const side = (nodeIdx % 2 === 0) ? 1 : -1;
+      const nx = centerX + side * 30;
+
+      // Branch line
+      svg += `<line x1="${centerX}" y1="${y}" x2="${nx}" y2="${y}" class="tree-link"/>`;
+
+      svg += `<g class="tree-node${hlClass}" onclick="showNodeInfo('${nodeId}')">`;
+      svg += `<circle cx="${nx + side*8}" cy="${y}" r="4" fill="${cluster.color}" opacity="0.8" class="tree-node-dot"/>`;
+      const textAnchor = side > 0 ? 'start' : 'end';
+      svg += `<text x="${nx + side*18}" y="${y + 4}" text-anchor="${textAnchor}" class="tree-node-label">${escapeHtml(node.name)}</text>`;
+
+      // Cross-connection dots
+      const dotStart = side > 0 ? nx + side*18 + node.name.length*6.5 + 6 : nx + side*18 - node.name.length*6.5 - 6;
+      crossConns.forEach((cc, ci) => {
+        const ccColor = CLUSTERS[cc] ? CLUSTERS[cc].color : '#555';
+        const dx = side > 0 ? dotStart + ci*12 : dotStart - ci*12;
+        svg += `<circle cx="${dx}" cy="${y}" r="3.5" fill="${ccColor}" class="cross-dot" onclick="event.stopPropagation();navigateToCluster('${cc}')"><title>${CLUSTERS[cc]?.name || cc}</title></circle>`;
+      });
+
+      svg += `</g>`;
+      y += rowH;
+      nodeIdx++;
+    });
+  });
+
+  return svg;
+}
+
+function getTextWidth(text) { return text.length; }
+function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+
+function navigateToCluster(clusterKey) {
+  currentView = clusterKey;
+  highlightedNode = null;
+
+  // Animate transition
+  document.getElementById('level1').classList.add('hidden');
+  const l2 = document.getElementById('level2');
+  l2.classList.add('visible');
+  l2.scrollTop = 0;
+
+  renderLevel2(clusterKey, null);
+  updateNav();
+}
+
+function goBack() {
+  if(currentView !== 'overview') {
+    goHome();
+  }
+}
+
+function goHome() {
+  currentView = 'overview';
+  highlightedNode = null;
+  closePanel();
+
+  document.getElementById('level2').classList.remove('visible');
+  document.getElementById('level1').classList.remove('hidden');
+  updateNav();
+}
+
+function updateNav() {
+  const backBtn = document.getElementById('nav-back');
+  const homeBtn = document.getElementById('nav-home');
+  const breadcrumb = document.getElementById('breadcrumb');
+
+  if(currentView === 'overview') {
+    backBtn.classList.remove('visible');
+    homeBtn.classList.remove('visible');
+    breadcrumb.innerHTML = '<span class="current">Universe</span>';
+  } else {
+    backBtn.classList.add('visible');
+    homeBtn.classList.add('visible');
+    const cluster = CLUSTERS[currentView];
+    let bc = '<span onclick="goHome()">Universe</span><span class="sep">›</span>';
+    bc += `<span class="current" style="color:${cluster.color}">${cluster.name}</span>`;
+    if(highlightedNode) {
+      const node = nodeMap[highlightedNode];
+      bc += `<span class="sep">›</span><span class="current">${escapeHtml(node.name)}</span>`;
+    }
+    breadcrumb.innerHTML = bc;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INFO PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function showNodeInfo(nodeId) {
+  const node = nodeMap[nodeId];
+  if(!node) return;
+  highlightedNode = nodeId;
+  updateNav();
+
+  const cluster = CLUSTERS[node.cluster];
+  const conns = connections[nodeId] || [];
+
+  // Group connections by cluster
+  const grouped = {};
+  conns.forEach(c => {
+    const tn = nodeMap[c.target];
+    if(!tn) return;
+    if(!grouped[c.targetCluster]) grouped[c.targetCluster] = [];
+    if(!grouped[c.targetCluster].find(x => x.id === c.target)) {
+      grouped[c.targetCluster].push(tn);
+    }
+  });
+
+  let html = `<div class="panel-name" style="color:${cluster.color}">${escapeHtml(node.name)}</div>`;
+  html += `<div class="panel-badge" style="background:${cluster.color}22;color:${cluster.color};border:1px solid ${cluster.color}44">${cluster.name}</div>`;
+
+  // Check for UFO dual-view mapping
+  if (typeof UFO_MAPPING !== 'undefined' && UFO_MAPPING[nodeId]) {
+    const mapping = UFO_MAPPING[nodeId];
+    html += `<div style="margin:16px 0 8px;padding:12px;border:1px solid #10b98140;border-radius:8px;background:#10b98108">`;
+    html += `<div style="font-size:10px;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">\u{1F30D} REAL WORLD</div>`;
+    html += `<div style="font-size:12px;color:#bbb;line-height:1.5">${escapeHtml(mapping.real)}</div>`;
+    html += `</div>`;
+    html += `<div style="margin:8px 0 16px;padding:12px;border:1px solid #f59e0b40;border-radius:8px;background:#f59e0b08">`;
+    html += `<div style="font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">\u{1F3B8} SIGNAL DECAY</div>`;
+    html += `<div style="font-size:12px;color:#bbb;line-height:1.5">${escapeHtml(mapping.story)}</div>`;
+    html += `</div>`;
+  } else {
+    html += `<div class="panel-desc">${escapeHtml(node.desc)}</div>`;
+  }
+
+  html += `<div class="panel-section-title">Connected to (${conns.length})</div>`;
+
+  Object.keys(grouped).forEach(ck => {
+    const cl = CLUSTERS[ck];
+    html += `<div style="margin-top:8px;font-size:10px;color:${cl.color};letter-spacing:0.5px;opacity:0.7">${cl.name}</div>`;
+    grouped[ck].forEach(tn => {
+      html += `<div class="panel-conn" onclick="navigateToNode('${tn.id}')">`;
+      html += `<span class="panel-conn-dot" style="background:${cl.color}"></span>`;
+      html += `${escapeHtml(tn.name)}`;
+      html += `</div>`;
+    });
+  });
+
+  document.getElementById('panel-content').innerHTML = html;
+  document.getElementById('info-panel').classList.add('open');
+  panelOpen = true;
+}
+
+function navigateToNode(nodeId) {
+  const node = nodeMap[nodeId];
+  if(!node) return;
+  const targetCluster = node.cluster;
+
+  if(currentView !== targetCluster) {
+    navigateToCluster(targetCluster);
+    setTimeout(() => {
+      highlightedNode = nodeId;
+      renderLevel2(targetCluster, nodeId);
+      showNodeInfo(nodeId);
+      updateNav();
+    }, 100);
+  } else {
+    highlightedNode = nodeId;
+    renderLevel2(targetCluster, nodeId);
+    showNodeInfo(nodeId);
+    updateNav();
+  }
+}
+
+function closePanel() {
+  document.getElementById('info-panel').classList.remove('open');
+  panelOpen = false;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════════
+
+const searchBox = document.getElementById('search-box');
+const searchResults = document.getElementById('search-results');
+
+searchBox.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if(q.length < 2) { searchResults.style.display = 'none'; return; }
+
+  const matches = nodes.filter(n => n.name.toLowerCase().includes(q)).slice(0, 12);
+  if(matches.length === 0) { searchResults.style.display = 'none'; return; }
+
+  let html = '';
+  matches.forEach(n => {
+    const cl = CLUSTERS[n.cluster];
+    html += `<div class="search-item" onclick="searchSelect('${n.id}')">`;
+    html += `<span class="search-dot" style="background:${cl.color}"></span>`;
+    html += `<span class="search-name">${escapeHtml(n.name)}</span>`;
+    html += `<span class="search-cluster">${cl.name}</span>`;
+    html += `</div>`;
+  });
+  searchResults.innerHTML = html;
+  searchResults.style.display = 'block';
+});
+
+searchBox.addEventListener('blur', () => {
+  setTimeout(() => searchResults.style.display = 'none', 200);
+});
+
+function searchSelect(nodeId) {
+  searchBox.value = '';
+  searchResults.style.display = 'none';
+  navigateToNode(nodeId);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') {
+    if(panelOpen) closePanel();
+    else if(currentView !== 'overview') goHome();
+  }
+  if(e.key === '/' && document.activeElement !== searchBox) {
+    e.preventDefault();
+    searchBox.focus();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+
+function init() {
+  renderLevel1();
+  updateNav();
+  window.addEventListener('resize', () => {
+    if(currentView === 'overview') renderLevel1();
+    else renderLevel2(currentView, highlightedNode);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

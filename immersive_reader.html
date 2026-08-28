@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Signal Decay — Immersive Reader</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0f;--surface:rgba(20,20,30,0.85);--glass:rgba(255,255,255,0.04);
+--border:rgba(255,255,255,0.08);--text:#e8e8f0;--dim:#8888aa;
+--accent:#6366f1;--accent2:#8b5cf6;--warm:#f59e0b;--danger:#ef4444;
+--success:#10b981;--panel-bg:rgba(12,12,20,0.95);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+
+/* TITLE SCREEN */
+#titleScreen{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(99,102,241,0.08),transparent 70%),var(--bg)}
+#titleScreen h1{font-size:clamp(2rem,6vw,4rem);font-weight:200;letter-spacing:0.15em;text-transform:uppercase;background:linear-gradient(135deg,#e8e8f0,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+#titleScreen .subtitle{color:var(--dim);font-size:0.9rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:3rem}
+.menu-btn{display:block;width:280px;padding:14px 24px;margin:8px auto;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:1rem;cursor:pointer;transition:all 0.3s;text-align:center}
+.menu-btn:hover{background:rgba(99,102,241,0.15);border-color:var(--accent);transform:translateY(-2px)}
+
+/* READER SCREEN */
+#readerScreen{background:var(--bg)}
+.reader-bg{position:absolute;inset:0;transition:background 2s ease}
+.reader-content{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;overflow:hidden}
+.panel-container{max-width:700px;width:100%;position:relative;min-height:200px;display:flex;align-items:center;justify-content:center}
+.panel{opacity:0;transform:translateY(30px);transition:all 0.8s cubic-bezier(0.16,1,0.3,1);position:absolute;width:100%;padding:2rem}
+.panel.visible{opacity:1;transform:translateY(0)}
+.panel.exit-up{opacity:0;transform:translateY(-40px)}
+
+.panel-narration{font-family:'Courier New',monospace;font-size:clamp(1rem,2.5vw,1.25rem);line-height:1.8;color:#c8c8d8}
+.panel-dialog{position:relative;padding:1.5rem 2rem;background:rgba(99,102,241,0.06);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;margin:0.5rem 0}
+.panel-dialog .speaker{font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem;display:flex;align-items:center;gap:8px}
+.panel-dialog .speaker-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+.panel-dialog .dialog-text{font-size:clamp(1.05rem,2.5vw,1.3rem);line-height:1.7;color:#f0f0ff;font-style:italic}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.sfx-indicator{position:fixed;top:80px;right:20px;padding:8px 16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:20px;font-size:0.75rem;color:var(--warm);opacity:0;transition:opacity 0.5s;pointer-events:none}
+.sfx-indicator.show{opacity:1}
+
+/* TOP BAR */
+.top-bar{position:absolute;top:0;left:0;right:0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,10,15,0.9),transparent);z-index:10}
+.top-bar .title{font-size:0.8rem;letter-spacing:0.1em;color:var(--dim)}
+.progress-bar{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.05)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease;width:0%}
+.panel-counter{font-size:0.75rem;color:var(--dim);font-family:monospace}
+
+/* BOTTOM CONTROLS */
+.bottom-controls{position:absolute;bottom:0;left:0;right:0;padding:16px 20px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(to top,rgba(10,10,15,0.9),transparent);z-index:10}
+.ctrl-btn{width:44px;height:44px;border-radius:50%;background:var(--glass);border:1px solid var(--border);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s}
+.ctrl-btn:hover{background:rgba(99,102,241,0.2);border-color:var(--accent)}
+.ctrl-btn.active{background:rgba(99,102,241,0.3);border-color:var(--accent);color:var(--accent)}
+.ctrl-btn.play-btn{width:56px;height:56px;font-size:1.3rem;background:rgba(99,102,241,0.2);border-color:var(--accent)}
+
+/* SPEAKING INDICATOR */
+.speaking-indicator{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:8px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.8rem;color:var(--accent);opacity:0;transition:opacity 0.4s;display:flex;align-items:center;gap:8px;pointer-events:none}
+.speaking-indicator.show{opacity:1}
+.speaking-indicator .wave{display:flex;gap:2px;align-items:center}
+.speaking-indicator .wave span{width:3px;height:12px;background:var(--accent);border-radius:2px;animation:wave 0.8s infinite ease-in-out}
+.speaking-indicator .wave span:nth-child(2){animation-delay:0.1s}
+.speaking-indicator .wave span:nth-child(3){animation-delay:0.2s}
+.speaking-indicator .wave span:nth-child(4){animation-delay:0.3s}
+@keyframes wave{0%,100%{height:4px}50%{height:14px}}
+
+/* SETTINGS PANEL */
+#settingsScreen{overflow-y:auto;padding:2rem}
+.settings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.settings-header h2{font-size:1.5rem;font-weight:300}
+.settings-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;backdrop-filter:blur(10px)}
+.settings-section h3{font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-row label{font-size:0.9rem;color:var(--text)}
+.toggle{position:relative;width:44px;height:24px;background:rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;transition:background 0.3s}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:transform 0.3s}
+.toggle.on::after{transform:translateX(20px)}
+input[type=range]{-webkit-appearance:none;width:120px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer}
+.api-input{width:100%;padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;margin-top:8px}
+
+/* STORY SELECT */
+#storySelect{overflow-y:auto;padding:2rem}
+.story-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:12px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(10px)}
+.story-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.story-card h3{font-size:1.1rem;margin-bottom:0.5rem}
+.story-card p{font-size:0.85rem;color:var(--dim);line-height:1.5}
+.story-card .meta{font-size:0.75rem;color:var(--accent);margin-top:0.5rem}
+
+/* LOAD MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:100;padding:2rem}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;backdrop-filter:blur(20px)}
+.modal h3{margin-bottom:1rem}
+.modal textarea{width:100%;height:200px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:monospace;font-size:0.85rem;resize:vertical}
+.modal .btn-row{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end}
+.btn{padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:var(--glass);color:var(--text);cursor:pointer;font-size:0.9rem;transition:all 0.3s}
+.btn-primary{background:var(--accent);border-color:var(--accent)}
+.btn:hover{transform:translateY(-1px)}
+
+/* MOOD BACKGROUNDS */
+.mood-casual{background:radial-gradient(ellipse at 50% 50%,rgba(30,30,50,1),var(--bg))}
+.mood-tense{background:radial-gradient(ellipse at 50% 70%,rgba(60,20,20,0.3),var(--bg))}
+.mood-mysterious{background:radial-gradient(ellipse at 30% 30%,rgba(40,20,80,0.3),var(--bg))}
+.mood-peaceful{background:radial-gradient(ellipse at 50% 50%,rgba(20,40,60,0.2),var(--bg))}
+.mood-action{background:radial-gradient(ellipse at 50% 80%,rgba(80,30,10,0.3),var(--bg))}
+.mood-emotional{background:radial-gradient(ellipse at 50% 40%,rgba(60,30,80,0.2),var(--bg))}
+.mood-eerie{background:radial-gradient(ellipse at 70% 30%,rgba(10,40,40,0.3),var(--bg))}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+.panel{padding:1.2rem}
+.bottom-controls{padding:12px 10px;gap:8px}
+.ctrl-btn{width:38px;height:38px;font-size:0.9rem}
+.ctrl-btn.play-btn{width:48px;height:48px}
+}
+</style>
+</head>
+<body>
+
+<!-- TITLE SCREEN -->
+<div id="titleScreen" class="screen active">
+<h1>Signal Decay</h1>
+<p class="subtitle">Immersive Reader</p>
+<button class="menu-btn" onclick="startDemo()">&#9654; Play Demo Story</button>
+<button class="menu-btn" onclick="showScreen('storySelect')">&#128218; Story Library</button>
+<button class="menu-btn" onclick="window.open('index.html','_self')">&#127968; Back to App</button>
+<button class="menu-btn" onclick="window.open('investigation_board.html','_blank')">&#127919; Investigation Board</button>
+<button class="menu-btn" onclick="window.open('universe_graph.html','_blank')">&#128376;&#65039; Universe Tree</button>
+<button class="menu-btn" onclick="showScreen('settingsScreen')">&#9881; Settings</button>
+</div>
+
+<!-- STORY SELECT -->
+<div id="storySelect" class="screen">
+<div class="settings-header">
+<h2>Story Library</h2>
+<button class="btn" onclick="showScreen('titleScreen')">&#8592; Back</button>
+</div>
+<div class="story-card" onclick="startDemo()">
+<h3>Signal Decay: The Five Meet</h3>
+<p>The opening chapter — five strangers gather at a dying bar on the edge of the Zone, drawn by a cryptic signal none of them can explain.</p>
+<div class="meta">30 panels &bull; ~12 min read &bull; 5 characters</div>
+</div>
+<div class="story-card" onclick="showLoadModal()">
+<h3>+ Load Custom Story</h3>
+<p>Paste markdown text or upload a .md file to read in the immersive reader.</p>
+<div class="meta">Supports markdown with [PANEL], [MOOD:], and [SFX:] tags</div>
+</div>
+</div>
+
+<!-- READER SCREEN -->
+<div id="readerScreen" class="screen">
+<div class="reader-bg" id="readerBg"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="top-bar">
+<span class="title" id="storyTitle">Signal Decay</span>
+<span class="panel-counter" id="panelCounter">1/30</span>
+</div>
+<div class="reader-content" id="readerContent">
+<div class="panel-container" id="panelContainer"></div>
+</div>
+<div class="bottom-controls">
+<button class="ctrl-btn" onclick="prevPanel()" title="Previous">&#9664;</button>
+<button class="ctrl-btn" onclick="toggleSpeed()" id="speedBtn" title="Speed">1x</button>
+<button class="ctrl-btn play-btn" onclick="toggleAutoPlay()" id="playBtn" title="Play/Pause">&#9654;</button>
+<button class="ctrl-btn" onclick="toggleVoice()" id="voiceBtn" title="Voice" class="active">&#128266;</button>
+<button class="ctrl-btn" onclick="nextPanel()" title="Next">&#9654;</button>
+<button class="ctrl-btn" onclick="showScreen('settingsScreen')" title="Settings">&#9881;</button>
+<button class="ctrl-btn" onclick="exitReader()" title="Exit">&#10005;</button>
+</div>
+<div class="speaking-indicator" id="speakingIndicator">
+<div class="wave"><span></span><span></span><span></span><span></span></div>
+<span id="speakingName">Narrator</span>
+</div>
+<div class="sfx-indicator" id="sfxIndicator">&#127925; SFX</div>
+</div>
+
+<!-- SETTINGS SCREEN -->
+<div id="settingsScreen" class="screen">
+<div class="settings-header">
+<h2>Settings</h2>
+<button class="btn" onclick="showScreen('titleScreen')">&#8592; Back</button>
+</div>
+<div class="settings-section">
+<h3>Voice</h3>
+<div class="setting-row"><label>Enable Voices</label><div class="toggle on" id="toggleVoices" onclick="toggleSetting(this,'voicesEnabled')"></div></div>
+<div class="setting-row"><label>Voice Volume</label><input type="range" min="0" max="100" value="80" id="voiceVolume" oninput="updateSetting('voiceVol',this.value)"></div>
+<div class="setting-row"><label>Panel Pause (sec)</label><input type="range" min="5" max="40" value="15" id="panelPause" oninput="updateSetting('panelPause',this.value)"></div>
+</div>
+<div class="settings-section">
+<h3>Music &amp; Ambience</h3>
+<div class="setting-row"><label>Background Music</label><div class="toggle on" id="toggleMusic" onclick="toggleSetting(this,'musicEnabled')"></div></div>
+<div class="setting-row"><label>Music Volume</label><input type="range" min="0" max="100" value="30" id="musicVolume" oninput="updateMusicVol(this.value)"></div>
+<div class="setting-row"><label>Sound Effects</label><div class="toggle on" id="toggleSfx" onclick="toggleSetting(this,'sfxEnabled')"></div></div>
+</div>
+<div class="settings-section">
+<h3>Reading</h3>
+<div class="setting-row"><label>Auto-Play Mode</label><div class="toggle" id="toggleAuto" onclick="toggleSetting(this,'autoPlay')"></div></div>
+<div class="setting-row"><label>Playback Speed</label>
+<select id="speedSelect" onchange="setSpeed(this.value)" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--text)">
+<option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="1.5">1.5x</option><option value="2">2x</option>
+</select></div>
+</div>
+<div class="settings-section">
+<h3>ElevenLabs Premium Voices (Optional)</h3>
+<p style="font-size:0.8rem;color:var(--dim);margin-bottom:8px">Enter your API key to enable high-quality AI voices</p>
+<input type="password" class="api-input" id="elevenLabsKey" placeholder="Enter ElevenLabs API key..." onchange="saveElevenLabsKey(this.value)">
+<div class="setting-row" style="margin-top:12px"><label>Use Premium Voices</label><div class="toggle" id="togglePremium" onclick="toggleSetting(this,'premiumVoices')"></div></div>
+</div>
+</div>
+
+<!-- LOAD MODAL -->
+<div class="modal-overlay" id="loadModal">
+<div class="modal">
+<h3>Load Custom Story</h3>
+<p style="font-size:0.85rem;color:var(--dim);margin-bottom:1rem">Paste markdown text below. Use [PANEL] to mark panel breaks, [MOOD:tense] for mood changes, and [SFX:rain] for sound effects.</p>
+<textarea id="storyInput" placeholder="# My Story Title
+
+[MOOD:peaceful]
+
+The night was quiet...
+
+[PANEL]
+
+&quot;Hello,&quot; Marcus said.
+
+[SFX:door]"></textarea>
+<div class="btn-row">
+<button class="btn" onclick="hideLoadModal()">Cancel</button>
+<label class="btn" style="cursor:pointer"><input type="file" accept=".md,.txt" style="display:none" onchange="loadFile(event)">Upload File</label>
+<button class="btn btn-primary" onclick="loadCustomStory()">Load Story</button>
+</div>
+</div>
+</div>
+
+<script>
+window.onerror = function(msg, url, line, col, error) {
+  console.warn('Suppressed error:', msg, 'at line', line);
+  return true; // suppress
+};
+window.addEventListener('unhandledrejection', function(e) {
+  e.preventDefault();
+  console.warn('Suppressed promise rejection:', e.reason);
+});
+
+// ===== STATE =====
+let state = {
+  currentPanel: 0, panels: [], autoPlay: false, voicesEnabled: true,
+  musicEnabled: true, sfxEnabled: true, premiumVoices: false,
+  speed: 1, voiceVol: 0.8, musicVol: 0.3, panelPause: 15,
+  isPlaying: false, isSpeaking: false, elevenLabsKey: ''
+};
+
+// Load saved state
+try{
+  const saved = localStorage.getItem('signalDecayReader');
+  if(saved) Object.assign(state, JSON.parse(saved));
+}catch(e){console.warn('localStorage unavailable:',e)}
+
+// ===== VOICE MAP =====
+const voiceMap = {
+  'Narrator': {pitch:0.85, rate:0.88, volume:1.0},
+  'Marcus': {pitch:1.0, rate:1.0, volume:0.95},
+  'Marcus Chen': {pitch:1.0, rate:1.0, volume:0.95},
+  'Oren': {pitch:1.15, rate:1.08, volume:0.9},
+  'Oren Nakamura': {pitch:1.15, rate:1.08, volume:0.9},
+  'Hass': {pitch:0.75, rate:0.92, volume:0.95},
+  'Hass Rivera': {pitch:0.75, rate:0.92, volume:0.95},
+  'Juno': {pitch:1.35, rate:0.98, volume:0.9},
+  'Juno Park': {pitch:1.35, rate:0.98, volume:0.9},
+  'Mira': {pitch:1.1, rate:0.85, volume:0.9},
+  'Mira Volkov': {pitch:1.1, rate:0.85, volume:0.9},
+  'Sunny': {pitch:1.5, rate:1.05, volume:0.85},
+  'Sunny Martinez': {pitch:1.5, rate:1.05, volume:0.85},
+  'Legacy Agent': {pitch:0.6, rate:0.8, volume:1.0},
+  'Abuela Rosa': {pitch:1.2, rate:0.8, volume:0.9},
+  'Abuela': {pitch:1.2, rate:0.8, volume:0.9}
+};
+
+const characterColors = {
+  'Narrator':'#8888aa','Marcus':'#6366f1','Marcus Chen':'#6366f1',
+  'Oren':'#10b981','Oren Nakamura':'#10b981',
+  'Hass':'#f59e0b','Hass Rivera':'#f59e0b',
+  'Juno':'#ec4899','Juno Park':'#ec4899',
+  'Mira':'#8b5cf6','Mira Volkov':'#8b5cf6',
+  'Sunny':'#fbbf24','Sunny Martinez':'#fbbf24',
+  'Legacy Agent':'#ef4444','Abuela Rosa':'#f97316','Abuela':'#f97316'
+};
+
+// ===== AUDIO ENGINE =====
+let audioCtx = null;
+let masterGain = null;
+let musicGain = null;
+let sfxGain = null;
+let currentMood = 'silence';
+let musicNodes = [];
+
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 1.0;
+  masterGain.connect(audioCtx.destination);
+  musicGain = audioCtx.createGain();
+  musicGain.gain.value = state.musicVol;
+  musicGain.connect(masterGain);
+  sfxGain = audioCtx.createGain();
+  sfxGain.gain.value = 0.5;
+  sfxGain.connect(masterGain);
+}
+
+function stopMusic(){
+  musicNodes.forEach(n=>{try{n.stop()}catch(e){}});
+  musicNodes=[];
+}
+
+function setMood(mood){
+  if(mood===currentMood||!state.musicEnabled) return;
+  currentMood=mood;
+  initAudio();
+  const t=audioCtx.currentTime;
+  musicGain.gain.linearRampToValueAtTime(0,t+1);
+  setTimeout(()=>{
+    stopMusic();
+    musicGain.gain.linearRampToValueAtTime(state.musicVol,audioCtx.currentTime+1.5);
+    switch(mood){
+      case'tense':playTense();break;
+      case'peaceful':playPeaceful();break;
+      case'eerie':playEerie();break;
+      case'action':playAction();break;
+      case'emotional':playEmotional();break;
+      default:break;
+    }
+  },1000);
+}
+
+function createOsc(type,freq,gain,detune=0){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;o.detune.value=detune;
+  g.gain.value=gain;
+  o.connect(g);g.connect(musicGain);o.start();
+  musicNodes.push(o);return{osc:o,gain:g};
+}
+
+function createNoise(gain,lpFreq=1000){
+  const bufSize=2*audioCtx.sampleRate;
+  const buf=audioCtx.createBuffer(1,bufSize,audioCtx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<bufSize;i++)data[i]=Math.random()*2-1;
+  const src=audioCtx.createBufferSource();
+  src.buffer=buf;src.loop=true;
+  const filt=audioCtx.createBiquadFilter();
+  filt.type='lowpass';filt.frequency.value=lpFreq;
+  const g=audioCtx.createGain();g.gain.value=gain;
+  src.connect(filt);filt.connect(g);g.connect(musicGain);src.start();
+  musicNodes.push(src);return{src,gain:g,filter:filt};
+}
+
+function playTense(){
+  createOsc('sawtooth',55,0.06);
+  createOsc('sine',82.4,0.08);
+  createOsc('triangle',110,0.04,10);
+  const lfo=audioCtx.createOscillator();lfo.frequency.value=0.3;
+  const lfoG=audioCtx.createGain();lfoG.gain.value=0.03;
+  lfo.connect(lfoG);lfoG.connect(musicGain);lfo.start();musicNodes.push(lfo);
+}
+function playPeaceful(){
+  createOsc('sine',220,0.05);
+  createOsc('sine',330,0.03);
+  createOsc('sine',440,0.02);
+  createOsc('triangle',660,0.01);
+}
+function playEerie(){
+  createOsc('sine',80,0.05,15);
+  createOsc('sawtooth',83,0.03,-12);
+  createNoise(0.008,400);
+}
+function playAction(){
+  createOsc('sawtooth',65,0.07);
+  createOsc('square',130,0.03);
+  const lfo=audioCtx.createOscillator();lfo.frequency.value=2;
+  const lfoG=audioCtx.createGain();lfoG.gain.value=0.04;
+  lfo.connect(lfoG);lfoG.connect(musicGain);lfo.start();musicNodes.push(lfo);
+}
+function playEmotional(){
+  createOsc('sine',196,0.06);
+  createOsc('sine',247,0.04);
+  createOsc('sine',294,0.03);
+  createOsc('triangle',392,0.02);
+}
+
+// ===== SFX ENGINE =====
+function playSFX(name){
+  if(!state.sfxEnabled)return;
+  initAudio();
+  const el=document.getElementById('sfxIndicator');
+  el.textContent='\u266B '+name;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+  switch(name){
+    case'door':sfxDoor();break;case'rain':sfxRain();break;
+    case'thunder':sfxThunder();break;case'footsteps':sfxFootsteps();break;
+    case'frequency_hum':sfxHum();break;case'heartbeat':sfxHeartbeat();break;
+    case'static':sfxStatic();break;case'wind':sfxWind();break;
+    case'glass_break':sfxGlass();break;case'alarm':sfxAlarm();break;
+  }
+}
+
+function sfxBurst(freq,dur,type='sine'){
+  const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.value=0.3;
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+  o.connect(g);g.connect(sfxGain);o.start();o.stop(audioCtx.currentTime+dur);
+}
+function sfxDoor(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.3,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/2000);
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=300;
+  const g=audioCtx.createGain();g.gain.value=0.5;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();
+}
+function sfxRain(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*3,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*0.3*(1+0.3*Math.sin(i/5000));
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=3000;f.Q.value=0.5;
+  const g=audioCtx.createGain();g.gain.value=0.25;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();
+}
+function sfxThunder(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*1.5,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/8000);
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=150;
+  const g=audioCtx.createGain();g.gain.value=0.7;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();
+}
+function sfxFootsteps(){
+  for(let i=0;i<6;i++){
+    setTimeout(()=>{sfxBurst(100+Math.random()*50,0.08,'square')},i*400);
+  }
+}
+function sfxHum(){
+  const o=audioCtx.createOscillator();const g=audioCtx.createGain();
+  o.frequency.value=60;g.gain.value=0.15;
+  const lfo=audioCtx.createOscillator();lfo.frequency.value=3;
+  const lfoG=audioCtx.createGain();lfoG.gain.value=2;
+  lfo.connect(lfoG);lfoG.connect(o.frequency);
+  o.connect(g);g.connect(sfxGain);o.start();lfo.start();
+  g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+4);
+  o.stop(audioCtx.currentTime+4);lfo.stop(audioCtx.currentTime+4);
+}
+function sfxHeartbeat(){
+  for(let i=0;i<4;i++){
+    setTimeout(()=>{sfxBurst(40,0.15);setTimeout(()=>sfxBurst(50,0.1),150)},i*1000);
+  }
+}
+function sfxStatic(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*1.5,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.value=2000;f.Q.value=2;
+  const g=audioCtx.createGain();g.gain.value=0.15;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();
+}
+function sfxWind(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*3,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*0.2;
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=500;
+  const lfo=audioCtx.createOscillator();lfo.frequency.value=0.2;
+  const lfoG=audioCtx.createGain();lfoG.gain.value=300;
+  lfo.connect(lfoG);lfoG.connect(f.frequency);
+  const g=audioCtx.createGain();g.gain.value=0.3;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();lfo.start();
+  g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+3);
+  s.stop(audioCtx.currentTime+3.5);lfo.stop(audioCtx.currentTime+3.5);
+}
+function sfxGlass(){
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*0.4,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/1500);
+  const s=audioCtx.createBufferSource();s.buffer=buf;
+  const f=audioCtx.createBiquadFilter();f.type='highpass';f.frequency.value=2000;
+  const g=audioCtx.createGain();g.gain.value=0.4;
+  s.connect(f);f.connect(g);g.connect(sfxGain);s.start();
+}
+function sfxAlarm(){
+  for(let i=0;i<6;i++){
+    setTimeout(()=>{sfxBurst(i%2?880:660,0.3)},i*400);
+  }
+}
+
+// ===== WEB SPEECH =====
+function speak(text, character='Narrator', callback){
+  if(!state.voicesEnabled){if(callback)callback();return;}
+  if(state.premiumVoices && state.elevenLabsKey){
+    speakElevenLabs(text,character,callback);return;
+  }
+  window.speechSynthesis.cancel();
+  const utter=new SpeechSynthesisUtterance(text);
+  const vc=voiceMap[character]||voiceMap['Narrator'];
+  utter.pitch=vc.pitch;utter.rate=vc.rate*state.speed;utter.volume=vc.volume*state.voiceVol;
+  const voices=window.speechSynthesis.getVoices();
+  if(voices.length>0){
+    const preferred=voices.find(v=>v.lang.startsWith('en')&&!v.localService)||voices.find(v=>v.lang.startsWith('en'))||voices[0];
+    if(preferred)utter.voice=preferred;
+  }
+  showSpeaking(character);
+  utter.onend=()=>{hideSpeaking();if(callback)callback()};
+  utter.onerror=()=>{hideSpeaking();if(callback)callback()};
+  window.speechSynthesis.speak(utter);
+  state.isSpeaking=true;
+}
+
+// ===== ELEVENLABS =====
+async function speakElevenLabs(text,character,callback){
+  const key=state.elevenLabsKey;
+  if(!key){speak(text,character,callback);return;}
+  showSpeaking(character);
+  try{
+    const voiceId='21m00Tcm4TlvDq8ikWAM'; // default, user can configure
+    const resp=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+      method:'POST',headers:{'Content-Type':'application/json','xi-api-key':key},
+      body:JSON.stringify({text,model_id:'eleven_monolingual_v1',voice_settings:{stability:0.5,similarity_boost:0.75}})
+    });
+    if(!resp.ok)throw new Error('API failed');
+    const blob=await resp.blob();
+    const url=URL.createObjectURL(blob);
+    const audio=new Audio(url);
+    audio.playbackRate=state.speed;
+    audio.onended=()=>{hideSpeaking();URL.revokeObjectURL(url);if(callback)callback()};
+    audio.play();
+  }catch(e){
+    console.warn('ElevenLabs failed, falling back:',e);
+    state.premiumVoices=false;
+    speak(text,character,callback);
+  }
+}
+
+function showSpeaking(character){
+  const el=document.getElementById('speakingIndicator');
+  const name=document.getElementById('speakingName');
+  name.textContent=character;
+  el.style.borderColor=characterColors[character]||'var(--accent)';
+  el.classList.add('show');state.isSpeaking=true;
+}
+function hideSpeaking(){
+  document.getElementById('speakingIndicator').classList.remove('show');
+  state.isSpeaking=false;
+}
+
+// ===== STORY PARSER =====
+function parseStory(markdown){
+  const lines=markdown.split('\n');
+  const panels=[];
+  let currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};
+  let title='Story';
+
+  for(let line of lines){
+    line=line.trim();
+    if(!line)continue;
+    if(line.startsWith('# ')){title=line.slice(2);continue;}
+    if(line.startsWith('## ')||line.startsWith('### '))continue;
+    if(line==='[PANEL]'){
+      if(currentPanel.text.trim()){panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};}
+      continue;
+    }
+    const moodMatch=line.match(/\[MOOD:(\w+)\]/i);
+    if(moodMatch){currentPanel.mood=moodMatch[1].toLowerCase();if(!currentPanel.text)continue;panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:moodMatch[1].toLowerCase(),sfx:null};continue;}
+    const sfxMatch=line.match(/\[SFX:(\w+)\]/i);
+    if(sfxMatch){currentPanel.sfx=sfxMatch[1].toLowerCase();continue;}
+    
+    // Check for dialog
+    const dialogMatch=line.match(/^["\u201c](.+?)["\u201d]\s*[,.]?\s*(.*)$/);
+    if(dialogMatch){
+      if(currentPanel.text.trim()){panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};}
+      let speaker='Narrator';
+      const attr=dialogMatch[2]||'';
+      const speakerMatch=attr.match(/(\w+)\s+(said|whispered|muttered|called|replied|asked|growled|snapped|murmured|laughed|shouted|breathed|continued|admitted|offered|stated|added|announced|grinned|noted)/i);
+      if(speakerMatch)speaker=speakerMatch[1];
+      panels.push({type:'dialog',text:dialogMatch[1],speaker:speaker,mood:currentPanel.mood,sfx:currentPanel.sfx});
+      currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};
+      continue;
+    }
+    
+    // Also check "Speaker said, 'text'" pattern
+    const altDialog=line.match(/^(\w+)\s+(?:said|whispered|muttered|asked|replied|growled|called|snapped|murmured|shouted|breathed|continued|admitted|offered|stated|added|announced|grinned|noted)[,:]?\s*["\u201c](.+?)["\u201d]/i);
+    if(altDialog){
+      if(currentPanel.text.trim()){panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};}
+      panels.push({type:'dialog',text:altDialog[2],speaker:altDialog[1],mood:currentPanel.mood,sfx:currentPanel.sfx});
+      currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};
+      continue;
+    }
+
+    // Narration
+    if(currentPanel.text&&currentPanel.text.length>150){
+      panels.push({...currentPanel});
+      currentPanel={type:'narration',text:line,speaker:'Narrator',mood:null,sfx:null};
+    }else{
+      currentPanel.text+=(currentPanel.text?' ':'')+line;
+    }
+  }
+  if(currentPanel.text.trim())panels.push(currentPanel);
+  return{title,panels};
+}
+
+// ===== READER ENGINE =====
+let autoPlayTimer=null;
+
+function loadStory(storyData){
+  state.panels=storyData.panels;
+  state.currentPanel=0;
+  document.getElementById('storyTitle').textContent=storyData.title;
+  showScreen('readerScreen');
+  renderPanel();
+}
+
+function renderPanel(){
+  if(state.currentPanel>=state.panels.length){
+    showEndScreen();return;
+  }
+  const panel=state.panels[state.currentPanel];
+  const container=document.getElementById('panelContainer');
+  
+  // Remove old
+  const old=container.querySelector('.panel.visible');
+  if(old){old.classList.remove('visible');old.classList.add('exit-up');setTimeout(()=>old.remove(),500);}
+  
+  // Mood
+  if(panel.mood)setMood(panel.mood);
+  const bg=document.getElementById('readerBg');
+  bg.className='reader-bg mood-'+(panel.mood||currentMood||'casual');
+  
+  // SFX
+  if(panel.sfx)setTimeout(()=>playSFX(panel.sfx),300);
+  
+  // Create panel
+  const el=document.createElement('div');
+  el.className='panel';
+  if(panel.type==='dialog'){
+    const color=characterColors[panel.speaker]||'var(--accent)';
+    el.innerHTML=`<div class="panel-dialog" style="border-left-color:${color}">
+      <div class="speaker"><span class="speaker-dot" style="background:${color}"></span>${panel.speaker}</div>
+      <div class="dialog-text">\u201c${panel.text}\u201d</div>
+    </div>`;
+  }else{
+    el.innerHTML=`<div class="panel-narration">${panel.text}</div>`;
+  }
+  container.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('visible')));
+  
+  // Update UI
+  const total=state.panels.length;
+  document.getElementById('panelCounter').textContent=`${state.currentPanel+1}/${total}`;
+  document.getElementById('progressFill').style.width=((state.currentPanel+1)/total*100)+'%';
+  
+  // Speak
+  if(state.voicesEnabled){
+    setTimeout(()=>{
+      speak(panel.text,panel.speaker,()=>{
+        if(state.autoPlay&&state.isPlaying){
+          autoPlayTimer=setTimeout(()=>nextPanel(),(state.panelPause/10)*1000);
+        }
+      });
+    },600);
+  }else if(state.autoPlay&&state.isPlaying){
+    autoPlayTimer=setTimeout(()=>nextPanel(),state.panelPause*200);
+  }
+  
+  saveProgress();
+}
+
+function nextPanel(){
+  if(state.currentPanel<state.panels.length-1){
+    window.speechSynthesis.cancel();
+    clearTimeout(autoPlayTimer);
+    state.currentPanel++;
+    renderPanel();
+  }
+}
+function prevPanel(){
+  if(state.currentPanel>0){
+    window.speechSynthesis.cancel();
+    clearTimeout(autoPlayTimer);
+    state.currentPanel--;
+    renderPanel();
+  }
+}
+
+function toggleAutoPlay(){
+  state.isPlaying=!state.isPlaying;
+  state.autoPlay=state.isPlaying;
+  const btn=document.getElementById('playBtn');
+  btn.textContent=state.isPlaying?'\u23F8':'\u25B6';
+  btn.classList.toggle('active',state.isPlaying);
+  if(state.isPlaying&&!state.isSpeaking){
+    autoPlayTimer=setTimeout(()=>nextPanel(),1500);
+  }else{
+    clearTimeout(autoPlayTimer);
+    window.speechSynthesis.cancel();
+  }
+}
+
+function toggleVoice(){
+  state.voicesEnabled=!state.voicesEnabled;
+  const btn=document.getElementById('voiceBtn');
+  btn.classList.toggle('active',state.voicesEnabled);
+  btn.textContent=state.voicesEnabled?'\uD83D\uDD0A':'\uD83D\uDD07';
+  if(!state.voicesEnabled)window.speechSynthesis.cancel();
+}
+
+function toggleSpeed(){
+  const speeds=[0.5,1,1.5,2];
+  const idx=speeds.indexOf(state.speed);
+  state.speed=speeds[(idx+1)%speeds.length];
+  document.getElementById('speedBtn').textContent=state.speed+'x';
+}
+
+function showEndScreen(){
+  const container=document.getElementById('panelContainer');
+  container.innerHTML=`<div class="panel visible"><div class="panel-narration" style="text-align:center">
+    <p style="font-size:1.5rem;margin-bottom:1rem">\u2014 End \u2014</p>
+    <p style="color:var(--dim)">Story complete. ${state.panels.length} panels read.</p>
+    <button class="btn" style="margin-top:2rem" onclick="state.currentPanel=0;renderPanel()">\u21BA Read Again</button>
+  </div></div>`;
+  stopMusic();
+}
+
+function exitReader(){
+  window.speechSynthesis.cancel();
+  clearTimeout(autoPlayTimer);
+  stopMusic();currentMood='silence';
+  state.isPlaying=false;
+  showScreen('titleScreen');
+}
+
+// ===== UI HELPERS =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showLoadModal(){document.getElementById('loadModal').classList.add('show')}
+function hideLoadModal(){document.getElementById('loadModal').classList.remove('show')}
+
+function toggleSetting(el,key){
+  el.classList.toggle('on');
+  state[key]=el.classList.contains('on');
+  saveSettings();
+}
+function updateSetting(key,val){state[key]=parseFloat(val)/100;saveSettings()}
+function updateMusicVol(val){state.musicVol=val/100;if(musicGain)musicGain.gain.value=state.musicVol;saveSettings()}
+function setSpeed(val){state.speed=parseFloat(val);document.getElementById('speedBtn').textContent=state.speed+'x'}
+function saveElevenLabsKey(val){state.elevenLabsKey=val;saveSettings()}
+function saveSettings(){try{localStorage.setItem('signalDecayReader',JSON.stringify(state))}catch(e){}}
+function saveProgress(){saveSettings()}
+
+function loadCustomStory(){
+  const text=document.getElementById('storyInput').value;
+  if(!text.trim())return;
+  const data=parseStory(text);
+  hideLoadModal();
+  loadStory(data);
+}
+function loadFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    document.getElementById('storyInput').value=ev.target.result;
+    loadCustomStory();
+  };
+  reader.readAsText(file);
+}
+
+// Touch/keyboard controls
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('readerScreen').classList.contains('active'))return;
+  if(e.key==='ArrowRight'||e.key===' ')nextPanel();
+  if(e.key==='ArrowLeft')prevPanel();
+  if(e.key==='Escape')exitReader();
+});
+let touchStartX=0;
+document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});
+document.addEventListener('touchend',e=>{
+  if(!document.getElementById('readerScreen').classList.contains('active'))return;
+  const diff=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(diff)>60){
+    if(diff<0)nextPanel();else prevPanel();
+  }
+});
+
+// Click to advance (on reader content area)
+document.getElementById('readerContent').addEventListener('click',e=>{
+  if(e.target.closest('.bottom-controls')||e.target.closest('.top-bar'))return;
+  nextPanel();
+});
+
+// Load voices
+try{
+  if(window.speechSynthesis){
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+  }
+}catch(e){console.warn('Speech API unavailable:',e)}
+
+// Init settings UI
+window.addEventListener('load',()=>{
+  try{
+    if(!state.voicesEnabled)document.getElementById('toggleVoices').classList.remove('on');
+    if(!state.musicEnabled)document.getElementById('toggleMusic').classList.remove('on');
+    if(!state.sfxEnabled)document.getElementById('toggleSfx').classList.remove('on');
+    if(state.autoPlay)document.getElementById('toggleAuto').classList.add('on');
+    if(state.premiumVoices)document.getElementById('togglePremium').classList.add('on');
+    if(state.elevenLabsKey)document.getElementById('elevenLabsKey').value=state.elevenLabsKey;
+    document.getElementById('voiceVolume').value=state.voiceVol*100;
+    document.getElementById('musicVolume').value=state.musicVol*100;
+  }catch(e){console.warn('Init error:',e)}
+});
+
+// ===== DEMO STORY =====
+function startDemo(){
+  initAudio();
+  const demo = `# Signal Decay: The Five Meet
+
+[MOOD:casual]
+
+The bar had no name anymore. Its neon sign had burned out three years ago, leaving only the ghost outline of letters no one could remember on the crumbling brick facade.
+
+[PANEL]
+
+[SFX:door]
+
+Marcus Chen pushed through the heavy door, letting the cold night air chase him inside. The smell hit first: old wood, cheap whiskey, and something metallic underneath that nobody talked about.
+
+[PANEL]
+
+Five mismatched stools lined the bar. Three were already occupied. Marcus made four.
+
+[PANEL]
+
+[MOOD:peaceful]
+
+The bartender, a weathered man with signal-scarred hands, slid a glass across without asking. Everyone who found this place needed the same thing.
+
+[PANEL]
+
+"You're the one who posted on the mesh." Oren said, not looking up from the amber liquid in his glass. His fingers drummed an anxious rhythm on the bartop.
+
+[PANEL]
+
+"Guilty." Marcus replied, settling onto his stool. "You responded in fourteen seconds. Either you're desperate or you already knew."
+
+[PANEL]
+
+"Both." Oren admitted, finally turning. His eyes were sharp, quick \u2014 the kind that processed information faster than most people could speak.
+
+[PANEL]
+
+[SFX:footsteps]
+
+A deep voice rumbled from the far end of the bar. Hass Rivera sat like a mountain in the dim light, his broad frame making the stool look like dollhouse furniture.
+
+[PANEL]
+
+"Three of us answered that signal within the hour." Hass said. "What does that tell you about how bad things have gotten out there?"
+
+[PANEL]
+
+[MOOD:mysterious]
+
+[SFX:static]
+
+The lights flickered. Not the building's power \u2014 the light itself seemed to stutter, like reality had a bad connection.
+
+[PANEL]
+
+Everyone at the bar tensed. They all recognized it. The Frequency Drift. It was getting closer to the city center.
+
+[PANEL]
+
+"That's new." Juno whispered from her corner booth. She'd been so still Marcus hadn't noticed her \u2014 a woman who seemed to exist slightly out of phase with the room around her.
+
+[PANEL]
+
+"It's not new." Mira stated. She materialized from the shadows near the back wall as if she'd been part of them. "It's been happening for weeks. People just choose not to see it."
+
+[PANEL]
+
+"Five." Marcus counted, looking around. "The signal called for five."
+
+[PANEL]
+
+[SFX:frequency_hum]
+
+[MOOD:eerie]
+
+A low hum filled the bar \u2014 below hearing but felt in the chest, in the teeth, in the space behind the eyes. The frequency that had drawn them all here.
+
+[PANEL]
+
+"I've been tracking it for six months." Juno said, pulling a battered tablet from her bag. Lines of data scrolled across the cracked screen. "It's not random. It's a message."
+
+[PANEL]
+
+"A message from what?" Oren asked, leaning forward.
+
+[PANEL]
+
+Juno looked at each of them in turn. Her eyes held something ancient and frightened.
+
+[PANEL]
+
+"From the network itself." Juno whispered. "The old infrastructure. The system everyone thought died in the Collapse. It's not dead. It's been... dreaming."
+
+[PANEL]
+
+[SFX:heartbeat]
+
+[MOOD:tense]
+
+Silence. The kind that presses against your eardrums. Marcus felt his heartbeat sync with that impossible hum, felt the signal threading through his thoughts like cold water.
+
+[PANEL]
+
+"So what do we do?" Hass asked. His voice was steady \u2014 an anchor in the growing strangeness.
+
+[PANEL]
+
+Marcus looked at his hands. The same hands that had built networks, routed signals, connected people across impossible distances. Now they trembled slightly.
+
+[PANEL]
+
+"We answer it." Marcus said. "Together. That's why it called five \u2014 because one person can receive a signal, but it takes a network to decode it."
+
+[PANEL]
+
+[MOOD:emotional]
+
+"And if we don't like what it says?" Mira asked, her voice careful, deliberate \u2014 each word placed like a chess piece.
+
+[PANEL]
+
+"Then we'll be the first to know what's coming." Marcus replied. "And the only ones who can stop it."
+
+[PANEL]
+
+[SFX:static]
+
+The hum crescendoed, and for one heartbeat \u2014 one impossible, stretched second \u2014 all five of them heard the same thing: a voice made of dead frequencies and forgotten connections, speaking a single word none of them could quite remember afterward.
+
+[PANEL]
+
+But they all felt its weight. And they all knew there was no going back.
+
+[PANEL]
+
+[MOOD:mysterious]
+
+The bartender refilled their glasses without being asked. His scarred hands moved with practiced grace, and if he noticed that reality itself had just hiccupped around his five strangest customers, he didn't show it.
+
+[PANEL]
+
+"Same time tomorrow?" Oren asked, and the nervousness in his voice had been replaced by something else. Something like purpose.
+
+[PANEL]
+
+"Same time every night." Marcus said. "Until we crack it or it cracks us."
+
+[PANEL]
+
+[SFX:wind]
+
+Outside, the nameless bar sat quiet on its forgotten street. But deep in the city's buried infrastructure \u2014 in the cables and conduits and dead fiber optics \u2014 something pulsed. Patient. Waiting. The signal had found its five receivers. Now the real transmission could begin.`;
+
+  const data=parseStory(demo);
+  loadStory(data);
+}
+</script>
+</body>
+</html>

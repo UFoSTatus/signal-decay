@@ -1,0 +1,57 @@
+SIGNAL DECAY — RESUME PROMPT
+==============================
+Paste this into a new chat to pick up where we left off.
+
+---
+
+READ THE HANDOFF FILE:
+
+Read the file at:
+C:\Users\ufostat\Documents\spanish app\transfer folder 2\research\interface_enhancement\build\research\story\reader_app\HANDOFF_2026-08-27.md
+
+That file has the full state of where we left off, what was built, what's next, and all technical details.
+
+---
+
+WORKING RULES:
+1. All story files live at: C:\Users\ufostat\Documents\spanish app\transfer folder 2\research\interface_enhancement\build\research\story\
+2. Reader app is at: ...\story\reader_app\
+3. Do NOT ask for confirmation before starting tasks — just run them
+4. ALL files must be saved to permanent drive (not session-only)
+5. Always do research BEFORE building something unfamiliar
+6. Never delete info from docs — always ADD (with timestamps)
+7. Include "✅ Add ALL of these" option on multi-select decision cards
+8. These apps need real browser (not iframe sandbox) for Web Audio + Speech Synthesis
+9. The app will be a PWA — installed directly on phones/tablets/desktops
+
+---
+
+KEY FILES:
+- Reader App (home base): reader_app/index.html (182 KB, 7 tabs + Experiences section)
+- Investigation Board: reader_app/investigation_board.html (90 KB, premium conspiracy map)
+- Immersive Reader: reader_app/immersive_reader.html (43 KB, character voices + music)
+- Universe Graph: reader_app/universe_graph.html (80 KB, 187 nodes)
+- Setup Guide: reader_app/SIGNAL_DECAY_APP_SETUP_GUIDE.md (AI + PWA + Azure)
+- All apps cross-linked (every page navigates to every other)
+
+---
+
+UNIVERSE STATS:
+- 127 files | 8.2 MB | ~713,000+ words
+- 62 .md story/lore files
+- 21 UFOlogy conspiracy entries (fully articled)
+- 5 main characters (The Five): Marcus, Oren, Hass, Juno, Mira
+- Key side character: Sunny Martinez (1990s ghost girl)
+- Antagonist org: The Legacy (shadow government, 75+ years)
+- Core physics: frequency manipulation, The Signal, The Dampener, octave system
+
+---
+
+WHAT'S NEXT (from handoff):
+- Test all apps in Chrome (voices, music, saving)
+- PWA deployment (manifest.json + service-worker.js ready in setup guide)
+- Convert existing .md stories to use [PANEL], [MOOD:], [SFX:] tags for Immersive Reader
+- Bestiary tab for reader app (careful — previous attempt corrupted it)
+- Mira full arc (only main character without standalone deep-dive)
+- More UFOlogy deep dives
+- AI image generation for story panels (future)
