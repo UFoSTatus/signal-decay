@@ -765,9 +765,29 @@ textarea {
 <div class="toast" id="toast"></div>
 
 <script>
+
+// === API KEY MANAGEMENT (keys stored in localStorage, never in code) ===
+function getApiKey(service) {
+  const keys = JSON.parse(localStorage.getItem('sd_api_keys') || '{}');
+  return keys[service] || '';
+}
+function setApiKey(service, key) {
+  const keys = JSON.parse(localStorage.getItem('sd_api_keys') || '{}');
+  keys[service] = key;
+  localStorage.setItem('sd_api_keys', JSON.stringify(keys));
+}
+function promptForKey(service, description) {
+  const existing = getApiKey(service);
+  if (existing) return existing;
+  const key = prompt('Enter your ' + description + ' API key:\n(This saves locally and never leaves your device)');
+  if (key) { setApiKey(service, key); return key; }
+  return '';
+}
+
+
 // ===== CONFIG =====
 const API_URL = 'https://ufostatus1947-1629-resource.openai.azure.com/openai/deployments/gpt-image-2/images/generations?api-version=2025-04-01-preview';
-const API_KEY = 'Q29Ic2hpMHFOVjVGTHk2OEtWaE8yeEZKaEhMbkdDMG9xRDc3ZlJ3NlJ3MmJLdU5YWHpWdUpRUUo5OUNIQUNNc2ZyRlhKM3czQUFBQUFDT0c4d0Ew';
+const API_KEY = getApiKey('image');
 
 // ===== CHARACTER DESCRIPTIONS =====
 const CHARACTERS = {

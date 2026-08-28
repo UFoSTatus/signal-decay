@@ -674,12 +674,32 @@
 </div>
 
 <script>
+
+// === API KEY MANAGEMENT (keys stored in localStorage, never in code) ===
+function getApiKey(service) {
+  const keys = JSON.parse(localStorage.getItem('sd_api_keys') || '{}');
+  return keys[service] || '';
+}
+function setApiKey(service, key) {
+  const keys = JSON.parse(localStorage.getItem('sd_api_keys') || '{}');
+  keys[service] = key;
+  localStorage.setItem('sd_api_keys', JSON.stringify(keys));
+}
+function promptForKey(service, description) {
+  const existing = getApiKey(service);
+  if (existing) return existing;
+  const key = prompt('Enter your ' + description + ' API key:\n(This saves locally and never leaves your device)');
+  if (key) { setApiKey(service, key); return key; }
+  return '';
+}
+
+
 // ═══════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════
 
 const API_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
-const API_KEY = atob('OFNKeXphQlNzTE8xWno5b0xSQXNoaGdDQWtuRDJBTFRnY1J1clozWkt2YUdvSm9pbjc0d0pRUUo5OUNIQUNZZUJqRlhKM3czQUFBQkFDT0dSdUdy'); // Replace base64 encoded key
+const API_KEY = getApiKey('openai'); // Replace base64 encoded key
 const MODEL = 'gpt-4o';
 
 // ═══════════════════════════════════════════════════════════
