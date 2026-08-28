@@ -206,12 +206,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 </select></div>
 </div>
 <div class="settings-section">
-<h3>🎙️ Voice Engine</h3>
-<p style="font-size:0.8rem;color:var(--dim);margin-bottom:8px">Three tiers: Browser (free) → Azure Speech (good) → ElevenLabs (premium)</p>
-<div class="setting-row"><label>Azure Speech (Recommended)</label><div class="toggle active" id="toggleAzure" onclick="toggleSetting(this,'azureVoices')"></div></div>
-<input type="password" class="api-input" id="azureSpeechKeyInput" placeholder="Azure Speech key..." onchange="saveAzureKey(this.value)" style="margin-top:8px">
-<div class="setting-row" style="margin-top:12px"><label>ElevenLabs Premium</label><div class="toggle" id="togglePremium" onclick="toggleSetting(this,'premiumVoices')"></div></div>
-<input type="password" class="api-input" id="elevenLabsKey" placeholder="ElevenLabs API key (optional)..." onchange="saveElevenLabsKey(this.value)" style="margin-top:8px">
+<h3>ElevenLabs Premium Voices (Optional)</h3>
+<p style="font-size:0.8rem;color:var(--dim);margin-bottom:8px">Enter your API key to enable high-quality AI voices</p>
+<input type="password" class="api-input" id="elevenLabsKey" placeholder="Enter ElevenLabs API key..." onchange="saveElevenLabsKey(this.value)">
+<div class="setting-row" style="margin-top:12px"><label>Use Premium Voices</label><div class="toggle" id="togglePremium" onclick="toggleSetting(this,'premiumVoices')"></div></div>
 </div>
 </div>
 
@@ -252,11 +250,9 @@ window.addEventListener('unhandledrejection', function(e) {
 // ===== STATE =====
 let state = {
   currentPanel: 0, panels: [], autoPlay: false, voicesEnabled: true,
-  musicEnabled: true, sfxEnabled: true, premiumVoices: false, azureVoices: false,
+  musicEnabled: true, sfxEnabled: true, premiumVoices: false,
   speed: 1, voiceVol: 0.8, musicVol: 0.3, panelPause: 15,
-  isPlaying: false, isSpeaking: false, elevenLabsKey: '',
-  azureSpeechKey: '',
-  azureRegion: 'eastus2'
+  isPlaying: false, isSpeaking: false, elevenLabsKey: ''
 };
 
 // Load saved state
@@ -503,16 +499,9 @@ function sfxAlarm(){
 // ===== WEB SPEECH =====
 function speak(text, character='Narrator', callback){
   if(!state.voicesEnabled){if(callback)callback();return;}
-  // Priority: ElevenLabs (premium) → Azure (recommended) → Browser (free)
   if(state.premiumVoices && state.elevenLabsKey){
     speakElevenLabs(text,character,callback);return;
   }
-  if(state.azureVoices && state.azureSpeechKey){
-    speakAzure(text,character,callback);return;
-  }
-  speakBrowser(text,character,callback);
-}
-function speakBrowser(text, character='Narrator', callback){
   window.speechSynthesis.cancel();
   const utter=new SpeechSynthesisUtterance(text);
   const vc=voiceMap[character]||voiceMap['Narrator'];
@@ -529,79 +518,13 @@ function speakBrowser(text, character='Narrator', callback){
   state.isSpeaking=true;
 }
 
-// ===== AZURE SPEECH (Character Voices) =====
-const azureVoiceMap = {
-  'Narrator': 'en-US-GuyNeural',
-  'Marcus': 'en-US-DavisNeural',
-  'Kael': 'en-US-DavisNeural',
-  'Oren': 'en-US-JasonNeural',
-  'Hass': 'en-US-TonyNeural',
-  'Jude': 'en-US-TonyNeural',
-  'Juno': 'en-US-JennyNeural',
-  'Zara': 'en-US-JennyNeural',
-  'Mira': 'en-US-AriaNeural',
-  'Sunny': 'en-US-SaraNeural',
-  'Legacy Agent': 'en-US-GuyNeural'
-};
-
-const elevenLabsVoiceMap = {
-  'Narrator': 'pNInz6obpgDQGcFmaJgB',
-  'Marcus': '29vD33N1CtxCmqQRPOHJ',
-  'Kael': '29vD33N1CtxCmqQRPOHJ',
-  'Oren': 'yoZ06aMxZJJ28mfd3POQ',
-  'Hass': 'VR6AewLTigWG4xSOukaG',
-  'Jude': 'VR6AewLTigWG4xSOukaG',
-  'Juno': 'EXAVITQu4vr4xnSDxMaL',
-  'Zara': 'EXAVITQu4vr4xnSDxMaL',
-  'Mira': 'MF3mGyEYCl7XYWbV9V6O',
-  'Sunny': 'jBpfuIE2acCO8z3wKNLl',
-  'Legacy Agent': 'pNInz6obpgDQGcFmaJgB'
-};
-
-async function speakAzure(text, character, callback){
-  const key = state.azureSpeechKey;
-  const region = state.azureRegion;
-  if(!key){speak(text,character,callback);return;}
-  showSpeaking(character);
-  try{
-    const voiceName = azureVoiceMap[character] || azureVoiceMap['Narrator'];
-    const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'><voice name='${voiceName}'><prosody rate='${(state.speed*100).toFixed(0)}%'>${text.replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":"&apos;",'"':'&quot;'}[c]))}</prosody></voice></speak>`;
-    const tokenResp = await fetch(`https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,{
-      method:'POST',headers:{'Ocp-Apim-Subscription-Key':key,'Content-Length':'0'}
-    });
-    const token = await tokenResp.text();
-    const audioResp = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,{
-      method:'POST',
-      headers:{
-        'Authorization':'Bearer '+token,
-        'Content-Type':'application/ssml+xml',
-        'X-Microsoft-OutputFormat':'audio-16khz-128kbitrate-mono-mp3'
-      },
-      body:ssml
-    });
-    if(!audioResp.ok) throw new Error('Azure TTS failed: '+audioResp.status);
-    const blob = await audioResp.blob();
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.volume = state.voiceVol;
-    audio.onended=()=>{hideSpeaking();URL.revokeObjectURL(url);if(callback)callback()};
-    audio.onerror=()=>{hideSpeaking();URL.revokeObjectURL(url);if(callback)callback()};
-    audio.play();
-  }catch(e){
-    console.warn('Azure Speech failed, falling back to browser:',e);
-    hideSpeaking();
-    state.azureVoices=false;
-    speakBrowser(text,character,callback);
-  }
-}
-
 // ===== ELEVENLABS =====
 async function speakElevenLabs(text,character,callback){
   const key=state.elevenLabsKey;
   if(!key){speak(text,character,callback);return;}
   showSpeaking(character);
   try{
-    const voiceId=elevenLabsVoiceMap[character]||elevenLabsVoiceMap['Narrator'];
+    const voiceId='21m00Tcm4TlvDq8ikWAM'; // default, user can configure
     const resp=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
       method:'POST',headers:{'Content-Type':'application/json','xi-api-key':key},
       body:JSON.stringify({text,model_id:'eleven_monolingual_v1',voice_settings:{stability:0.5,similarity_boost:0.75}})
@@ -833,7 +756,6 @@ function toggleSetting(el,key){
 function updateSetting(key,val){state[key]=parseFloat(val)/100;saveSettings()}
 function updateMusicVol(val){state.musicVol=val/100;if(musicGain)musicGain.gain.value=state.musicVol;saveSettings()}
 function setSpeed(val){state.speed=parseFloat(val);document.getElementById('speedBtn').textContent=state.speed+'x'}
-function saveAzureKey(val){state.azureSpeechKey=val;saveSettings()}
 function saveElevenLabsKey(val){state.elevenLabsKey=val;saveSettings()}
 function saveSettings(){try{localStorage.setItem('signalDecayReader',JSON.stringify(state))}catch(e){}}
 function saveProgress(){saveSettings()}
