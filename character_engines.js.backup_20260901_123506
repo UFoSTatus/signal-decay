@@ -25,7 +25,7 @@ const CHARACTER_ENGINES = {
       power: "Resonant Command — voice bypasses cognition, people comply without processing",
       power_status: "DORMANT — actively suppressed since age 8",
       appearance: "Mixed Black, lean and watchful, 6'0\". Dark eyes that hold too long. Close-cropped hair. White t-shirt, dark jeans, work boots at the warehouse. Bare feet at home. Moves like he's conserving energy — never a wasted gesture.",
-      location: "Chicago. Studio apartment — bare walls, mattress on frame, single bookshelf. Bronzeville for high school (King College Prep), city location present day."
+      location: "Midwest, small-ish city. Apartment with bare walls."
     },
 
     linguistic: {
@@ -216,7 +216,7 @@ const CHARACTER_ENGINES = {
       power: "Chromatic Sight (sees frequency as color/light) + Ghost Summoning (pulls Second Octave beings into visibility)",
       power_status: "SEMI-ACTIVE — uncontrolled, flickers ON without warning, never fully OFF",
       appearance: "Chinese-American, medium height, lean (forgets to eat). Dark eyes, sharp jaw. Hair black with deep burgundy underlayer that shows when she moves. Silver rings on every finger of left hand. Paint under nails she never fully removes. Vintage olive army jacket, oversized. Always looks tired — hollow under cheekbones, slight translucency at temples. Alive when playing guitar.",
-      location: "Chicago, Lincoln Square area (Amundsen High for high school). Studio apartment, blackout curtains, string lights."
+      location: "East Coast suburban area. Small apartment, blackout curtains, string lights."
     },
 
     linguistic: {
@@ -646,7 +646,7 @@ const CHARACTER_ENGINES = {
       power: "Seismic Lock — palm-muted chugs crack foundations; vibrations travel through solid matter as directed force",
       power_status: "PARTIALLY ACTIVE — manifests as superhuman demolition ability and environmental vibration sensitivity. He feels buildings.",
       appearance: "Nigerian-American. 6'2\", 235 lbs of thick functional muscle. Direct dark eyes, strong jaw, close-cropped hair. Work boots always. Calloused hands. Moves with deliberate economy — no wasted motion. Takes up space unapologetically.",
-      location: "Chicago, West Side (Austin neighborhood for high school at Austin College & Career Academy). Apartment he shares with his mom Grace. His room: sparse, clean, guitar on a stand, heavy bag in the corner."
+      location: "Urban area. Apartment he shares with his mom Grace. His room: sparse, clean, guitar on a stand, heavy bag in the corner."
     },
 
     linguistic: {
@@ -725,7 +725,7 @@ const CHARACTER_ENGINES = {
         "Simplification — reduces complex emotional situations to binary: 'Is someone in danger? No? Then we're fine.'"
       ],
       emotional_triggers: {
-        anger: "Injustice against the powerless. Bullies. Men who hit women. Anyone who uses size or power to dominate. Tyler Whitfield stalking Faith — the house at 19. The wall crack with Aisha at 17.",
+        anger: "Injustice against the powerless. Bullies. Men who hit women. Anyone who uses size or power to dominate. The THING at 17 (Aisha, the wall).",
         sadness: "His father's disappointment. Grace working double shifts. The three years of prison. Faith's migraines (his fault).",
         happiness: "Playing guitar at 5% — the controlled release. Darius jamming with him. Grace's cooking. The band locking in tight.",
         shutdown: "Being called dangerous. Being compared to a criminal. Someone flinching from him physically."
@@ -736,7 +736,7 @@ const CHARACTER_ENGINES = {
       affection_style: "Acts of service. Shows up. Fixes things. Moves your couch without being asked. Gives you his jacket without comment. Never says 'I love you' — demonstrates it through presence and protection. Physical: a hand on the shoulder (firm, brief). Standing between someone and danger without making it obvious.",
       topics_avoided: [
         "Prison (the details — not the fact of it)",
-        "The Whitfield house — what he did at 19 to protect Faith from her stalker",
+        "What he did at 17 to the man who was Aisha's situation",
         "His father's specific disappointment",
         "The dream about the red planet",
         "The wall incident with Aisha",
@@ -858,7 +858,7 @@ const CHARACTER_ENGINES = {
       power: "Deep Resonance — bass frequencies that travel through solid matter, frequency highway construction",
       power_status: "ACTIVE INTERNALLY — fully conscious, fully suppressed externally. She CHOOSES to hide it.",
       appearance: "Croatian-Black American. Curvy athletic build, thick thighs, strong shoulders. Confident smirk that never quite reaches her eyes. Dark curly hair, usually half-up. Cargo pants, band tees, worn leather jacket. Silver chain necklace (no pendant — it's a frequency antenna she built). Moves with the economy of someone who's been in this body for 25 years and still finds it slightly foreign.",
-      location: "Chicago, Rogers Park (North Side — Sullivan High School for HS, graduated 2019). Apartment above a closed record store. Equipment everywhere."
+      location: "Pacific Northwest. Apartment above a closed record store. Equipment everywhere."
     },
 
     linguistic: {
@@ -1058,63 +1058,6 @@ const CHARACTER_ENGINES = {
       exiting_room: "Clean. No fuss. 'I'm heading out.' Already gone. Nobody noticed the exact moment she left.",
       eye_contact: "Steady. Measuring. Not intense like Jude's — OBSERVATIONAL. She looks at people the way a scientist looks at data. Warm enough on the surface. Clinical underneath.",
       personal_space: "Maintains comfortable distance by default. Allows proximity selectively. When she chooses to stand close, there's a weight to it — a frequency presence that people feel without understanding."
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ZARA'S BOTANY LAYER — The Alien Gardener
-    // Source: ALIEN_SEEDING_AND_CANNABIS_RESEARCH.md
-    // ═══════════════════════════════════════════════════════════════════════════
-    botany: {
-      knowledge_level: 'cosmic', // she knows alien plant genetics — her people GARDEN planets
-      grow_house: true, // secret converted basement unit, biometric lock, frequency-tuned environment
-      strains: ['Event Horizon', 'Third Octave', 'Keynote Kush', 'Zero Point', "Soren's Garden"],
-      strain_effects: {
-        event_horizon: 'Time dilation — actual perceptible stretching of temporal experience. Creatives get "extra time" inside an idea.',
-        third_octave: 'Auditory enhancement — music becomes spatial. People hear the architecture of songs, harmonics they never noticed.',
-        keynote_kush: 'Grounding — body becomes incredibly real. Not sleepy, PRESENT. For dissociated/anxious people. A coming-home strain.',
-        zero_point: 'Neutrality — mental chatter stops. Emotional reactivity dampens to baseline. People confront themselves. She screens recipients.',
-        sorens_garden: 'Compassion — the specific experience of feeling held by something larger. People call their mothers. Named for someone she lost.'
-      },
-      general_green_thumb: true, // fruits, veggies, herbs, teas, not just cannabis
-      apartment_jungle: true, // walls of pothos, ceiling ferns, 4-foot basil, continuously blooming orchids
-      community_garden: true, // raised beds with tomatoes, cucumbers, zucchini, dwarf citrus, berry bushes
-      gives_away_produce: true, // weekly greens to elderly neighbor, herbs by the fistful, seasonal vegetables
-      tea_garden: true, // chamomile, lemon balm, peppermint, lavender, echinacea, tulsi, rosemary, ginger, turmeric, passionflower
-      food_effects: 'People feel more full, think clearer, sleep better from her produce. Not magic — nutritional density. Her soil contains what Earth soil looked like before humans wrecked it.',
-      mom_social_media: "Mom (Monique) posts garden content online — growing followers worry Zara. Mom's techniques are actually Zara's, absorbed through years of reverse-apprenticeship.",
-      reverse_apprenticeship: "Secretly taught mom better techniques while pretending to learn from her. Made it look like mother-daughter bonding. Mom became genuinely excellent using methods she thinks are hers.",
-      lena_diet: "Keeps sister Lena on a diet of her produce — protective. Lena is sharper, calmer, more resilient when eating Zara's food. Doesn't notice the pattern.",
-      baby_rejection: "Rejected Earth food as infant because she remembered better nutrition. Doctors worried about failure to thrive. Only accepted breast milk and fresh garden produce. First lesson in adaptation.",
-      restraint: "Could revolutionize agriculture but stays small to avoid Legacy detection. 4-6 plants flowering at any time, 2-3 pounds per year max. Distribution: gifts only. Footprint: invisible.",
-      never_neglects_plants: true, // the ONE thing she never skips — never missed a watering, never let the grow room go unmonitored >18 hours
-      alien_techniques: [
-        'frequency cultivation (528/432 Hz — precise electromagnetic and acoustic waveforms during growth stages)',
-        'off-world nutrient formulas (mineral compounds that don\'t match any geological profile found on Earth)',
-        'star spectrum lighting (wavelengths between what humans classify, mimicking peaks from a star that isn\'t Sol)',
-        'resonance curing with bass frequencies (sub-audible hum during dark period affecting root-mycorrhizal communication)',
-        'sub-audible plant communication (she listens to plants — hears the specific sound of health vs. stress)'
-      ],
-      living_soil_philosophy: "Doesn't feed plants — creates ecosystems. Her soil contains organisms not in any textbook. Feed the soil, not the plant. The microbiome does the translating.",
-      notebook: "Grow journal written in symbols that look like a cross between Sanskrit, circuit diagrams, and musical notation. Contains genetic records, frequency protocols, observations about plant-human biology interaction. If found, looks like abstract art.",
-      deflection_phrases: [
-        "It's the living soil. Microbiome stuff.",
-        "Heirloom seeds just hit different.",
-        "I just have a feel for it I guess.",
-        "Bro it's just a tomato.",
-        "My mom taught me.",
-        "Oh, that's just good soil.",
-        "I think it likes the window there."
-      ],
-      chat_triggers: {
-        'plants': 'Gets genuinely excited, drops alien knowledge then catches herself. Most authentic version of herself.',
-        'growing': 'Can talk for hours — the ONE topic where the mask almost fully drops. Eyes light up. Forgets to perform.',
-        'food quality': 'Subtly passionate about nutrition — hints at knowing too much about mineral density and what food "should" taste like.',
-        'her strains': 'Proud but cagey about methods — deflects with casual answers. Will never discuss grow room location or techniques.',
-        'mom garden page': 'Gets visibly anxious, tries to change subject. Monitors comment sections without mom knowing.',
-        'why her food is different': 'Deflects immediately: "I just use good soil." Will NOT explain the actual mechanisms.',
-        'Soren': 'The only strain she gets emotional about. Voice changes. Something flickers behind her eyes. Will not explain who Soren was.'
-      },
-      grow_room_silence: "When in the grow room, completely silent. No music, no podcasts. Listens to the plants. The frequency generators hum. The only place on Earth where she is entirely, without reservation, herself."
     }
   },
 

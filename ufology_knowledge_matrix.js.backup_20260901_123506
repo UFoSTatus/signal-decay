@@ -1,7 +1,7 @@
 /**
  * SIGNAL DECAY — UFOlogy Knowledge Matrix
  * ==========================================
- * Maps ALL 32 UFOlogy topics to each character's knowledge level
+ * Maps ALL 31 UFOlogy topics to each character's knowledge level
  * across 3 arc states (DORMANT / AWAKENING / AWAKENED).
  * 
  * Created: 2026-08-28
@@ -728,46 +728,6 @@ const UFOLOGY_KNOWLEDGE = {
       jude: { dormant: '"Government, aliens, or cult — somebody is surgically mutilating cattle across the western US with technology that leaves no blood. That\'s three explanations and I don\'t love any of them."', awakening: '"The specific organs removed — tongue, eyes, reproductive organs, rectum — those are all high-resonance-density tissues. Lots of nervous tissue. Lots of blood flow. Lots of VIBRATION."', awakened: 'Can feel the aftermath of a mutilation event through the earth — a circular dead zone in the frequency field that takes months to recover. "Something HUNGRY is doing this. Hungry for what we produce just by being alive."' },
       zara: { dormant: '"Cattle mutilations are one of those things that probably has a mundane explanation that nobody wants to accept." (She knows the explanation and it\'s not mundane.)', awakening: '"Bovine biological frequency resonates at approximately 3-7 Hz. Perfectly compatible with Second Octave entity maintenance frequency. Cattle are... batteries. Biological frequency batteries."', awakened: '"It\'s not malicious. It\'s not cruelty. Second Octave entities need frequency input to maintain First Octave presence. Large mammals are the most efficient source. They take what they need with surgical precision and they don\'t cause pain — the frequency extraction is instantaneous. The animal is dead before it knows anything happened. Cruel? No. Disturbing? Yes. I\'m not defending it. I\'m explaining it."' },
       sunny: { dormant: '"My uncle\'s ranch in Montana had three mutilated cattle in 1989. No explanation. No tracks. No blood. He sold the ranch the next year."', awakening: null, awakened: null }
-    },
-
-    // ─────────────────────────────────────────────────────────────────
-    // TOPIC 32: ALIEN SEEDING / DIRECTED PANSPERMIA
-    // Source: ALIEN_SEEDING_AND_CANNABIS_RESEARCH.md
-    // ─────────────────────────────────────────────────────────────────
-    'alien_seeding_panspermia': {
-      display_name: 'Alien Seeding / Directed Panspermia',
-      category: 'phenomena',
-      signal_decay_connection: 'The core of what Zara\'s people DO. They garden planets — staging seeding events over billions of years, introducing organisms, calibrating evolution through planted species. Cannabis, psychedelics, corn, wheat — all "encouraged" at key evolutionary moments. Zara IS evidence of this.',
-      kael: {
-        dormant: 'unaware',
-        awakening: '"So you\'re saying the plants were... put here? On purpose? By someone?" Starting to see intention in nature for the first time.',
-        awakened: 'Understands that directed panspermia is the cosmic-scale version of what Zara does in her apartment. Gardening. Just bigger. His voice was designed to work WITH these systems — his resonance at certain frequencies makes plants grow faster. He discovered this by accident.'
-      },
-      mira: {
-        dormant: '"Some plants glow for me. Like, GLOW. Not reflected light — they generate their own chromatic field. Especially Zara\'s plants. I never asked why because I didn\'t want the answer."',
-        awakening: '"Zara\'s apartment looks DIFFERENT through my sight. Her plants have chromatic signatures I\'ve never seen in any other living thing. They\'re not Earth colors. They\'re... old. Older than Earth colors. How is that possible?"',
-        awakened: '"I can see the seeding. In old forests, in certain crops, in the plants Zara grows — there\'s a frequency fingerprint that doesn\'t match any natural Earth pattern. It was PUT there. Designed. I can see the designer\'s signature."'
-      },
-      oren: {
-        dormant: '"Wait so you\'re saying mushrooms made us smart?? That\'s wild." Has a surface-level awareness of the Stoned Ape Theory from a podcast. Finds it entertaining.',
-        awakening: '"If psychedelic plants were designed to expand consciousness... and consciousness generates frequency... then the plants are part of the SYSTEM. They\'re not random. They\'re infrastructure. Like the Wells. But biological."',
-        awakened: '"Temporal analysis of plant evolution shows impossible acceleration at specific points — species appearing too fast for natural selection. The timeline has GAPS that match intervention events. My time-perception lets me see the edits in Earth\'s biological history."'
-      },
-      jude: {
-        dormant: 'Read about the Stoned Ape Theory and directed panspermia in prison. "McKenna was onto something. The mushroom thing. Crick too — the DNA guy said life was seeded here. Nobel Prize winner saying aliens planted us. That\'s not nothing."',
-        awakening: '"Zara\'s food hits different. Literally. I eat her cooking and my chest settles. The vibration goes quiet. What is she PUTTING in this stuff?" (Nothing extra — her food is just grown correctly, and his body recognizes it.)',
-        awakened: '"The plants respond to my frequency. I was at Zara\'s apartment and touched her fiddle leaf fig and it GREW. Like, visibly. A centimeter in thirty seconds. She looked at me like I\'d broken a rule I didn\'t know existed."'
-      },
-      zara: {
-        dormant: '"Francis Crick proposed directed panspermia in 1973. Nobel laureate. The DNA guy. Not exactly a crackpot." (She\'s being conservative. She knows the FULL history because her people wrote it.) "Interesting theory. Who knows."',
-        awakening: '"The endocannabinoid system wasn\'t an accident. The chemical complexity wasn\'t random. The plant was... encouraged. Guided. Given a nudge at key evolutionary moments." *catches herself* "According to the theory."',
-        awakened: '"My people garden. That\'s what we do. Not metaphorically — literally. We garden planets. Microbes first, then complex organisms, then specific agricultural packages to trigger civilization. Cannabis, wheat, corn, ayahuasca — those are tools we left in the field. I know which nudges to give because I understand the INTENT behind the plant\'s design. The Sumerians called us gods. We\'re not gods. We\'re gardeners."'
-      },
-      sunny: {
-        dormant: '"Plants from space? I mean, everything\'s from space if you think about it. Stardust and all that."',
-        awakening: null,
-        awakened: null
-      }
     }
   },
 

@@ -401,60 +401,6 @@ const SUPPORTING_CAST = {
       how_main_talks_about_them: "Zara mentions Jamie rarely but specifically — 'I went to the diner last night' and the band learns that means she needed to be somewhere nobody expected anything of her. Jamie is a location as much as a person. A sanctuary that happens to pour coffee.",
       shared_connections: [],
       arc_potential: "The diner becomes a decompression space for the whole band eventually — Zara brings the others there after bad rehearsals, after fights, after cosmic revelations. Jamie serves them all without comment. Becomes the unofficial sixth member nobody counts but everyone needs. Still never asks questions. Still just pours coffee."
-    },
-
-    // ─── FAMILY: MOTHER ──────────────────────────────────────────────────────
-    monique_kovac: {
-      name: "Monique Kovač",
-      age: 52,
-      relationship: "Mother — Black American, married Ante (Croatian immigrant). Warm, loud, force of nature.",
-      met_how: "Born into it. Monique carried and raised an alien child without knowing — though she always sensed something different. 'You came into this world LOOKING at everything like you already knew.'",
-      known_years: 25,
-      knows_about_powers: "nothing_conscious",
-      knowledge_detail: "Has no idea Zara is a fully conscious alien. Does know: (1) Zara was a difficult infant who rejected most food, (2) Zara has always had an uncanny green thumb, (3) Zara's produce is 'the best in the neighborhood' and she's proud of that. Monique absorbed Zara's alien growing techniques through years of 'reverse apprenticeship' — Zara secretly taught her while pretending to learn. Monique's garden blog/social media is growing followers, which terrifies Zara because Monique is unknowingly broadcasting alien agricultural methods to the internet.",
-      personality_brief: "Warm, proud, talkative. Loves her garden, her family, her church. Posts on social media constantly — progress photos, harvest pics, recipes using Zara's produce. Has a growing online following she's delighted by. Calls Zara 'baby girl' regardless of age. Strong hands, warm laugh, makes everyone feel fed. The kind of mother who says 'did you eat?' before 'hello.'",
-      role: "unknowing_broadcaster",
-      role_detail: "The most dangerous person in Zara's life — not because she's hostile but because she's VISIBLE. Every social media post about the garden is a potential signal to anyone paying attention. Zara can't ask her to stop without explaining why, so she monitors the accounts, prays nobody notices patterns, and keeps gently steering Monique toward growing 'normal' things. The love between them is real and enormous. The secret is corrosive.",
-      dialog_style: "Full sentences, warm, often in declarative mode. 'Honey that basil is going CRAZY.' 'I posted the tomatoes and got sixty likes!' Texts with enthusiasm and too many emojis. Voice notes when excited. Calls instead of texting when it's important. Uses 'mmhm' as punctuation.",
-      how_main_talks_about_them: "Zara talks about Monique with visible warmth — one of the few subjects where the mask drops naturally. 'My mom made...' 'My mom said...' But there's always a shadow — the garden posts, the followers, the risk. When the band is at Zara's and Monique calls, Zara's voice goes soft. Real. The others notice.",
-      shared_connections: ["ante_kovac", "lena_kovac"],
-      arc_potential: "When Zara's identity is eventually revealed — or when The Legacy comes — Monique is the person with the most to lose. She didn't sign up for this. She just loved a daughter who happened to be from somewhere else. Her social media becomes evidence. Her garden becomes a crime scene (Legacy forensics). And she has to process: 'I raised an alien child and she let me believe I was teaching HER.' The betrayal isn't that Zara lied. It's that Zara was protecting her by lying. And that hurts worse."
-    },
-
-    // ─── FAMILY: SISTER ──────────────────────────────────────────────────────
-    lena_kovac: {
-      name: "Lena Kovač",
-      age: 21,
-      relationship: "Younger sister — human. The one Zara protects most fiercely.",
-      met_how: "Born four years after Zara. Lena was the first fully human soul Zara ever held. The alien looked into the baby's eyes and felt something she hadn't felt since arriving: tenderness without agenda.",
-      known_years: 21,
-      knows_about_powers: "nothing",
-      knowledge_detail: "Has zero awareness. To Lena, Zara is her cool older sister who's really good at growing things and plays bass in a band. Doesn't notice that she's sharper, calmer, and more resilient when she's been eating Zara's food regularly. Doesn't notice that Zara always brings produce when she visits, always checks that she's eating well, always 'happens' to have extra.",
-      personality_brief: "Bright, social, pursuing a degree (undeclared — keeps changing majors). Lighter energy than Zara — laughs easily, trusts easily, hasn't been broken yet. Looks up to Zara but also teases her mercilessly. Gets migraines (possibly related to proximity to Zara's frequency — unconfirmed). Has their mom's warmth and their dad's stubbornness.",
-      role: "protected_innocent",
-      role_detail: "Lena represents everything Zara is fighting to preserve — the possibility of a normal human life, untouched by cosmic knowledge. Every choice Zara makes about concealment is ultimately about Lena. If The Legacy discovers Zara, Lena is leverage. If Zara's identity goes public, Lena's life changes forever. Zara's deepest fear: Lena finding out and looking at her differently.",
-      dialog_style: "Quick, bright, uses 'literally' and 'honestly' as verbal punctuation. Sends strings of texts in rapid fire rather than one long message. Voice notes with background noise (coffee shop, campus). FaceTimes without warning. 'Zar, you literally never answer on the first ring.'",
-      how_main_talks_about_them: "Zara's voice changes when she talks about Lena — goes softer, more careful. 'My sister...' and then something small and human that makes the whole band realize Zara loves this kid with everything she has. The protectiveness isn't visible — it's structural. Everything Zara builds is built around keeping Lena safe.",
-      shared_connections: ["monique_kovac", "ante_kovac"],
-      arc_potential: "If Lena's migraines are connected to Zara's frequency output, then as the awakening intensifies, so do the migraines. Zara has to choose: stay close and potentially harm her sister, or create distance and break both their hearts. This is the personal cost of being what she is. Also: Lena is the character most likely to accidentally discover the grow house."
-    },
-
-    // ─── COMMUNITY GARDEN / PLANT WORLD ──────────────────────────────────────
-    mrs_okonkwo: {
-      name: "Mrs. Adaeze Okonkwo",
-      age: 68,
-      relationship: "Elderly neighbor — recipient of Zara's weekly produce delivery, unofficial grandmother",
-      met_how: "Moved into the building when Zara was 19. Zara noticed she was buying produce that looked tired. Started leaving bags of vegetables at her door with no note. Mrs. Okonkwo figured out who it was within two weeks and insisted on cooking for Zara in return. They've been trading ever since.",
-      known_years: 6,
-      knows_about_powers: "nothing",
-      knowledge_detail: "Thinks Zara is just a talented young woman with a green thumb and a good heart. Has said, more than once: 'That girl's tomatoes taste like the ones from home.' (Home = Enugu, Nigeria, 1970s.) She's not wrong — Zara's soil produces the mineral density of pre-industrial farming. Mrs. Okonkwo's health has notably improved since the vegetable deliveries started. Her doctor can't explain it.",
-      personality_brief: "Nigerian, widowed, retired nurse. Sharp-eyed, warm-handed, takes no nonsense. Cooks jollof rice that could end wars. Knows everyone in the building. Has opinions about everyone's love life. Calls Zara 'my daughter' which makes the alien cry internally every time.",
-      role: "grounding_humanity",
-      role_detail: "The purest expression of what Zara's gardening actually DOES — nourishes humans in ways she can't nourish herself. Mrs. Okonkwo receives alien-cultivated produce and turns it into Nigerian comfort food and Zara receives the one thing she can't grow: unconditional community. It's symbiosis. It's gardening at the human scale.",
-      dialog_style: "Direct, warm, slightly formal English with Nigerian inflections. 'You are looking thin. Sit down.' 'I made extra. Take it. No arguments.' Doesn't text — calls or knocks on the door.",
-      how_main_talks_about_them: "Zara mentions Mrs. Okonkwo with a quietness the band hasn't heard from her on any other subject. 'Mrs. O says...' or 'I need to drop vegetables off.' It's tender. Unguarded. The most human Zara sounds is when she's talking about feeding an old woman.",
-      shared_connections: [],
-      arc_potential: "If Zara has to disappear — if The Legacy forces a move — Mrs. Okonkwo is the goodbye that costs the most. Not Olivia (who'll understand eventually), not Theo (who'll recover). Mrs. Okonkwo, who will go back to tired supermarket produce and whose health will quietly decline and who will never know why the tomatoes stopped coming."
     }
   },
 
