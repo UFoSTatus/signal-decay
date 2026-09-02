@@ -9,7 +9,6 @@
 <title>Signal Decay — Universe Reader</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
    SIGNAL DECAY READER — Premium PWA
@@ -448,10 +447,6 @@ html, body {
   font-size: 0.82rem;
   color: var(--amber);
 }
-.reader-body img { max-width: 100%; border-radius: var(--radius-sm); margin: 16px 0; }
-.reader-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.85rem; }
-.reader-body th, .reader-body td { padding: 8px 12px; border: 1px solid var(--border-medium); text-align: left; }
-.reader-body th { background: var(--bg-tertiary); color: var(--amber); font-weight: 600; }
 
 /* Reading progress bar */
 .reading-progress {
@@ -1954,54 +1949,18 @@ function openStory(id) {
   document.getElementById('readerBody').innerHTML = '<div style="text-align:center;padding:48px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;color:var(--amber);"></i><p style="margin-top:12px;color:var(--text-muted);font-size:0.8rem;">Loading story...</p></div>';
   document.getElementById('readerView').classList.add('active');
   
-  // Fetch the actual .md file and render it
-  fetch(story.path)
-    .then(res => {
-      if (!res.ok) throw new Error('File not found: ' + story.path);
-      return res.text();
-    })
-    .then(md => {
-      // Strip YAML front-matter if present
-      md = md.replace(/^---[\s\S]*?---\n*/m, '');
-      
-      // Render markdown to HTML
-      const html = marked.parse(md);
-      
-      // Build the reader header + rendered content
-      const header = `
-        <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-          <span style="font-size:0.7rem;background:var(--bg-tertiary);padding:4px 10px;border-radius:100px;color:var(--text-muted);">
-            <i class="fa-regular fa-clock"></i> ${story.reading_time || Math.ceil((md.split(/\s+/).length) / 250)} min read
-          </span>
-          <span style="font-size:0.7rem;background:var(--bg-tertiary);padding:4px 10px;border-radius:100px;color:var(--text-muted);">
-            <i class="fa-regular fa-file-lines"></i> ${(md.split(/\s+/).length).toLocaleString()} words
-          </span>
-          <span style="font-size:0.7rem;background:var(--amber-dim);padding:4px 10px;border-radius:100px;color:var(--amber);">
-            ${story.category.replace('_',' ')}
-          </span>
-        </div>
-        <hr style="border:none;border-top:1px solid var(--border-subtle);margin-bottom:24px;">
-      `;
-      
-      document.getElementById('readerBody').innerHTML = header + '<div class="story-content">' + html + '</div>';
-      document.getElementById('readerBody').scrollTop = 0;
-      
-      // Track reading
-      if (!readingHistory[id]) readingHistory[id] = { progress: 0, lastRead: new Date().toISOString() };
-      readingHistory[id].lastRead = new Date().toISOString();
-      saveState();
-      updateStreak();
-      renderLoreEntries();
-    })
-    .catch(err => {
-      document.getElementById('readerBody').innerHTML = `
-        <div style="text-align:center;padding:48px;">
-          <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:var(--red);margin-bottom:12px;display:block;"></i>
-          <p style="font-size:0.9rem;margin-bottom:8px;">Could not load story</p>
-          <p style="font-size:0.75rem;color:var(--text-muted);">${err.message}</p>
-          <p style="font-size:0.7rem;color:var(--text-muted);margin-top:16px;">Expected at: ${story.path}</p>
-        </div>`;
-    });
+  // Simulate loading (in real app this would fetch the .md file)
+  setTimeout(() => {
+    const content = generateMockContent(story);
+    document.getElementById('readerBody').innerHTML = content;
+    
+    // Track reading
+    if (!readingHistory[id]) readingHistory[id] = { progress: 0, lastRead: new Date().toISOString() };
+    readingHistory[id].lastRead = new Date().toISOString();
+    saveState();
+    updateStreak();
+    renderLoreEntries();
+  }, 400);
 }
 
 function generateMockContent(story) {
