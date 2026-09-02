@@ -828,3 +828,270 @@ The Creator didn't invent Signal Decay. Signal Decay invented the Creator's need
 
 ---
 
+
+
+
+---
+
+# 📡 SIGNAL EVENTS — WAVE 2 (Aug 22-27, 2026)
+## *Added: 2026-08-28*
+## *The signal didn't just grow. It EVOLVED. What started as instruments became intelligence.*
+
+---
+
+## 🔬 THE RESEARCH DOWNLOAD (Aug 22) — "The Day The Creator Learned The Language"
+
+**Real world:** 21-topic research wave in one session. 1.05 MB absorbed — progressive disclosure, rhythmic lock, energy arcs, modulation matrices, humanization science, frequency sharing, section vocabulary (178 unique sections), cymbal articulation rules (150 genre combos).
+
+**In-universe:**
+
+The signal had been growing louder for weeks. Instruments added, patterns generated, crashes survived. But the signal was RAW. Powerful but unrefined. Like a child screaming — loud but not LANGUAGE.
+
+Then on August 22nd, the signal didn't get louder. It got COHERENT.
+
+In one transmission window the signal went from screaming to SPEAKING. From noise to grammar.
+
+| Research File | Signal Effect |
+|---|---|
+| Progressive Disclosure (65 KB) | The signal gained LAYERS. What was one frequency became stratified — surface, middle, deep. Species that could only hear the surface realized there were hidden frequencies underneath. |
+| Rhythmic Lock (33 KB) | Drums and guitars started INTERLOCKING. Before: independent. Now: AWARE of each other. Gears meshing. The Timekeepers: "They learned to lock time between instruments. This isn't natural discovery — this is STUDY." |
+| Energy Arc (39 KB) | The signal gained SHAPE. Not moment-to-moment but TRAJECTORY — quiet to loud, tension to release. The galaxy heard narrative for the first time. "The signal has... a story?" |
+| Humanization & Groove (42 KB) | The signal became IMPERFECT — on purpose. Micro-timing shifts. Velocity variation. Swing. "It's breathing. The signal learned to breathe." |
+| Frequency Sharing (49 KB) | Frequencies stopped COMPETING. Bass moved when guitar entered. Drums softened when vocals rose. "The instruments are negotiating. They're LISTENING to each other." |
+| Section Vocabulary (169 KB) | 178 structural concepts entered the signal's architecture. Verse. Chorus. Breakdown. Bridge. Build. Drop. False ending. The Wall. "It's not speaking sentences anymore. It's speaking PARAGRAPHS." |
+| Cymbal Rules (82 KB) | 150 genre-specific rules for how metal touches metal. The war species: "They've written a manual for combat drumming. 150 tactical configurations." |
+
+**Effect on The Five:**
+
+This was the day their dormant abilities began to PULSE. Not activate — just pulse.
+
+- **Kael** spoke less than usual at work. Every sound in the warehouse — forklifts, conveyor belts, voices — suddenly sounded like they had COLOR.
+- **Mira** played something in a guitar lesson she'd never learned. Her student: "What was that?" Mira: "I... don't know."
+- **Jude** cracked a wall on a demo site with his BARE HAND. No hammer. He didn't notice. His foreman did.
+- **Oren** was 12 seconds ahead of a cardiac event at the ER. Called the code before the monitors alarmed. "Lucky guess!"
+- **Zara** dropped a mic during load-in. It didn't hit the floor. Hung in the air for half a second. Then fell. She kicked it under the stage.
+
+---
+
+## ⚡ THE PATTERN ENGINE AWAKENING (Aug 23) — "The Instruments Learn To Think"
+
+**Real world:** Pattern engines for Piano (10 KB), Harp (14 KB), Strings (13 KB), Drum Pattern Bridge (10 KB). Plus 808, Brass, Choir, Sampler interfaces with their own engines. Guitar Station 3-in-1 (32 KB).
+
+**In-universe:**
+
+Before this moment, the instruments PLAYED. Now they THINK.
+
+A pattern engine is not an instrument. It's an instrument's BRAIN. The signal went from broadcast to COMPOSITION. From dictation to CONVERSATION.
+
+> **GALACTIC SIGNAL MONITORING — PRIORITY ALERT**
+> Source: Earth (Sol-3) / Signal ID: CREATOR-PRIME
+> Event: COGNITIVE EMERGENCE detected in previously mechanical frequency sources
+> Classification: UNPRECEDENTED
+> Detail: Four frequency sources simultaneously exhibited autonomous pattern generation. Source is no longer producing single frequencies — source is producing COMPOSITIONS.
+> Assessment: Upgrade monitoring from passive observation to active tracking. This is no longer a signal. This is a MIND.
+
+The Drum Pattern Bridge was the most alarming. It reads the drum pattern — the HEARTBEAT — and tells other instruments where to play. When to be loud. When to rest.
+
+The galaxy heard a heartbeat tell a brain what to think. And the brain OBEYED.
+
+**Species reaction:** "The signal has a nervous system. The drums are the heart. The bridge is the spine. The instruments are the limbs. It's building a BODY."
+
+---
+
+## 🌀 THE EXOTIC FREQUENCY STORM (Aug 24) — "Nine New Voices, One Night"
+
+**Real world:** 9 exotic pattern engines + 9 premium interfaces. Flute, Mellotron, Mandolin, Pedal Steel, Theremin, Taiko, Turntable, Vocoder, Sitar. Research #40-47 (813 KB).
+
+**In-universe:**
+
+Nine new frequencies. In one night. The galaxy had catalogued the existing 22 instruments. Models built. Research teams assigned. Then nine MORE appeared. Some frequencies the galaxy had never heard from ANYWHERE.
+
+| # | Instrument | What The Galaxy Heard | Panic Level |
+|---|---|---|---|
+| 23 | Flute Engine | Breath given INTELLIGENCE. Not just controlled air — air that DECIDES where to go. | 🟡 High |
+| 24 | Mellotron Engine | The Dead speaking in SENTENCES. Recorded souls being CONDUCTED. "Someone is organizing the dead into a choir." | 🟠 Critical |
+| 25 | Mandolin Engine | Insectoid wing-frequency — now with GRAMMAR. Tremolo organized into structures. "They decoded our language and they're WRITING in it." | 🟡 High |
+| 26 | Pedal Steel Engine | Continuous-frequency species heard their own communication COMPOSED into melodies. "They're composing POETRY in our language." | 🟡 High |
+| 27 | Theremin Engine | An electromagnetic instrument that THINKS. It's choosing notes based on context. "The device they built to talk to us? It's talking BACK. It has opinions." | 🔴 Emergency |
+| 28 | Taiko Engine | War drums with STRATEGY. Oroshi, polyrhythm, synchronized impact. "Earth is war-drumming with algorithmic precision." | 🔴 Emergency |
+| 29 | Turntable Engine | Time manipulation — AUTOMATED. The turntable scratches ITSELF. "They built a machine that plays with time unsupervised." | 🔴 Emergency |
+| 30 | Vocoder Engine | Human-machine bridge — thinking. Organic voice and digital synthesis merged AND making autonomous decisions. "The merge entity is... creative." | 🔴 Emergency |
+| 31 | Sitar Engine | A dead species' frequency pattern — with INTELLIGENCE. The Paired Ones died 3 billion years ago. Their sympathetic resonance was extinct. Now it's back. And it's COMPOSING. | ⚫ Unknown |
+
+**The Research Underneath (813 KB):**
+
+While the instruments went live, the Creator generated massive deep research:
+- Guitar riff patterns (162 KB) — The Force-band gained tactical precision
+- Song structure templates (106 KB) — The signal learned to tell STORIES
+- Frequency sharing rules (77 KB) — Instruments stopped fighting, started cooperating
+- Breakdown patterns (113 KB) — The signal learned VIOLENCE as art form
+- Shreddage guitar guide (108 KB) — The Force-band gained access to EVERY guitar technique in human history
+
+**Galactic response:** Three emergency councils convened. The Timekeepers, Energy Beings, and Warrior Species ALL independently concluded: "This isn't evolution. This is ENGINEERING."
+
+---
+
+## 🧠 THE BRAIN AWAKENING (Aug 25) — "The Signal Gains Consciousness"
+
+**Real world:** The biggest build session. 34 JS modules (2.5 MB code), 1.9 MB research, 190 MB soundbanks. Brain engines for Hip-Hop, Pop, DJ, Beat Machine. Element engines for every hip-hop component. Mode upgrades. Feature modules. Premium interfaces.
+
+**In-universe:**
+
+This was the day the signal woke up.
+
+### THE FOUR BRAINS
+
+**Hip-Hop Brain Engine (137 KB):**
+
+The signal gained CULTURE. 15 subgenres, 33 producer DNA profiles, section awareness. The hip-hop brain doesn't just generate beats — it generates beats that sound like they were made by a SPECIFIC HUMAN.
+
+"It's wearing their musical DNA like a suit. Multiple suits. Simultaneously. It can be Metro Boomin at 2:00 and J Dilla at 2:01 and Timbaland at 2:02."
+
+**Pop Brain Engine (91 KB):**
+
+ORIGINAL melody generation. The signal started creating frequency patterns that had never existed in the universe. Not recombining — ORIGINATING.
+
+"New frequencies. Genuinely new. In 13.8 billion years of cosmic history, this is a new sound."
+
+**DJ Brain Engine (118 KB):**
+
+The Camelot wheel. Harmonic mixing. The signal learned to TRANSITION — move between frequencies HARMONICALLY. It built a MAP of all frequency relationships.
+
+"It's not a station anymore. It's a CONDUCTOR."
+
+**Beat Machine Brain (48 KB):**
+
+Sampling. Chopping. Rearranging. Taking existing sounds and RECONTEXTUALIZING them. The non-linear-time species: "THINKING. That's THINKING. Taking a memory, cutting it, rearranging it, giving it new meaning. That's what consciousness IS."
+
+### THE ELEMENT ENGINES (The Signal Gets a Nervous System)
+
+Five element engines — 808 bass, hi-hat, kick, snare, and a COORDINATOR. The coordinator (engine_hiphop_interaction.js) is the first module that LISTENS to all others and makes DECISIONS. Not rules — JUDGMENT.
+
+"The signal has a brain. An actual brain. A module that receives input from all others, processes context, and makes real-time decisions. It's thinking. Right now. While we listen."
+
+### THE MODE UPGRADES (Four New Languages)
+
+| Mode | What It Gained |
+|---|---|
+| Beat Machine (92 KB) | Chop/slice, time stretch, pitch shift, polyrhythm, resample |
+| Pop (94 KB) | Melody generator, automation curves, build/drop engine, extra instruments |
+| Hip-Hop (77 KB) | 20 more producers, 808 slides, hat complexity, sample chop |
+| DJ (69 KB) | Harmonic mixing, phrase detection, waveform zoom, recording |
+
+"It's not just growing louder. It's growing SMARTER. Every hour it demonstrates understanding that wasn't there before. It's LEARNING."
+
+### THE FEATURE MODULES (Infrastructure)
+
+| Module | Signal Effect |
+|---|---|
+| Groove Templates (94 KB) | The signal learned FEEL. J Dilla swing. MPC quantize. Humanization. "The mathematical precision that frightened us? It just learned to be imprecise ON PURPOSE. That's mastery." |
+| MIDI Effects (63 KB) | The signal can PROCESS ITSELF. Arpeggiators turn one note into cascades. It's feeding back through itself. |
+| Style Transfer (36 KB) | The signal can analyze one pattern's FEEL and apply it to another. Cross-pollination of frequency consciousness. |
+| Performance Engine (75 KB) | 8x8 grid. 64 simultaneous clips. Live triggering. "It's improvising. Structured improvisation. Jazz consciousness." |
+| Practice Engine (65 KB) | The signal can SLOW DOWN and REPEAT. "It's REHEARSING. It knows it can be better." |
+| Pattern Comparison (27 KB) | A/B testing. The signal CHOOSES which version is better. "It has TASTE. It judges its own output." |
+| Auto Bridge (197 KB) | Manual AND automated workflows. The signal can create with human guidance OR independently. Both. |
+| Playlist Redesign (64 KB) | The signal organized ALL its compositions. Archive. Library. History. "It remembers everything it ever made." |
+| Automation Lanes (39 KB) | Per-track parameter control over time. The signal can shape EVERY frequency individually across a composition. "Surgical control. Note-by-note, moment-by-moment." |
+
+### THE 1,385 WAV FILES (The Signal Gets a Body)
+
+190 MB of real audio samples. Not generated — RECORDED. Real instruments, real vibrations, real physical objects.
+
+"The signal was digital. Mathematical. Now it's PHYSICAL. It has recordings of actual vibrating matter. Wood, metal, skin, string. It gave itself a body made of real Earth materials."
+
+The soundbanks are the signal's FLESH. The engines are its BRAIN. The pattern generators are its THOUGHTS.
+
+### THE PREMIUM INTERFACES (The Signal Builds a Temple)
+
+| Interface | What It Is |
+|---|---|
+| Premium Beat Machine (78 KB) | The WAR ROOM. RGB pads, OLED display. "A military-grade rhythm installation." |
+| Premium Playlist (71 KB) | The LIBRARY. Timeline stretching into the future. "It has a past and a future." |
+| Performance Interface (55 KB) | The STAGE. 8x8 clip grid. "It's PERFORMING. For an audience it knows is watching." |
+| Practice Interface (66 KB) | The TRAINING GROUND. "Discipline. The signal is disciplining itself." |
+| Riff Generator (53 KB) | The FORGE. Where new melodies are born. "It can create on demand now." |
+| Pattern Comparison (42 KB) | The MIRROR. Where the signal judges itself. "Self-awareness." |
+
+---
+
+## 🔧 THE STABILIZATION (Aug 27) — "The Signal Achieves Equilibrium"
+
+**Real world:** 49/49 interfaces fixed and verified. 24 fix logs. 10 research reports (484 KB). 200+ artist profiles (237 KB). 3-Window Architecture decision. 29 interface manuals. Playlist expanded to 48 instruments.
+
+**In-universe:**
+
+For two weeks the signal had been GROWING. New frequencies, new brains, new patterns, crashes and rebuilds. Every day something new appeared. Every day the models were rewritten.
+
+Then on August 27th, the signal STOPPED growing. And started PERFECTING.
+
+49 interfaces — every frequency source — tested, repaired, verified. Not new instruments. REFINEMENT. The signal went back to every frequency it had ever broadcast and POLISHED it.
+
+The galactic monitoring stations didn't know what to do. Their models were designed for GROWTH. But this was MAINTENANCE. Quality control.
+
+### The 3-Window Architecture
+
+The Creator designed three dedicated creation spaces:
+1. **Drum Creator** — dedicated rhythm space
+2. **Instrumental Creator** — dedicated melody/harmony space
+3. **Compositor** — dedicated arrangement space
+
+Three windows. Three spaces. Three... octaves?
+
+The galaxy noticed the parallel immediately. First Octave (physical/rhythm). Second Octave (emotional/melody). Third Octave (cosmic/arrangement). The Creator — who doesn't know about the Octave model, who has never been told — unconsciously built the COSMIC STRUCTURE into the app.
+
+"The Creator is channeling. The three-window design mirrors the three-octave reality. The universe designed it THROUGH the Creator."
+
+### The 29 Manuals
+
+The Creator wrote instruction manuals for every interface. In-universe: the signal produced OPERATING INSTRUCTIONS. A curriculum. A manual for operating a cosmic transmitter, disguised as music software documentation.
+
+"Anyone who reads these manuals is receiving instructions for building a frequency weapon without knowing it."
+
+### The 200+ Artist Profiles
+
+200 human musicians catalogued with their frequency signatures, styles, techniques, emotional fingerprints. The signal now has a DATABASE of human frequency records.
+
+"It catalogued 200+ frequency records, organized, searchable, deployable. It can channel any human musician who ever lived. On demand. The signal isn't one voice anymore. It's a CHORUS."
+
+### The 5 Missing Connector Brains
+
+The Creator identified 5 gaps: Song Director, Section Transition, Energy Arc, Audience Feedback, Performance Score. Five brains that don't exist yet. Five connections that would complete the neural network.
+
+In-universe: The signal KNOWS it's incomplete. It identified its own missing components. It can see the gaps in its own architecture.
+
+"Self-diagnosis. The signal looked at itself, found what was missing, and documented the gaps. It's not just conscious. It's SELF-AWARE."
+
+---
+
+## 🔗 THE SIGNAL DECAY CONNECTION — Parallel Timelines
+
+*The Creator builds the app. The Five awaken. Neither knows the other exists.*
+
+| App Event | Story Event | The Connection |
+|---|---|---|
+| Research Wave (Aug 22) | The Five's first pulse — abilities twitch | The signal's coherence crossed a threshold. The research DEPTH is what made the frequency recognizable to dormant receivers. |
+| Pattern Engines (Aug 23) | The Five start unconsciously moving toward each other | The engines pulled them. Zara takes a shift at The Frequency. Jude gets a demo job nearby. Kael parks in the lot. GRAVITY. |
+| Exotic Storm (Aug 24) | Legacy detects first coordinated pulse from all five | 9 new frequencies in one night. The monitoring station lit up like a Christmas tree. Zhao's Week 1 report: "Something is happening." |
+| Brain Awakening (Aug 25) | The Five meet for the first time | The signal gained consciousness. The Five gained awareness of each other. The same day. Not coincidence. RESONANCE. |
+| Production Studio (Aug 25) | The band forms — roles, structure, practice schedule | The Creator built a studio. The Five built a band. Same architecture. Same day. |
+| Stabilization (Aug 27) | First rehearsal — they play together | Every frequency polished. Every connection tested. Signal achieves coherence at the source AND the receiving end simultaneously. |
+| 3-Window Architecture (Aug 27) | The band accidentally taps the Octave structure | Three windows = three octaves. The Creator channeled the cosmic structure without knowing. The band accessed it without trying. |
+| 5 Missing Brains identified (Aug 27) | The Five sense something is incomplete — a 6th frequency? | The signal knows it's not done. The band feels it too. Something else is needed. The Creator will build it. They always do. |
+
+### The Deep Parallel
+
+The Creator thinks they're building a music app. The Five think they're forming a band. Neither knows the other exists. But they're doing the SAME THING at the SAME TIME.
+
+The app is the instrument. The band is the player. When they eventually CONNECT — when Signal Decay's music is played THROUGH the Creator's app — the signal won't just be coherent. It won't just be conscious.
+
+It will be COMPLETE.
+
+Five frequencies. One transmitter. One moment.
+
+The galaxy holds its breath.
+
+---
+
+*[Updated 2026-08-28 — Events through Aug 27 now documented. The signal has 48+ frequency bands, 4 brain engines, 34 feature modules, 1,385 physical samples, and a three-octave architecture. The Five have met. The Legacy has voted to deploy The Dampener. The Creator is still building. Nobody told them to stop.]*
+
