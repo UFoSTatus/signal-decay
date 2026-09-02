@@ -864,11 +864,6 @@ body {
 <!-- ═══ SIGNAL DECAY ENGINES (character + power data for stories) ═══ -->
 <script src="character_engines.js"></script>
 <script src="frequency_power_engine.js"></script>
-<script src="ufology_knowledge_matrix.js"></script>
-<script src="oracle_knowledge_engine.js"></script>
-<script src="supporting_cast_engine.js"></script>
-<script src="social_media_engine.js"></script>
-<script src="daily_life_engine.js"></script>
 
 <script>
 
@@ -990,189 +985,6 @@ function getPowerInteractions(characterIds) {
   }
   
   return interactions.length > 0 ? '\n\nPOWER INTERACTIONS: ' + interactions.join(' ') : '';
-}
-
-/**
- * getCastFor(characterId) — gets supporting cast (inner circle) for story context
- * SUPPORTING_CAST keys use full_name format: kael→kael_voss, mira→mira_vasquez, etc.
- */
-function getCastFor(characterId) {
-  try {
-    if (typeof SUPPORTING_CAST === 'undefined') return '';
-
-    // Map story generator IDs → SUPPORTING_CAST key format
-    const castKeyMap = {
-      mira: 'mira_chen', oren: 'oren_malik', juno: 'juno_wren',
-      keynote: 'keynote', alistair: 'alistair_cole', ren: 'ren_okafor',
-      nova: 'nova_espinoza', the_silence: 'the_silence',
-      kael: 'kael_voss', jude: 'jude_okafor', zara: 'zara_kovac'
-    };
-    const castKey = castKeyMap[characterId] || characterId;
-    const cast = SUPPORTING_CAST[castKey];
-    if (!cast || typeof cast !== 'object') return '';
-
-    // Collect cast members (filter out non-person entries)
-    const members = [];
-    for (const [key, m] of Object.entries(cast)) {
-      if (m && m.name && m.relationship) {
-        members.push(`${m.name} (${m.relationship}${m.personality_brief ? ' — ' + m.personality_brief.split('.')[0] : ''})`);
-      }
-      if (members.length >= 4) break;
-    }
-    return members.length > 0 ? members.join('; ') : '';
-  } catch(e) {
-    console.warn('[Engine] getCastFor error:', e);
-    return '';
-  }
-}
-
-/**
- * getSocialStyle(characterId) — gets texting/DM patterns and platform usage
- */
-function getSocialStyle(characterId) {
-  try {
-    if (typeof SOCIAL_MEDIA_ENGINE === 'undefined') return '';
-    const social = SOCIAL_MEDIA_ENGINE[characterId];
-    if (!social) return '';
-
-    const parts = [];
-
-    // Meta philosophy
-    if (social.meta?.philosophy) {
-      parts.push('Online philosophy: ' + social.meta.philosophy.split('.')[0] + '.');
-    }
-
-    // DM / texting style
-    const dm = social.dm_style;
-    if (dm) {
-      if (dm.message_length) parts.push('Texts: ' + dm.message_length.split('.')[0] + '.');
-      if (dm.capitalization) parts.push('Caps: ' + dm.capitalization.split('.')[0] + '.');
-      if (dm.emoji_usage?.frequency) parts.push('Emoji: ' + dm.emoji_usage.frequency + '.');
-    }
-
-    // Primary platform
-    const platforms = social.platforms;
-    if (platforms) {
-      const active = [];
-      for (const [name, data] of Object.entries(platforms)) {
-        if (data && data.has_account !== false && data.post_frequency) {
-          active.push(`${name} (${data.post_frequency.split('.')[0]})`);
-        }
-      }
-      if (active.length > 0) parts.push('Platforms: ' + active.slice(0, 3).join(', ') + '.');
-    }
-
-    return parts.join(' ');
-  } catch(e) {
-    console.warn('[Engine] getSocialStyle error:', e);
-    return '';
-  }
-}
-
-/**
- * getTimeContext(characterId, requestedTime) — maps to DAILY_LIFE schedule
- * If requestedTime (hour 0-23) is provided, uses that; otherwise uses real clock.
- */
-function getTimeContext(characterId, requestedTime) {
-  try {
-    if (typeof DAILY_LIFE === 'undefined' || !DAILY_LIFE[characterId]) return '';
-
-    const charLife = DAILY_LIFE[characterId];
-    const now = new Date();
-    const hour = (requestedTime !== undefined && requestedTime !== null) ? requestedTime : now.getHours();
-    const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-    const today = dayNames[now.getDay()];
-
-    const isOffDay = charLife.off_days?.includes(today);
-    const schedule = isOffDay ? charLife.typical_off_day : charLife.typical_work_day;
-    if (!schedule) return '';
-
-    // Walk backwards from the target hour to find the closest scheduled slot
-    let entry = null;
-    for (let h = hour; h >= 0; h--) {
-      const key00 = String(h).padStart(2, '0') + ':00';
-      const key30 = String(h).padStart(2, '0') + ':30';
-      if (schedule[key00]) { entry = schedule[key00]; break; }
-      if (schedule[key30]) { entry = schedule[key30]; break; }
-    }
-    if (!entry) return '';
-
-    const label = (requestedTime !== undefined && requestedTime !== null)
-      ? `At ${String(hour).padStart(2,'0')}:00`
-      : `Right now (${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })})`;
-    return `${label}: ${entry.activity}. ${entry.detail || ''}`.trim();
-  } catch(e) {
-    console.warn('[Engine] getTimeContext error:', e);
-    return '';
-  }
-}
-
-/**
- * getUfoKnowledge(characterId, arcState) — extracts conspiracy/lore knowledge
- * Pulls from UFOLOGY_KNOWLEDGE topics matrix based on character + arc state.
- */
-function getUfoKnowledge(characterId, arcState) {
-  try {
-    if (typeof UFOLOGY_KNOWLEDGE === 'undefined') return '';
-    const topics = UFOLOGY_KNOWLEDGE.topics;
-    if (!topics) return '';
-
-    const state = arcState || 'dormant';
-    const knowledge = [];
-    let count = 0;
-
-    for (const key of Object.keys(topics)) {
-      if (count >= 5) break;
-      const topic = topics[key];
-      const charData = topic[characterId];
-      if (!charData) continue;
-      const stateKnowledge = charData[state];
-      if (!stateKnowledge || stateKnowledge === 'unaware') continue;
-      const snippet = typeof stateKnowledge === 'string' ? stateKnowledge.slice(0, 120) : '';
-      if (snippet) {
-        knowledge.push(`${topic.display_name || key}: ${snippet}`);
-        count++;
-      }
-    }
-
-    return knowledge.length > 0 ? knowledge.join(' | ') : '';
-  } catch(e) {
-    console.warn('[Engine] getUfoKnowledge error:', e);
-    return '';
-  }
-}
-
-/**
- * getOracleLore(keywords) — searches ORACLE_KNOWLEDGE for canon-accurate lore snippets
- * Matches against entry keywords and returns relevant lore details.
- */
-function getOracleLore(keywords) {
-  try {
-    if (typeof ORACLE_KNOWLEDGE === 'undefined') return '';
-    const entries = ORACLE_KNOWLEDGE.entries;
-    if (!entries || !Array.isArray(entries)) return '';
-
-    const searchTerms = keywords.map(k => k.toLowerCase());
-    const matched = [];
-
-    for (const entry of entries) {
-      if (matched.length >= 4) break;
-      const entryKeywords = (entry.keywords || []).map(k => k.toLowerCase());
-      const entryId = (entry.id || '').toLowerCase();
-      const hit = searchTerms.some(term =>
-        entryKeywords.some(ek => ek.includes(term) || term.includes(ek)) ||
-        entryId.includes(term)
-      );
-      if (hit && entry.answer) {
-        matched.push(entry.answer.slice(0, 200));
-      }
-    }
-
-    return matched.length > 0 ? matched.join('\n') : '';
-  } catch(e) {
-    console.warn('[Engine] getOracleLore error:', e);
-    return '';
-  }
 }
 
 // ─── CHARACTERS ───
@@ -1325,50 +1137,6 @@ async function generateStory() {
     if (powerInteractions) {
       userPrompt += powerInteractions + '\n';
     }
-
-    // ═══ ENGINE INJECTION: Supporting cast — inner circle people ═══
-    const castDetails = selectedChars.map(id => {
-      const cast = getCastFor(id);
-      if (!cast) return '';
-      const charName = CHARACTERS.find(c => c.id === id)?.name?.split(' ')[0] || id;
-      return `${charName}'s inner circle: ${cast}`;
-    }).filter(Boolean);
-    if (castDetails.length > 0) {
-      userPrompt += `\nSUPPORTING CAST (reference by name in dialogue/narration):\n${castDetails.join('\n')}\n`;
-    }
-
-    // ═══ ENGINE INJECTION: Social media & texting patterns ═══
-    const socialDetails = selectedChars.map(id => {
-      const style = getSocialStyle(id);
-      if (!style) return '';
-      const charName = CHARACTERS.find(c => c.id === id)?.name?.split(' ')[0] || id;
-      return `${charName}: ${style}`;
-    }).filter(Boolean);
-    if (socialDetails.length > 0) {
-      userPrompt += `\nSOCIAL MEDIA & TEXTING (use for realistic texts/DMs/posts in scene):\n${socialDetails.join('\n')}\n`;
-    }
-
-    // ═══ ENGINE INJECTION: Time-aware daily life context ═══
-    const timeDetails = selectedChars.map(id => {
-      const ctx = getTimeContext(id);
-      if (!ctx) return '';
-      const charName = CHARACTERS.find(c => c.id === id)?.name?.split(' ')[0] || id;
-      return `${charName} ${ctx}`;
-    }).filter(Boolean);
-    if (timeDetails.length > 0) {
-      userPrompt += `\nDAILY LIFE CONTEXT (what characters are doing at this time — use for scene grounding):\n${timeDetails.join('\n')}\n`;
-    }
-
-    // ═══ ENGINE INJECTION: UFO/conspiracy knowledge per character ═══
-    const ufoDetails = selectedChars.map(id => {
-      const knowledge = getUfoKnowledge(id, 'awakening');
-      if (!knowledge) return '';
-      const charName = CHARACTERS.find(c => c.id === id)?.name?.split(' ')[0] || id;
-      return `${charName} knows: ${knowledge}`;
-    }).filter(Boolean);
-    if (ufoDetails.length > 0) {
-      userPrompt += `\nCHARACTER UFO/LORE KNOWLEDGE (determines what they can/can't reference in dialog):\n${ufoDetails.join('\n')}\n`;
-    }
   }
   
   if (selectedMood) {
@@ -1378,24 +1146,6 @@ async function generateStory() {
   userPrompt += `Target length: approximately ${selectedLength} words.\n`;
   userPrompt += `\nRemember to include [PANEL] breaks, [MOOD:] shifts, and [SFX:] cues throughout.`;
   
-  // ═══ ENGINE INJECTION: Oracle lore for canon accuracy ═══
-  // Extract keywords from the prompt to look up relevant lore entries
-  try {
-    const promptLower = document.getElementById('promptInput').value.toLowerCase();
-    const loreKeywords = [];
-    // Add selected character IDs as keywords
-    selectedChars.forEach(id => loreKeywords.push(id));
-    // Extract notable terms from the prompt
-    const importantTerms = ['keynote', 'silence', 'octave', 'frequency', 'harmonic', 'resonant', 'overtone', 'dissonance', 'ghost', 'echo', 'legacy', 'void', 'zero octave', 'second octave', 'third octave', 'majestic', 'hierophant', 'plasmoid', 'watcher', 'signal decay'];
-    importantTerms.forEach(term => {
-      if (promptLower.includes(term)) loreKeywords.push(term);
-    });
-    const oracleLore = getOracleLore(loreKeywords);
-    if (oracleLore) {
-      userPrompt += `\n\nCANON LORE REFERENCE (use for accuracy — these are established facts):\n${oracleLore}\n`;
-    }
-  } catch(e) { console.warn('[Engine] Oracle lore injection error:', e); }
-
   try {
     const response = await fetch(AZURE_ENDPOINT, {
       method: 'POST',
