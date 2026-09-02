@@ -272,9 +272,9 @@ window.addEventListener('unhandledrejection', function(e) {
 // ===== STATE =====
 let state = {
   currentPanel: 0, panels: [], autoPlay: false, voicesEnabled: true,
-  musicEnabled: true, sfxEnabled: true, premiumVoices: false, azureVoices: false,
+  musicEnabled: true, sfxEnabled: true, premiumVoices: true, azureVoices: true,
   speed: 1, voiceVol: 0.8, musicVol: 0.3, panelPause: 15,
-  isPlaying: false, isSpeaking: false, elevenLabsKey: '',
+  isPlaying: false, isSpeaking: false, elevenLabsKey: 'sk_1821459b72d8b96c16761dfc6aba3b8c55031b17b5b8c025',
   azureSpeechKey: atob('RnRBeWoyRklWeVp2YnU5aHpFa0dXWUFhSGhxYlptcWozeVZYeERxdmdIUWVmQm5vSFEwdUpRUUo5OUNIQUNIWUh2NlhKM3czQUFBWUFDT0dDNm9v'),
   azureRegion: 'eastus2'
 };
@@ -641,7 +641,7 @@ async function speakElevenLabs(text,character,callback){
     const voiceId=elevenLabsVoiceMap[character]||elevenLabsVoiceMap['Narrator'];
     const resp=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
       method:'POST',headers:{'Content-Type':'application/json','xi-api-key':key},
-      body:JSON.stringify({text,model_id:'eleven_monolingual_v1',voice_settings:{stability:0.5,similarity_boost:0.75}})
+      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.75,style:0.3,use_speaker_boost:true}})
     });
     if(!resp.ok)throw new Error('API failed');
     const blob=await resp.blob();
