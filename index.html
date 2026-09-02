@@ -1840,7 +1840,6 @@ function renderStoryCard(s) {
       </div>
       ${s.description ? `<div class="card-desc">${s.description}</div>` : ''}
       ${progressBar}
-      <button class="summarize-btn" onclick="event.stopPropagation();summarizeStory('${s.id}')" title="AI Summary"><i class="fa-regular fa-clipboard"></i> Summarize</button>
     </div>
   `;
 }
@@ -2986,111 +2985,6 @@ function showNotification(title, text, color) {
 
 console.log('[Signal Decay] AI features loaded. Demo mode active (set AZURE_CONFIG to connect to Azure).');
 
-// ═══ AI SUMMARY FEATURE ═══
-(function() {
-  // Inject CSS for summarize button and modal
-  const sumStyles = document.createElement('style');
-  sumStyles.textContent = `
-    .summarize-btn {
-      margin-top: 8px;
-      background: var(--amber-dim);
-      border: 1px solid rgba(245,158,11,0.25);
-      color: var(--amber);
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .summarize-btn:hover { background: rgba(245,158,11,0.2); border-color: var(--amber); }
-    .summary-modal-overlay {
-      position: fixed; inset: 0; z-index: 10000;
-      background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center;
-      animation: msgFade 0.2s ease;
-    }
-    .summary-modal {
-      background: var(--bg-glass); border: 1px solid var(--amber-glow);
-      border-radius: var(--radius-lg); padding: 24px; max-width: 560px;
-      width: 90%; max-height: 80vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(245,158,11,0.1);
-    }
-    .summary-modal h3 { font-size: 1rem; margin-bottom: 4px; color: var(--text-primary); }
-    .summary-modal .summary-subtitle { font-size: 0.72rem; color: var(--amber); margin-bottom: 16px; }
-    .summary-modal .summary-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; }
-    .summary-modal .summary-body p { margin-bottom: 12px; }
-    .summary-modal .close-btn {
-      position: absolute; top: 12px; right: 16px; background: none; border: none;
-      color: var(--text-muted); font-size: 1.2rem; cursor: pointer;
-    }
-    .summary-spinner { text-align: center; padding: 32px; color: var(--amber); }
-  `;
-  document.head.appendChild(sumStyles);
-
-  const SUMMARY_ENDPOINT = 'https://chunk-espanol-ai.openai.azure.com/openai/v1/chat/completions';
-  const SUMMARY_API_KEY = getApiKey('openai'); // placeholder
-  const SUMMARY_CACHE_KEY = 'sd_summary_cache';
-
-  function getSummaryCache() { try { return JSON.parse(localStorage.getItem(SUMMARY_CACHE_KEY) || '{}'); } catch(e) { return {}; } }
-  function setSummaryCache(id, text) { const c = getSummaryCache(); c[id] = text; localStorage.setItem(SUMMARY_CACHE_KEY, JSON.stringify(c)); }
-
-  window.summarizeStory = async function(storyId) {
-    const story = STORIES.find(s => s.id === storyId);
-    if (!story) return;
-
-    // Check cache
-    const cached = getSummaryCache()[storyId];
-    if (cached) { showSummaryModal(story.title, cached); return; }
-
-    // Show loading modal
-    showSummaryModal(story.title, null);
-
-    try {
-      // Fetch story content from file
-      const resp = await fetch(story.path);
-      let storyText = resp.ok ? await resp.text() : (story.description || story.title);
-      // Truncate to ~12000 chars to fit token limits
-      if (storyText.length > 12000) storyText = storyText.substring(0, 12000) + '\n[...truncated]';
-
-      const aiResp = await fetch(SUMMARY_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': SUMMARY_API_KEY },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: 'Summarize this Signal Decay story in 2-3 paragraphs. Mention key characters, plot points, and any lore reveals. Keep the tone engaging and mysterious.' },
-            { role: 'user', content: storyText }
-          ],
-          max_tokens: 600
-        })
-      });
-      const data = await aiResp.json();
-      const summary = data.choices?.[0]?.message?.content || 'Summary unavailable.';
-      setSummaryCache(storyId, summary);
-      showSummaryModal(story.title, summary);
-    } catch(e) {
-      showSummaryModal(story.title, 'Error generating summary: ' + e.message);
-    }
-  };
-
-  function showSummaryModal(title, bodyText) {
-    let overlay = document.getElementById('summaryModalOverlay');
-    if (overlay) overlay.remove();
-    overlay = document.createElement('div');
-    overlay.id = 'summaryModalOverlay';
-    overlay.className = 'summary-modal-overlay';
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-    const inner = bodyText === null
-      ? `<div class="summary-spinner"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;"></i><p style="margin-top:10px;font-size:0.8rem;">Generating AI summary…</p></div>`
-      : `<div class="summary-body">${bodyText.split('\n').filter(p=>p.trim()).map(p=>'<p>'+p+'</p>').join('')}</div>`;
-    overlay.innerHTML = `<div class="summary-modal" style="position:relative;"><button class="close-btn" onclick="document.getElementById('summaryModalOverlay').remove()">✕</button><h3>📋 AI Summary</h3><div class="summary-subtitle">${title}</div>${inner}</div>`;
-    document.body.appendChild(overlay);
-  }
-})();
 
 
 
