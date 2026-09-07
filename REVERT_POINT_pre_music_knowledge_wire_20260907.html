@@ -1781,60 +1781,12 @@ function getMusicInfo(characterId) {
     const p = profiles[characterId];
     const inst = p.instrument || {};
     const instType = inst.type || '';
-    // Real gear lives under inst.primary / primary_mic / primary_kit / primary_bass
-    const gear = inst.primary || inst.primary_mic || inst.primary_guitar || inst.primary_kit || inst.primary_bass || {};
-    const parts = [];
-
-    // Instrument + gear
-    let g = instType ? ('You play ' + instType) : '';
-    if (gear.make) g += ' — a ' + [gear.year, gear.make, gear.model].filter(Boolean).join(' ');
-    if (gear.scale_length) g += ' (' + gear.scale_length + ')';
-    if (g) parts.push(g.trim() + '.');
-
-    // Tunings (favorite tuning is real, engine data)
-    if (gear.tunings && gear.tunings.length) {
-      parts.push('Tunings you use: ' + gear.tunings.slice(0, 6).join(', ') + '.');
-    } else if (gear.tuning) {
-      parts.push('Your tuning: ' + gear.tuning + '.');
-    }
-
-    // Strings / picks flavor
-    if (gear.strings) parts.push('Strings: ' + gear.strings + '.');
-
-    // Pedals (note the favorite if flagged)
-    if (inst.pedals && inst.pedals.length) {
-      parts.push('Pedals: ' + inst.pedals.slice(0, 6).join(', ') + '.');
-    }
-    if (inst.amp) parts.push('Amp: ' + (typeof inst.amp === 'string' ? inst.amp.split('.')[0] : '') + '.');
-
-    // Playing style — approach + signature move
-    const ps = p.playing_style || {};
-    if (ps.approach) parts.push('Approach: ' + ps.approach.split('.')[0] + '.');
-    if (ps.signature) parts.push('Your signature move: ' + ps.signature.split('.')[0] + '.');
-    if (ps.tuning_changes) parts.push(ps.tuning_changes.split('.')[0] + '.');
-
-    // Musical influences (real artists — grounds music talk)
-    const infl = p.musical_influences || {};
-    let inflList = [];
-    if (Array.isArray(infl.primary)) inflList = inflList.concat(infl.primary);
-    if (Array.isArray(infl.secondary)) inflList = inflList.concat(infl.secondary);
-    if (inflList.length) {
-      // strip long explanations, keep the artist/name up to the first dash or em-dash
-      const names = inflList.slice(0, 4).map(function(s){ return s.split(/[—-]/)[0].trim(); }).filter(Boolean);
-      if (names.length) parts.push('Musical influences you actually cite: ' + names.join(', ') + '.');
-    }
-
-    // Music theory — this character's note/Hz in the Signal chord (432 Hz system)
-    try {
-      const theory = MUSIC_BAND_ENGINE.SIGNAL_MUSIC_THEORY;
-      const note = theory && theory.the_chord && theory.the_chord.notes && theory.the_chord.notes[characterId];
-      if (note && (note.role || note.interval)) {
-        parts.push('Music theory (your frequency): ' + [note.hz ? note.hz + ' Hz' : '', note.interval, note.role].filter(Boolean).join(' — ') + '.');
-      }
-    } catch(e){}
-
-    if (!parts.length) return '';
-    return 'MUSIC KNOWLEDGE (talk about this naturally — gear, tunings, theory, influences — like a real musician):\n' + parts.join(' ');
+    const gear = inst.primary_mic || inst.primary_guitar || inst.primary_kit || inst.primary_bass || {};
+    const gearStr = gear.make ? (gear.make + ' ' + (gear.model || '')) : '';
+    let out = instType ? ('You play: ' + instType) : '';
+    if (gearStr) out += ' (' + gearStr.trim() + ')';
+    if (p.playing_style) out += '. Style: ' + (typeof p.playing_style === 'string' ? p.playing_style.split('.')[0] : '');
+    return out.trim();
   } catch(e) {
     console.warn('[Engine] getMusicInfo error:', e);
     return '';
