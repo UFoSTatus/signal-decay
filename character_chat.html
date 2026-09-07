@@ -645,6 +645,7 @@
                     <p id="chatHeaderDesc">Description</p>
                 </div>
                 <div class="chat-header-actions">
+                    <button class="btn-icon" id="voiceToggleBtn" onclick="toggleVoiceOutput()" title="Voice: characters read replies aloud">🔇</button>
                     <button class="btn-icon danger" onclick="clearChat()" title="Clear chat history">🗑️</button>
                 </div>
             </div>
@@ -691,6 +692,7 @@
 <script src="legacy_operations_engine.js"></script>
 <script src="timeline_engine.js"></script>
 <script src="relationship_dynamics_engine.js"></script>
+<script src="voice_engine.js"></script>
 
 <script>
 
@@ -711,6 +713,164 @@ function promptForKey(service, description) {
   const key = prompt('Enter your ' + description + ' API key:\n(This saves locally and never leaves your device)');
   if (key) { setApiKey(service, key); return key; }
   return '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// VOICE OUTPUT (Phase 1) — plan-based TTS backends + VOICE_ENGINE routing
+// Backends take a `plan` object from VOICE_ENGINE.getSpeakPlan() instead of
+// reading a global voice map. VOICE_ENGINE decides WHICH backend + voice.
+// ═══════════════════════════════════════════════════════════
+
+var __currentAudio = null;
+// Stop hook the engine can call
+window.__voiceStopAudio = function(){
+  try { if (__currentAudio) { __currentAudio.pause(); __currentAudio = null; } } catch(e){}
+};
+
+// Strip stage directions / markdown so the voice doesn't read "*leans back*" etc.
+function cleanForSpeech(text){
+  if (!text) return '';
+  return text
+    .replace(/\*[^*]*\*/g, ' ')      // *actions*
+    .replace(/\([^)]*\)/g, ' ')       // remove parenthetical asides
+    .replace(/[_`#>]/g, ' ')          // markdown symbols
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ── Browser backend (free, offline) ──
+window.__speakBrowser = function(text, plan, cb){
+  try {
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.pitch  = (plan && typeof plan.pitch  === 'number') ? plan.pitch  : 1.0;
+    utter.rate   = (plan && typeof plan.rate   === 'number') ? plan.rate   : 1.0;
+    utter.volume = (plan && typeof plan.volume === 'number') ? plan.volume : 1.0;
+    var voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      var preferred = null;
+      for (var i = 0; i < voices.length; i++) {
+        if (voices[i].lang && voices[i].lang.indexOf('en') === 0 && !voices[i].localService) { preferred = voices[i]; break; }
+      }
+      if (!preferred) { for (var j = 0; j < voices.length; j++) { if (voices[j].lang && voices[j].lang.indexOf('en') === 0) { preferred = voices[j]; break; } } }
+      if (preferred) utter.voice = preferred;
+    }
+    utter.onend = function(){ if (cb) cb(); };
+    utter.onerror = function(){ if (cb) cb(); };
+    window.speechSynthesis.speak(utter);
+  } catch(e){ if (cb) cb(); }
+};
+
+// ── Azure Neural backend ──
+window.__speakAzure = function(text, plan, cb, onFail){
+  var key = getApiKey('azure_speech') || getApiKey('azure');
+  var region = (typeof VOICE_ENGINE !== 'undefined' && VOICE_ENGINE.runtime.azureRegion) || 'eastus2';
+  if (!key) { if (onFail) return onFail(); if (cb) return cb(); }
+  var voiceName = (plan && plan.voiceName) || 'en-US-GuyNeural';
+  var rate = (plan && plan.prosody && plan.prosody.rate) || '100%';
+  var pitch = (plan && plan.prosody && plan.prosody.pitch) || '0%';
+  var safe = text.replace(/[<>&'"]/g, function(c){ return ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":"&apos;",'"':'&quot;'})[c]; });
+  var ssml = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>" +
+             "<voice name='" + voiceName + "'><prosody rate='" + rate + "' pitch='" + pitch + "'>" +
+             safe + "</prosody></voice></speak>";
+  fetch('https://' + region + '.api.cognitive.microsoft.com/sts/v1.0/issueToken', {
+    method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': key, 'Content-Length': '0' }
+  }).then(function(r){ return r.text(); }).then(function(token){
+    return fetch('https://' + region + '.tts.speech.microsoft.com/cognitiveservices/v1', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/ssml+xml',
+                 'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3' },
+      body: ssml
+    });
+  }).then(function(resp){
+    if (!resp.ok) throw new Error('Azure TTS ' + resp.status);
+    return resp.blob();
+  }).then(function(blob){
+    var url = URL.createObjectURL(blob);
+    window.__voiceStopAudio();
+    var audio = new Audio(url); __currentAudio = audio;
+    audio.onended = function(){ URL.revokeObjectURL(url); if (cb) cb(); };
+    audio.onerror = function(){ URL.revokeObjectURL(url); if (onFail) onFail(); else if (cb) cb(); };
+    audio.play();
+  }).catch(function(e){
+    if (window.console) console.warn('[voice] Azure failed:', e);
+    if (onFail) onFail(); else if (cb) cb();
+  });
+};
+
+// ── ElevenLabs backend (premium) ──
+window.__speakEleven = function(text, plan, cb, onFail){
+  var key = getApiKey('elevenlabs') || getApiKey('eleven');
+  if (!key) { if (onFail) return onFail(); if (cb) return cb(); }
+  var voiceId = (plan && plan.voiceId) || 'pNInz6obpgDQGcFmaJgB';
+  var model = (plan && plan.model_id) || 'eleven_multilingual_v2';
+  var settings = (plan && plan.settings) || { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true };
+  fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'xi-api-key': key },
+    body: JSON.stringify({ text: text, model_id: model, voice_settings: settings })
+  }).then(function(resp){
+    if (!resp.ok) throw new Error('ElevenLabs ' + resp.status);
+    return resp.blob();
+  }).then(function(blob){
+    var url = URL.createObjectURL(blob);
+    window.__voiceStopAudio();
+    var audio = new Audio(url); __currentAudio = audio;
+    audio.onended = function(){ URL.revokeObjectURL(url); if (cb) cb(); };
+    audio.onerror = function(){ URL.revokeObjectURL(url); if (onFail) onFail(); else if (cb) cb(); };
+    audio.play();
+  }).catch(function(e){
+    if (window.console) console.warn('[voice] ElevenLabs failed:', e);
+    if (onFail) onFail(); else if (cb) cb();
+  });
+};
+
+// Speak a full reply, one sentence at a time (snappier + interruptible).
+function speakReply(text, characterId){
+  if (typeof VOICE_ENGINE === 'undefined') return;
+  var clean = cleanForSpeech(text);
+  if (!clean) return;
+  // Split into sentence chunks
+  var chunks = clean.match(/[^.!?]+[.!?]*/g) || [clean];
+  var i = 0;
+  function next(){
+    if (i >= chunks.length) return;
+    var chunk = chunks[i++].trim();
+    if (!chunk) { next(); return; }
+    VOICE_ENGINE.speak(chunk, characterId, next, { lowLatency: true });
+  }
+  next();
+}
+
+// Toggle voice output on/off (persists in sd_voice_settings)
+function toggleVoiceOutput(){
+  if (typeof VOICE_ENGINE === 'undefined') return;
+  var v = {};
+  try { v = JSON.parse(localStorage.getItem('sd_voice_settings') || '{}'); } catch(e){}
+  var newState = !VOICE_ENGINE.runtime.outputEnabled;
+  v.outputEnabled = newState;
+  // First time turning on: make sure a backend is enabled + offer key prompts
+  if (newState) {
+    var el = getApiKey('elevenlabs') || getApiKey('eleven');
+    var az = getApiKey('azure_speech') || getApiKey('azure');
+    if (el) v.elevenEnabled = true;
+    if (az) v.azureEnabled = true;
+    // If neither key present, browser voice still works (free fallback)
+  }
+  localStorage.setItem('sd_voice_settings', JSON.stringify(v));
+  VOICE_ENGINE.syncRuntimeFromSettings();
+  VOICE_ENGINE.runtime.outputEnabled = newState;
+  if (!newState) VOICE_ENGINE.stop();
+  updateVoiceToggleUI();
+}
+
+function updateVoiceToggleUI(){
+  var btn = document.getElementById('voiceToggleBtn');
+  if (!btn || typeof VOICE_ENGINE === 'undefined') return;
+  var on = VOICE_ENGINE.runtime.outputEnabled;
+  btn.textContent = on ? '🔊' : '🔇';
+  btn.title = on ? ('Voice ON (' + VOICE_ENGINE.pickBackend() + ') — tap to mute') : 'Voice OFF — tap to hear replies';
+  btn.style.color = on ? 'var(--amber)' : '';
 }
 
 
@@ -1374,6 +1534,11 @@ async function sendMessage() {
         });
 
         saveHistories();
+
+        // Voice output — speak the reply if voice is on (VOICE_ENGINE routes the backend)
+        if (typeof VOICE_ENGINE !== 'undefined' && VOICE_ENGINE.runtime.outputEnabled) {
+            speakReply(response, activeCharacter.id);
+        }
     } catch (err) {
         chatHistories[activeCharacter.id].push({
             role: 'assistant',
@@ -1486,6 +1651,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize
     loadHistories();
     renderCharacterList();
+
+    // Voice output init — default OFF unless the user turned it on before
+    if (typeof VOICE_ENGINE !== 'undefined') {
+        VOICE_ENGINE.syncRuntimeFromSettings();
+        // Respect saved preference; if never set, keep OFF so it never surprises
+        var vs = {}; try { vs = JSON.parse(localStorage.getItem('sd_voice_settings') || '{}'); } catch(e){}
+        VOICE_ENGINE.runtime.outputEnabled = (vs.outputEnabled === true);
+        updateVoiceToggleUI();
+    }
 });
 
 </script>
