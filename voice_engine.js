@@ -136,7 +136,7 @@ var VOICE_ENGINE = {
   pickBackend: function(){
     if (this.runtime.elevenEnabled && this.runtime.elevenKey) return "eleven";
     if (this.runtime.azureEnabled  && this.runtime.azureKey)  return "azure";
-    if (this.runtime.localEnabled)                            return "local"; // future
+    if (this.runtime.localEnabled)                            return "local"; // Tier 3: Kokoro/Piper offline (Phase 5)
     return "browser";
   },
 
@@ -197,6 +197,8 @@ var VOICE_ENGINE = {
   },
 
   _dispatch: function(text, characterId, plan, cb, onFail){
+    // Phase 4: prefer ElevenLabs streaming (Flash v2.5) when the model is a flash model
+    if (plan.backend === "eleven" && plan.model_id === "eleven_flash_v2_5" && window.__speakElevenStream) return window.__speakElevenStream(text, plan, cb, onFail);
     if (plan.backend === "eleven" && window.__speakEleven) return window.__speakEleven(text, plan, cb, onFail);
     if (plan.backend === "azure"  && window.__speakAzure)  return window.__speakAzure(text, plan, cb, onFail);
     if (plan.backend === "local"  && window.__speakLocal)  return window.__speakLocal(text, plan, cb, onFail);

@@ -1097,39 +1097,17 @@ function micPressStart(ev){
   if (ev && ev.preventDefault) ev.preventDefault();
   unlockAudio();
   __micTarget = 'input';
-  if (useBrowserMic()){
-    startInputRecog();
-  } else if (hasAzureSTT()){
-    // iPhone/PWA path: record a clip, transcribe via Azure on release
-    var mic = document.getElementById('micBtn');
-    startAzureRecording().then(function(){
-      if (mic) mic.classList.add('recording');
-      __recogActive = true;
-    }).catch(function(){
-      var f = document.getElementById('inputField');
-      if (f) f.placeholder = 'Mic unavailable — please type.';
-    });
-  } else {
-    var f2 = document.getElementById('inputField');
-    if (f2) f2.placeholder = 'Voice input needs an Azure Speech key on this device — please type.';
+  if (!useBrowserMic()){
+    // iPhone PWA / unsupported: tell the user to type (Azure STT path is a future upgrade)
+    var f = document.getElementById('inputField');
+    if (f) f.placeholder = 'Voice input not available here — please type. (iPhone: open in Safari, not the installed app)';
+    return;
   }
+  startInputRecog();
 }
 function micPressEnd(ev){
   if (ev && ev.preventDefault) ev.preventDefault();
-  if (useBrowserMic()){
-    stopRecog();
-  } else if (__recogActive){
-    // Azure path: stop recording, transcribe, fill the box
-    var mic = document.getElementById('micBtn');
-    if (mic) mic.classList.remove('recording');
-    __recogActive = false;
-    stopAzureRecording().then(function(text){
-      if (text){
-        var f = document.getElementById('inputField');
-        if (f){ f.value = text; f.dispatchEvent(new Event('input')); }
-      }
-    }).catch(function(){});
-  }
+  stopRecog();
 }
 function startInputRecog(){
   if (__recogActive) return;
@@ -1233,18 +1211,11 @@ function callMicStart(ev){
   unlockAudio();
   if (typeof VOICE_ENGINE !== 'undefined') VOICE_ENGINE.stop(); // barge-in: cut off her speech
   __micTarget = 'call';
-  if (__recogActive) return;
   if (!useBrowserMic()){
-    // iPhone/PWA path: record clip → Azure STT on release
-    if (!hasAzureSTT()){ setCallState('idle', 'Add an Azure Speech key to talk here — or use text'); return; }
-    startAzureRecording().then(function(){
-      __recogActive = true;
-      var cmic = document.getElementById('callMicBtn');
-      if (cmic) cmic.classList.add('recording');
-      setCallState('listening', 'listening…');
-    }).catch(function(){ setCallState('idle', 'mic unavailable — use text'); });
+    setCallState('idle', 'Voice input not available on this device — use text chat');
     return;
   }
+  if (__recogActive) return;
   var finalText = '';
   __recog = makeRecognizer(function(text, isFinal){
     finalText = text;
@@ -1266,19 +1237,7 @@ function callMicStart(ev){
 }
 function callMicEnd(ev){
   if (ev && ev.preventDefault) ev.preventDefault();
-  if (useBrowserMic()){
-    stopRecog();
-  } else if (__recogActive){
-    // Azure path: stop, transcribe, then send
-    var cmic = document.getElementById('callMicBtn');
-    if (cmic) cmic.classList.remove('recording');
-    __recogActive = false;
-    setCallState('thinking', 'transcribing…');
-    stopAzureRecording().then(function(text){
-      if (text && text.trim()){ callSendTranscript(text.trim()); }
-      else { setCallState('idle', 'didn\'t catch that — try again'); }
-    }).catch(function(){ setCallState('idle', 'tap and hold the mic to talk'); });
-  }
+  stopRecog();
 }
 
 // Send the transcribed text through the normal chat pipeline, speak the reply
@@ -1369,186 +1328,6 @@ function stopCallWaveform(){
   if (__callWaveRAF){ cancelAnimationFrame(__callWaveRAF); __callWaveRAF = null; }
   if (__callMicStream){ try { __callMicStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){} __callMicStream = null; }
   __callAnalyser = null;
-}
-
-// ═══════════════════════════════════════════════════════════
-// VOICE PHASE 4 — Azure STT (record→transcribe) + ElevenLabs streaming
-// Fixes iPhone voice input (browser SpeechRecognition is dead in iOS PWAs).
-// Records a short clip with MediaRecorder, POSTs to Azure STT, returns text.
-// ═══════════════════════════════════════════════════════════
-
-var __mediaRecorder = null;
-var __recChunks = [];
-var __recStream = null;
-var __recStopResolver = null;
-
-// Is Azure STT usable? (needs a key)
-function hasAzureSTT(){ return !!(getApiKey('azure_speech') || getApiKey('azure')); }
-
-// Start recording a mic clip. Returns immediately; call stopAzureRecording() to finish.
-function startAzureRecording(onLevel){
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.reject('no mic');
-  return navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream){
-    __recStream = stream;
-    __recChunks = [];
-    // Pick a mime type the browser supports (iOS Safari = mp4/aac; Chrome = webm/opus)
-    var mime = '';
-    var candidates = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/aac',''];
-    for (var i=0;i<candidates.length;i++){
-      if (candidates[i] === '' || (window.MediaRecorder && MediaRecorder.isTypeSupported(candidates[i]))){ mime = candidates[i]; break; }
-    }
-    __mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
-    __mediaRecorder.ondataavailable = function(e){ if (e.data && e.data.size > 0) __recChunks.push(e.data); };
-    __mediaRecorder.start();
-    return true;
-  });
-}
-
-// Stop recording, transcribe via Azure, resolve with the text.
-function stopAzureRecording(){
-  return new Promise(function(resolve, reject){
-    if (!__mediaRecorder){ resolve(''); return; }
-    __mediaRecorder.onstop = function(){
-      try { if (__recStream) __recStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
-      var blob = new Blob(__recChunks, { type: (__mediaRecorder && __mediaRecorder.mimeType) || 'audio/webm' });
-      __recStream = null; __mediaRecorder = null;
-      transcribeAzure(blob).then(resolve).catch(reject);
-    };
-    try { __mediaRecorder.stop(); } catch(e){ resolve(''); }
-  });
-}
-
-// POST an audio blob to Azure STT REST endpoint, return recognized text.
-function transcribeAzure(blob){
-  var key = getApiKey('azure_speech') || getApiKey('azure');
-  var region = (typeof VOICE_ENGINE !== 'undefined' && VOICE_ENGINE.runtime.azureRegion) || 'eastus2';
-  if (!key) return Promise.resolve('');
-  // Azure STT short-audio REST endpoint. Content-Type must match the recording.
-  var ctype = blob.type || 'audio/webm; codecs=opus';
-  var url = 'https://' + region + '.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US';
-  return fetch(url, {
-    method: 'POST',
-    headers: {
-      'Ocp-Apim-Subscription-Key': key,
-      'Content-Type': ctype,
-      'Accept': 'application/json'
-    },
-    body: blob
-  }).then(function(resp){
-    if (!resp.ok) throw new Error('Azure STT ' + resp.status);
-    return resp.json();
-  }).then(function(json){
-    // RecognitionStatus: 'Success' → DisplayText
-    if (json && json.DisplayText) return json.DisplayText;
-    if (json && json.NBest && json.NBest[0]) return json.NBest[0].Display || json.NBest[0].Lexical || '';
-    return '';
-  });
-}
-
-// ── ElevenLabs streaming (Phase 4 latency polish) ──
-// Uses the /stream endpoint + Flash v2.5 for ~sub-second first audio.
-// Falls back to the non-streaming __speakEleven if streaming errors.
-window.__speakElevenStream = function(text, plan, cb, onFail){
-  var key = getApiKey('elevenlabs') || getApiKey('eleven');
-  if (!key){ if (onFail) return onFail(); if (cb) return cb(); }
-  var voiceId = (plan && plan.voiceId) || 'pNInz6obpgDQGcFmaJgB';
-  var model = 'eleven_flash_v2_5';
-  var settings = (plan && plan.settings) || { stability:0.5, similarity_boost:0.75, style:0.3, use_speaker_boost:true };
-  fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId + '/stream?optimize_streaming_latency=3', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json', 'xi-api-key':key, 'Accept':'audio/mpeg' },
-    body: JSON.stringify({ text:text, model_id:model, voice_settings:settings })
-  }).then(function(resp){
-    if (!resp.ok) throw new Error('EL stream ' + resp.status);
-    return resp.blob();  // (progressive MediaSource is a future upgrade; blob keeps it robust)
-  }).then(function(blob){
-    var url = URL.createObjectURL(blob);
-    window.__voiceStopAudio();
-    var audio = new Audio(url); __currentAudio = audio;
-    audio.onended = function(){ URL.revokeObjectURL(url); if (cb) cb(); };
-    audio.onerror = function(){ URL.revokeObjectURL(url); if (onFail) onFail(); else if (cb) cb(); };
-    audio.play();
-  }).catch(function(e){
-    if (window.console) console.warn('[voice] EL stream failed:', e);
-    if (onFail) onFail(); else if (cb) cb();
-  });
-};
-
-// ═══════════════════════════════════════════════════════════
-// VOICE PHASE 5 — Local Neural TTS (Kokoro) as opt-in Tier 3
-// Lazy-loads the model only when the user turns "Offline voice" on.
-// Big download (~80-90 MB) — cached after first load. Best on newer devices.
-// Wires window.__speakLocal so VOICE_ENGINE's "local" branch works.
-// ═══════════════════════════════════════════════════════════
-
-var __kokoro = null;
-var __kokoroLoading = false;
-
-// Map each character to the closest Kokoro built-in voice.
-var LOCAL_VOICE_MAP = {
-  narrator: 'am_michael', kael: 'am_adam', oren: 'am_michael',
-  jude: 'am_adam', zara: 'af_bella', mira: 'af_sarah', sunny: 'af_nicole'
-};
-
-// Load Kokoro on demand (dynamic import of kokoro-js from CDN).
-function loadLocalVoice(onReady, onError){
-  if (__kokoro){ if (onReady) onReady(); return; }
-  if (__kokoroLoading) return;
-  __kokoroLoading = true;
-  // kokoro-js is an ES module; import() works in modern browsers.
-  import('https://cdn.jsdelivr.net/npm/kokoro-js@latest/dist/kokoro.web.js').then(function(mod){
-    var KokoroTTS = mod.KokoroTTS;
-    return KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
-      dtype: 'q8',              // int8 — ~80-90 MB
-      device: (navigator.gpu ? 'webgpu' : 'wasm')
-    });
-  }).then(function(tts){
-    __kokoro = tts; __kokoroLoading = false;
-    if (onReady) onReady();
-  }).catch(function(e){
-    __kokoroLoading = false;
-    if (window.console) console.warn('[voice] Kokoro load failed:', e);
-    if (onError) onError(e);
-  });
-}
-
-// The Tier-3 local speak function VOICE_ENGINE._dispatch() looks for.
-window.__speakLocal = function(text, plan, cb, onFail){
-  if (!__kokoro){
-    // Not loaded yet — try to load, then fall back this turn so speech isn't lost
-    loadLocalVoice(null, null);
-    if (onFail) return onFail(); if (cb) return cb();
-  }
-  var voice = LOCAL_VOICE_MAP[plan && plan.characterId] || 'am_michael';
-  __kokoro.generate(text, { voice: voice }).then(function(audioObj){
-    // kokoro-js returns an object with a .toBlob() (wav)
-    var blob = audioObj.toBlob ? audioObj.toBlob() : audioObj;
-    var url = URL.createObjectURL(blob);
-    window.__voiceStopAudio();
-    var audio = new Audio(url); __currentAudio = audio;
-    if (plan && typeof plan.rate === 'number') audio.playbackRate = Math.max(0.5, Math.min(2, plan.rate));
-    audio.onended = function(){ URL.revokeObjectURL(url); if (cb) cb(); };
-    audio.onerror = function(){ URL.revokeObjectURL(url); if (onFail) onFail(); else if (cb) cb(); };
-    audio.play();
-  }).catch(function(e){
-    if (window.console) console.warn('[voice] Kokoro speak failed:', e);
-    if (onFail) onFail(); else if (cb) cb();
-  });
-};
-
-// Toggle offline local voice (downloads model on first enable)
-function toggleLocalVoice(){
-  var v = {};
-  try { v = JSON.parse(localStorage.getItem('sd_voice_settings') || '{}'); } catch(e){}
-  var turningOn = !v.localEnabled;
-  if (turningOn){
-    if (!confirm('Download offline voices? (~90 MB, one time). Best on newer phones/desktop. It will download in the background.')) return;
-    loadLocalVoice(function(){ if (window.console) console.log('[voice] Local voices ready'); },
-                   function(){ alert('Offline voices could not load on this device. Sticking with cloud/browser voices.'); });
-  }
-  v.localEnabled = turningOn;
-  localStorage.setItem('sd_voice_settings', JSON.stringify(v));
-  if (typeof VOICE_ENGINE !== 'undefined') VOICE_ENGINE.syncRuntimeFromSettings();
 }
 
 
