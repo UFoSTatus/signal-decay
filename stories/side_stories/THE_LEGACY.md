@@ -2282,6 +2282,6 @@ And Signal Decay is about to *play* it.
 *Signal Decay Universe — Side Story Collection*
 
 *"They built a cathedral of silence. We're going to fill it with sound."*  
-— Zara Okafor, overheard at rehearsal, timestamp unknown
+— Zara Kovač, overheard at rehearsal, timestamp unknown
 
 ---

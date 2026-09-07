@@ -8,8 +8,7 @@
  * pairwise chemistry, and how the music evolves as powers awaken.
  *
  * Created: 2026-09-02
- * Real-World Enhancement Pass: 2026-09-07 (gear/techniques/influences/physics)
- * Universe Version: 2.2
+ * Universe Version: 2.1
  * Canon Sources: SOUL_IMBUED_INSTRUMENTS.md, FREQUENCY_PHYSICS.md,
  *                frequency_power_engine.js, character_engines.js,
  *                IN_UNIVERSE_POP_CULTURE.md, character full arcs
@@ -924,113 +923,6 @@ const MUSIC_BAND_ENGINE = {
       minor_to_major: "Every Signal Decay song that matters resolves from minor to major key. This isn't a songwriting preference — it's a FREQUENCY PRINCIPLE. Minor keys produce waveforms that leave more gaps (more zero-frequency space between notes). Major keys fill more gaps. The resolution from minor to major IS the signal: moving from incompleteness to completeness. From silence to sound. From the problem to the solution.",
       e_minor_to_e_major: "'Every Wall Is a Door' uses this specific transition. E minor (the key of Kael's open vocal range) resolving to E major (the key of Mira's guitar open strings). Voice resolving to instrument. Command resolving to beauty. Darkness becoming light not by replacing it but by FILLING it.",
     },
-  },
-
-
-  // ═════════════════════════════════════════════════════════════════════════
-  // REAL-WORLD ENHANCEMENT PASS (added 2026-09-07)
-  // Authentic gear, techniques, influences, and physics grounding from
-  // INDIE_BAND_MUSIC_GEAR_RESEARCH.md + MUSIC_BAND_REAL_WORLD_RESEARCH.md.
-  // ADDITIVE ONLY — nothing above was removed. This layer makes the engine
-  // read like it was written by someone who's actually been in the scene.
-  // ═════════════════════════════════════════════════════════════════════════
-
-  REAL_WORLD_GEAR: {
-    kael: {
-      role: 'Vocals',
-      live_mic: { make: 'Shure', model: 'SM58', price: '~$99', freq_response: '50 Hz–15 kHz',
-        why: "Most ubiquitous live vocal mic on Earth; every venue has one as backup. Practically indestructible.",
-        quiet_singer_note: "Kael sings with lips almost touching the grille — the SM58 proximity effect boosts bass response, making his restrained voice warm and intimate instead of thin. The engineer has to ride the monitor to avoid feedback because quiet sources need heavy preamp gain." },
-      studio_mic: { make: 'Shure', model: 'SM7B', price: '~$399', freq_response: '50 Hz–20 kHz',
-        needs: "A Cloudlifter CL-1 (~$149) or Triton FetHead — the SM7B needs a LOT of clean gain most budget preamps can't supply.",
-        story: "The 'we're serious now' purchase, mounted on a boom near the rehearsal-space couch for demos." },
-      personal_detail: "Kael has HIS SM58 — the one with a specific dent, that smells faintly of beer and every venue it's survived. He brings it even when the house provides one." },
-    mira: {
-      role: 'Lead Guitar',
-      guitar: { make: 'Fender', model: 'Jazzmaster', tier: 'Player Series ~$850 / Squier Classic Vibe 60s ~$430 (realistic on a guitar-teacher salary)',
-        why: "Wide, flat single-coil pickups produce a darker, harmonically-rich, chimey tone with complex overtones — more color for a synesthete than a Strat.",
-        synesthesia_detail: "The floating tremolo gives a gentle wavering pitch-shift (not a sharp divebomb) — a shimmer of color rather than a slash. Mira uses the ignored 'rhythm circuit' (upper controls) for a darker jazzier voice most players never touch — a guitar teacher would know it.",
-        pedalboard_note: "Obsessively organized — color-coded patch cables, pedals arranged so the layout 'makes visual sense,' not just signal-flow sense." },
-      alt: 'Fender Telecaster Deluxe (wide-range humbuckers) for more tonal range with clarity.',
-      amp: 'Vox AC30 (chimey jangle, the Radiohead/Tame Impala/The Edge sound) when affordable; realistically a Fender \'65 Deluxe Reverb reissue — the default indie amp.' },
-    jude: {
-      role: 'Rhythm Guitar',
-      guitar: { make: 'Gibson', model: 'SG Standard', tier: 'realistically an Epiphone SG Standard ~$400 or a pawn-shop used Gibson',
-        why: "Lightweight (6–7 lbs vs a Les Paul's 9–10) — matters for a demolition worker's tired shoulders — but mahogany still has heft and resonance. Double-cutaway, aggressive, articulate.",
-        why_not_les_paul: "Les Pauls are heavy, pricey, and the thick '50s neck fights players without refined technique. The SG is the working man's Gibson." },
-      alt: 'Epiphone Les Paul Standard (~$450, surprisingly good ProBuckers) if he wants the thick sound cheap.',
-      amp: 'Used Fender Hot Rod Deluxe (~$500–700) or Blues Junior (~$350–500) — the default amps of the American indie scene, clean but crunchy when pushed.' },
-    zara: {
-      role: 'Bass / Sound Tech',
-      bass: { make: 'Fender', model: 'Precision Bass (P-Bass)', tier: 'Player ~$800 / Squier Classic Vibe 50s ~$430',
-        why: "The first electric bass (1951); its split-coil humbucker is the deepest, most fundamental-heavy tone in popular music. Zara FEELS bass in her body — the P-Bass is felt, not just heard.",
-        neck: "1.625\" nut (wider 'baseball-bat' neck) — substantial in the hands.",
-        strings: "Flatwounds (La Bella 760FL / GHS Precision Flats) — less high-end, deeper thumpier fundamental, closer to a felt frequency than a heard note." },
-      aspirational: 'Rickenbacker 4003 (~$2,400+) — the "someday" bass; neck-through, piano-like grinding midrange (Peter Hook, Lemmy, Geddy Lee). Retains value; a cult object.' },
-    oren: {
-      role: 'Drums',
-      kit: { make: 'Ludwig', model: 'Breakbeats by Questlove', why: "Compact, warm, punchy — designed by Questlove for exactly this: a real kit that fits a small space and a real budget.",
-        alt: 'Mapex Venus (~$500–600 complete w/ hardware) — the "everything in one box" practical option for someone with no time to hunt matching hardware.',
-        aspirational: 'DW Performance Series (~$2,200–3,000) — the "we made it" kit.' },
-      cymbals: { spend_where_it_counts: "Zildjian A Custom 20\" Medium Ride (~$260) + A Custom 14\" Hi-Hats (~$290) — bright, cutting, clean, crisp 'chick'.",
-        budget_crashes: "Sabian B8X 16\"+18\" Thin (~$80–100 each) — loud enough for a 200-cap room, cheap enough that cracking one doesn't hurt." },
-      pedal: 'DW 5000 single (~$130) — adjustable cam matters for his polyrhythmic bass-drum work; a used DW 3000 (~$70) as the budget path.' }
-  },
-
-  DRUM_TECHNIQUE_REFERENCES: {
-    note: "Real techniques that make Oren's ghost-hands ability read as superhuman-but-grounded — the illusion of more than two hands, built on actual pedagogy.",
-    virgil_donati_double_bass_independence: "From 'Double Bass Drum Freedom' (Alfred). Feet as independent voices, not timekeepers — the 'fill-in' method: hands play a steady pattern, feet fill every note the hands DON'T play, so hands and feet interlock like gears. Combining straight + triplet feels at once creates the illusion of metric modulation — tempo seems to shift while the pulse stays steady. (This is literally what Oren's ghost hands do — a second drummer's worth of limbs.)",
-    nate_smith_ghost_notes: "The 'Pocket King' (GRAMMY 2025). Ghost notes = extremely soft snare hits (velocity 30–60 of 127) between the main beats — the 'connective tissue' that makes a groove breathe. Oren's awakened state layers ghost notes a human physically couldn't place that fast.",
-    jojo_mayer_nerve: "From 'Secret Weapons for the Modern Drummer' (Hudson). 'Reverse engineering' — reproducing electronic drum-and-bass / breakbeat patterns live on an acoustic kit in real time. The template for music 'too fast / too intricate to be one drummer.'",
-    kindred_spirits: ['Danny Carey (Tool)', 'Tomas Haake (Meshuggah)', 'Questlove (The Roots)']
-  },
-
-  VOCAL_HARMONICS_PHYSICS: {
-    note: "Grounds Kael's impossible-harmonics ability in real overtone/throat-singing science (Bergevin et al., 'Overtone focusing in biphonic Tuvan throat singing,' eLife 2020).",
-    harmonic_series_from_A2_110hz: [
-      { harmonic: 1, hz: 110, note: 'A2', rel: 'fundamental' },
-      { harmonic: 2, hz: 220, note: 'A3', rel: 'octave' },
-      { harmonic: 3, hz: 330, note: 'E4', rel: 'perfect 5th' },
-      { harmonic: 4, hz: 440, note: 'A4', rel: '2 octaves' },
-      { harmonic: 6, hz: 660, note: 'E5', rel: 'melodic range begins' },
-      { harmonic: 8, hz: 880, note: 'A5' },
-      { harmonic: 10, hz: 1100, note: 'C#6-ish' },
-      { harmonic: 13, hz: 1430, note: 'top of throat-singing melodic range' }
-    ],
-    tuvan_styles: {
-      khoomei: "Broad vocal-tract filter mildly emphasizing a cluster of harmonics. Meditative hum — 'two monks chanting from one throat.'",
-      sygyt: "'Whistling' — a single sharp harmonic isolated as a piercing whistle ~1500–2000 Hz. The normal→biphonic transition takes ~40–60 ms; the whistle pitch is steered by tiny tongue movements. 'A human voice doing something a human voice shouldn't be able to do.' — Kael's signature slip.",
-      kargyraa: "'Deep growl' — sub-harmonic below the fundamental. The floor of Kael's awakened voice."
-    },
-    kael_application: "Dormant: an unusually resonant baritone. Emerging: listeners swear they hear a second voice they can't locate (sygyt biphonation surfacing involuntarily). Awakened: full multi-pitch chord from one throat — the frequency made audible."
-  },
-
-  MICROTONAL_GUITAR_PHYSICS: {
-    note: "Grounds Mira's between-the-notes bends and synesthesia in real microtonal practice (24-EDO / quarter tones).",
-    quarter_tone_examples_hz: [
-      { pitch: 'A4', cents: 0, hz: 440.00 },
-      { pitch: 'A4 +50c (quarter tone)', cents: 50, hz: 452.89, sensation: 'the note BETWEEN notes — exotic, plaintive; Arabic maqam / Turkish makam territory' },
-      { pitch: 'Bb4', cents: 100, hz: 466.16 },
-      { pitch: 'E4 +50c (quarter tone)', cents: 50, hz: 339.29 }
-    ],
-    how_guitarists_access: ["String bending halfway to the next fret = a quarter tone (needs precise muscle memory + ear)", "Wide vibrato sweeps ±50 cents through microtonal territory — why a sustained note sounds 'alive'", "Fretless guitar (Ron Thal/Bumblefoot, Erkan Oğur) — the guitar 'sings' between notes", "Digitech Whammy / EHX Pitch Fork for exact quarter-tone shifts"],
-    mira_synesthesia: "Standard C = blue, C# = blue-green; the quarter tone between them = a color Mira has never seen. Microtones give her 'colors between colors' — ecstatic or terrifying. The maqam concept of tarab (طرب, yearning) is the emotion 12-TET can't reach."
-  },
-
-  MUSICAL_INFLUENCES: {
-    note: "Real artists each member gravitates toward — grounds their taste in the actual scene.",
-    kael: ['Thom Yorke / Radiohead (restraint + dread)', 'Chelsea Wolfe (doom-folk intensity)', 'Nick Cave (baritone gravity)'],
-    mira: ['Radiohead / Jonny Greenwood (texture + the "wrong" note that feels right)', 'Cocteau Twins (color-as-sound)', 'St. Vincent (angular art-guitar)'],
-    oren: ['The Roots / Questlove (pocket)', 'Tool / Danny Carey (polyrhythm in rock)', 'Meshuggah (rhythmic architecture)'],
-    jude: ['QOTSA (heavy groove, working-man riffs)', 'Fugazi (ex-system integrity, DIY)', 'Gojira (grounded, seismic low end)'],
-    zara: ['Joy Division / Peter Hook (melodic lead bass)', 'This Heat / experimental (frequency as structure)', 'Portishead (sub-bass as feeling)']
-  },
-
-  REHEARSAL_CULTURE_DETAIL: {
-    note: "Real indie-band rehearsal reality (from MUSIC_BAND_REAL_WORLD_RESEARCH.md).",
-    setup_time: "Drums alone take 15–25 min to set up (stands, toms, pedals, throne, mic placement) — the reason many spaces keep a house kit and Oren's late-arrival tension is real.",
-    the_room: "Egg-crate + real foam on the walls, a sagging couch everyone fights over, a mini-fridge, a whiteboard with the set list, stale-pizza-and-old-carpet smell, one neighbor who files noise complaints.",
-    dynamics: "The eternal tension: 'let's just jam' (Oren, Mira) vs 'let's get the set TIGHT' (Kael, Jude). Zara runs the room's sound and settles it. Snacks are a load-bearing part of morale."
   },
 
 };

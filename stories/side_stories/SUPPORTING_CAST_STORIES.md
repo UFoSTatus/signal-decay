@@ -605,7 +605,7 @@ Silence on the line. Sandra could hear the quality of it — not empty silence b
 
 "It was a dream. You ate something spicy before bed."
 
-"Mira Ling-yao Chen, don't you tell me about my own dreams."
+"Mira Chen-yao Chen, don't you tell me about my own dreams."
 
 A startled half-laugh from Mira. Sandra smiled despite herself. Using the full name always cracked the armor a little.
 

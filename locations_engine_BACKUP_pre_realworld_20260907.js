@@ -13,24 +13,8 @@
 // Canon Sources: THE_NIGHT_THEY_MEET.md, character full arcs, SUPPORTING_CAST_STORIES.md,
 //                daily_life_engine.js, character_engines.js
 //
-// Last Updated: 2026-09-07
-// Target: 80-110 KB (now ~141 KB after real-world sensory enhancement)
-// ============================================================================
-// ENHANCEMENT 2026-09-07 - REAL-WORLD SENSORY DETAIL (ADDITIVE ONLY)
-// ----------------------------------------------------------------------------
-// Added `sensory_realism_notes` and, for frequency/mechanical hotspots,
-// `infrasound_notes` to major locations. All detail is grounded in the two
-// research references (LOCATIONS_SENSORY_RESEARCH.md, URBAN_SPACES_SENSORY_RESEARCH.md):
-// real dive-bar atmosphere (sticky floors, failing neon, ghost-of-cigarettes,
-// the bathroom ecosystem), ER culture (fluorescent buzz, the "Devil's Tritone"
-// of massed alarms, floor-bleach-and-cold-coffee night-shift smell), warehouse
-// district (120Hz fluorescent hum, dock-threshold microweather, cardboard),
-// plant/creative/minimalist apartment realism, demolition (you TASTE the dust,
-// HAVS phantom vibration, transient "haunted" geometries), and Vic Tandy's
-// infrasound research (18.98Hz standing waves, the eyeball's 18-19Hz resonance,
-// elevated cortisol) as the scientific floor under the "tuning fork" concept.
-// NO existing fields were removed or altered. Every addition is a NEW sibling
-// key placed immediately after each location's existing `sensory` block.
+// Last Updated: 2026-09-02
+// Target: 80-110 KB
 // ============================================================================
 
 const LOCATIONS_ENGINE = {
@@ -238,27 +222,6 @@ const LOCATIONS_ENGINE = {
       }
     },
 
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in real dive-bar / small-venue accounts (LOCATIONS_SENSORY_RESEARCH.md, URBAN_SPACES_SENSORY_RESEARCH.md)
-      the_sticky_floor: "The concrete never fully cleans. A decade of spilled beer has soaked into the failed sealant and the pores of the slab. Every step produces a faint tack-and-release - the sole adhering for a half-second, then tearing free. On a busy night the whole floor whispers with it, two hundred people peeling their shoes off the ground in overlapping rhythm. Diego mops with lemon cleaner that never wins; by 11 PM the lemon has surrendered back to beer.",
-      the_bar_top_tack: "The scarred oak is sealed but the seal is old. Rest your forearm on it and it comes away with a faint stickiness - dried liquor, condensation rings, the ghost of a thousand pours. Wet napkins leave fibrous ghosts Diego scrapes with a thumbnail. The brass foot rail is the cleanest thing you will touch all night - cool, worn smooth, the one surface that stays honest.",
-      neon_as_light_source: "Dive-bar light is warm and failing - 2200-2700K, the color temperature of a room that has given up on flattering anyone and somehow flatters everyone. The amber sign and pink DRINKS neon do not blaze; they glow weakly and unevenly, throwing pink-red and amber washes that hide imperfections and make strangers look slightly better than they are. The one cold-white light in the building is the bathroom fluorescent, and under it everyone looks terrible. Nobody wants to fix this.",
-      the_ghost_of_cigarettes: "Illinois went smoke-free in 2008 but the tar never left. It lives in the ceiling, in the foam of the two booth cushions by the back wall, in the grout. On humid nights - August, or when the back-door seal leaks rain - it blooms back out of the walls, a faint stale-tobacco undertone under the beer. Regulars stopped smelling it years ago. Newcomers catch it on the second breath.",
-      the_bathroom_ecosystem: "Single stall, hook-and-eye latch that never quite lines up. One bare fluorescent tube - the harshest, coldest light in the building. Sharpie latrinalia layered years deep: band names, phone numbers, a running argument in three pens, one genuinely good haiku. The floor is always faintly wet and you learn not to ask why. Pink industrial hand soap from a wall dispenser, and under it the failing sweetness of a urinal cake you catch from the hallway when the door swings.",
-      the_stage_intimacy: "At 200-cap the front row is close enough to hand the singer a beer. Sweat from the stage genuinely lands on the first two rows during the second band's set. Eye contact is unavoidable - nowhere for a performer to hide, no darkness to disappear into. Kael, who has spent his whole life disappearing, will feel this like a physical pressure the first time he steps up.",
-      the_temperature_swing: "Never comfortable - too cold when the crowd is thin and the back door is propped, too hot once two hundred bodies and the PA generate heat. Patrons keep their jackets on all night or strip to a t-shirt by the second band. No in-between.",
-      the_door_airlock: "The seven-foot entry hallway is a genuine acoustic airlock - the crowd-roar drops and swells as the front door opens and closes, a burst of street noise and cold air, then the seal. Regulars unconsciously time their entrances to the gaps between songs."
-    },
-
-    infrasound_notes: {
-      // ADDED 2026-09-07 - the science under the "tuning fork" (Vic Tandy 18.98Hz, 1998; MacEwan 2026 cortisol study; NASA 1977 eyeball resonance)
-      overview: "The Frequency's supernatural charge has a real-world floor under it. A converted 1948 machine shop: high cubic volume, hard parallel brick walls, aging HVAC, a basement mechanical run. That is a textbook infrasound generator. Long before anything supernatural is invoked, this room is physiologically capable of making people feel watched, uneasy, or moved - because pressure below 20Hz acts on the body directly.",
-      the_hvac_standing_wave: "The HVAC drone Zara EQ'd around at ~120Hz carries a subharmonic the console never shows her - a slow pressure oscillation in the 17-19Hz band from a slightly imbalanced basement return fan. It pools strongest at the back of the room, near the mixing position. This is squarely in the range documented to raise salivary cortisol and produce a sense of unease and 'presence' in people who cannot name any cause. Zara feels it as a low body-hum she has never questioned. New bartenders sometimes say the back of the room 'feels off' during load-in and can't say why.",
-      the_eyeball_frequency: "18-19Hz sits near the resonant frequency of the human eyeball. When the return fan runs hard on a cold night, patrons standing dead-center-back occasionally catch a grey smear at the edge of vision that vanishes when they turn to look - central vision doesn't smear, so the figure cannot survive a direct stare. Here it reads as a ghost, or as the room's magic. The mechanism is a trembling eye and a threat-detection brain doing exactly what it evolved to do with the wrong input.",
-      why_it_matters_here: "The honest hinge of Signal Decay: the dread is real, the presence is real, the chill is real - measurable, physiological, reproducible. What's false is only the first explanation the mind reaches for. The Frequency amplifies where other buildings attenuate; infrasound is the physics that lets the room feel haunted before it ever earns the word.",
-      who_registers_it: "Zara (lifelong, unquestioned body-hum). Mira sees it as a slow indigo pulse low against the back wall on cold nights. Kael feels it as directional pressure in the sternum. Oren, attuned to the ABSENCE of expected patterns, notices the nights it is NOT running more than the nights it is."
-    },
-
     // -----------------------------------------------------------------------
     // FREQUENCY PROPERTIES — The Room's Secret
     // -----------------------------------------------------------------------
@@ -338,15 +301,6 @@ const LOCATIONS_ENGINE = {
         off_day_afternoon: "2 PM. French press. The chair. Full album. The apartment becomes a listening room.",
         off_day_night: "9 PM - 2 AM. Most alive. Floor-sitting. Voice memos of sounds outside. His in a way daytime isn't."
       }
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in warehouse-worker economics and studio-apartment acoustics (LOCATIONS_SENSORY_RESEARCH.md sec 7C)
-      the_affordable_studio_reality: "This is what a night-shift warehouse wage buys in Chicago without a roommate: a small older studio, second or third floor, no dishwasher, radiator or baseboard heat he doesn't fully control, single-pane windows that let the street in. The rent is sustainable only because he doesn't eat out and doesn't buy things. Every economy in this room is a decision, not a hardship he resents.",
-      single_pane_sound_bleed: "Through the single-pane east window the world arrives muffled but present - a neighbor's TV laugh-track through the wall, footsteps overhead landing on his ceiling, the hot-water pipes knocking when someone two floors down runs a shower. He has learned the building's sound schedule the way he learned the warehouse conveyor's: it is a timetable his body reads without asking.",
-      the_blackout_dark: "The blackout curtains do real work - they turn 2 PM into a convincing midnight so a man who sleeps 10 AM to 4 PM can sleep at all. The seal is imperfect: one side sags off the too-long tension rod, and a single blade of daylight lands across the floor and tracks slowly toward the bed as the afternoon turns. He wakes when it reaches his face. He has never fixed the rod. The blade is a clock he trusts.",
-      the_clean_nothing_smell: "Most 24-year-old men's studios have a smell. His has the deliberate absence of one - clean laundry and good coffee over scrubbed neutrality. The absence is the tell. A man controlling his voice controls his air too; nothing is allowed to accumulate, because accumulation is a form of wanting.",
-      warehouse_on_the_clothes: "When he comes home at 6:30 the shift comes with him - cardboard, conveyor-belt oil, the metallic tang of the loading dock threaded into the cotton. It fades by the time he showers. For twenty minutes the studio smells like the one place his voice is safely drowned, and then it smells like nothing again."
     }
   },
 
@@ -412,15 +366,6 @@ const LOCATIONS_ENGINE = {
         evening_alone: "Entities emerge. She plays guitar. They harmonize. Temperature drops. String lights become the only warmth.",
         three_am: "The witching hour. Records, paints, talks to entities. The boundary between octaves is thinnest here, now."
       }
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in synesthete-artist and guitarist living-space accounts (URBAN_SPACES_SENSORY_RESEARCH.md sec 5)
-      the_guitar_pick_archaeology: "Picks everywhere - the signature detail of a guitarist's home. In the couch cushions, the kitchen junk drawer, on the bathroom counter, wedged between floorboards, one somehow in the refrigerator door. Various gauges, various colors. She stops noticing them the way she stops noticing the entities: constant, low-grade, hers.",
-      canvases_as_walls: "Finished and half-finished canvases leaning against every wall, stacked in corners, hung deliberately crooked - her visual translations of sound, the way Melissa McCracken paints a specific song as a swirling field of color. The locked closet holds the ones too large and too true to risk displaying. The rest are camouflage: bright enough that a visitor reads 'artist,' abstract enough that nobody guesses they are documentation.",
-      paint_that_never_leaves: "Acrylic and watercolor live in the air even on days she hasn't painted. Dried splatters on the hardwood she has never bothered to cover - she doesn't care enough, and the caring goes into the canvases instead. Tubes crusted at the cap crowd the kitchen counter next to guitar strings still in their packaging.",
-      the_sound_dampening_of_clutter: "A crowded room is a quiet room - soft goods, canvases, and stacked objects absorb high frequencies, so her apartment sounds hushed and close rather than live. This is acoustic accident doing emotional work: the muffling calms the chromatic sight the same way the clutter denies the entities their empty perching surfaces. Fortification that also happens to sound like peace.",
-      the_kitchen_of_a_person_who_forgets_to_eat: "Mostly unused except for the kettle. A single clean mug; everything else waiting in the sink. Green tea going cold on three surfaces at once. Cereal, toast, whatever Sage brings. The counter is a workbench for everything that isn't food."
     }
   },
 
@@ -474,15 +419,6 @@ const LOCATIONS_ENGINE = {
         afternoon_sleep: "Time-drift means naps have unpredictable duration. Sets alarm for 2 hours, wakes 4 later. Chai doesn't leave his side.",
         evening_off: "ALIVE. Music, cooking, Chai supervising. Hass or Ravi over. Peak Oren: surrounded by warmth, generating more."
       }
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in ER-nurse home economics and night-shift recovery patterns (LOCATIONS_SENSORY_RESEARCH.md sec 7B)
-      the_apartment_optimized_for_daysleep: "An ER-nurse wage buys the nice one-bedroom in a decent building near transit - necessary when you clock out at 7 AM and need to be back at 7 PM. But the real design principle is recovery: the bed is the most expensive object he owns, because for a night-shift nurse sleep is not comfort, it is survival. Blackout capacity, a fan for white noise, a room engineered to convince his body it is night when it is noon.",
-      scrubs_come_off_at_the_door: "The scrubs are shed at the threshold and never carried further in - hospital does not get to follow him home. He launders obsessively for the same reason. Home is the one place antiseptic is not allowed to win, so he floods it with cumin, coriander, chai, and a shea-butter warmth that is the exact opposite of the ER's scrubbed cold.",
-      warm_because_work_is_cold: "He keeps the thermostat higher than any visitor expects because the ER runs cold for infection control and his scrub tops are thin - twelve hours of being chilly makes a man build a warm nest. The radiator clanks like a percussion section and he doesn't mind; he air-drums to it. Visitors take off layers within minutes.",
-      the_fridge_binary: "An ER nurse's fridge is meticulously meal-prepped or completely empty - no middle ground - and his swings between the two on a shift-cycle. Post-stretch of shifts: takeout containers and a lone condiment. Day off: a cooking day, daal and rice and the whole spice rack deployed, enough to carry him through the next stretch.",
-      the_good_coffee_maker: "The one non-negotiable appliance. Night shift runs on caffeine that is delivery, not pleasure, at the hospital - so at home the coffee is deliberately, defiantly good. It is the first ritual of a day that starts in the afternoon."
     }
   },
 
@@ -536,16 +472,6 @@ const LOCATIONS_ENGINE = {
         after_work: "4 PM. Shower off concrete dust. Then guitar — destruction to creation, same force, different vector.",
         night: "Guitar through headphones until midnight. Floor-sitting. Feeling the building. Dreams of red-sky planets."
       }
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in post-incarceration spatial psychology (URBAN_SPACES_SENSORY_RESEARCH.md sec 5, Jude's Minimalist Clean)
-      the_near_zero_surface_count: "Almost no loose objects. The counter holds a dish rack with exactly the number of dishes he uses. The table holds nothing. This is not aesthetics - it is knowing where everything is, which is control, which is never being caught off guard. Every object in the apartment was chosen, not accumulated.",
-      the_bed_made_with_hospital_corners: "Made with military precision every morning without exception - the first act of a free man that became the first act of discipline. The institution taught the corners; freedom keeps them by choice. The distinction is the entire point, and he could not explain it to anyone who hasn't been inside.",
-      the_relentless_clean: "Not sterile - relentlessly maintained. Pine-Sol, not the clean-nothing of Kael's controlled air but aggressive, active cleaning. The apartment is clean in a way that makes visitors faintly uncomfortable and makes Jude feel, for an hour after, that the space is genuinely his.",
-      checking_the_locks: "He checks them. More than once. Not paranoia - the legacy of years in a world where your space was never truly your own. The door lock is, functionally, the most important feature of the apartment, and its solid throw is a sound he needs to hear before he can sit down.",
-      light_he_chose: "Curtains open, natural light welcomed - after years of controlled environments, light is something he actively chooses rather than something done to him. The apartment is sparse but never dark. Quiet, too, on purpose: music is intentional, never background, and the absence of forced institutional noise is itself a luxury he can taste.",
-      knowing_where_the_limits_are: "First thing he did in his own place: knocked on every wall, learned the studs and the load-bearing runs by touch and resonance. Not because he plans to break them - because a man who could needs to know exactly where the limits are. The guitar on the bracket is the one thing he ALLOWS to be dangerous."
     }
   },
 
@@ -593,15 +519,6 @@ const LOCATIONS_ENGINE = {
         "When she practices: a faint ozone smell from the amp tubes warming up",
         "Croatian food when she cooks — briefly, forcefully, then ventilated away"
       ]
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - minimalist realism kept true to canon (one ZZ plant, not a jungle); analog-waveform detail
-      the_hotel_room_that_is_lived_in: "Visitors land on the same word: nice, but cold. Not temperature - emotional. A space occupied for years but never personalized, because personalizing requires a shareable self and hers is a frequency being that can tell no one. Everything has a place; nothing is decorative except the records.",
-      the_analog_completeness: "She listens on vinyl not for nostalgia or warmth but because the analog waveform is COMPLETE - unbroken, unsampled, unsliced. To a consciousness whose home dimension is pure frequency, the difference between a continuous groove and a reconstructed digital signal is the difference between a living voice and a convincing transcript. The room genuinely changes when a record is playing: fuller, rounder, correct.",
-      the_one_plant_on_purpose: "A single ZZ plant on the kitchen counter - chosen precisely because it is nearly impossible to kill. She waters it Sundays and does not talk to it, but she monitors its health with the same precision she brings to the PA, and would notice a change before the leaves did. It is the only living thing in the room and it earns its place by asking for almost nothing.",
-      the_clean_nothing: "The air is scrubbed to neutral - she ventilates obsessively, so Croatian cooking flares and vanishes, and no candle or perfume is ever allowed to settle. The apartment smells like filtered air and, when she practices, a faint ozone from the amp tubes warming. The absence is not neglect; it is maintenance of a mask that never fully comes off, even here.",
-      the_sub_bass_through_the_floor: "When she practices at full power the rug does real work - her sub-harmonics travel through the building's structure and rattle the downstairs neighbor's dishes. Below 20Hz her physiology produces frequencies that make the walls faintly breathe. She keeps the practice-room door closed and the hour late; the neighbor has decided it's the L."
     }
   },
 
@@ -636,23 +553,6 @@ const LOCATIONS_ENGINE = {
       smell_notes: ["Cardboard — overwhelming, constant", "Conveyor belt oil — metallic, mechanical", "Concrete dust", "Monster Energy (from the break room)", "Cold night air through the dock doors"]
     },
 
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in warehouse-district and industrial-workplace accounts (URBAN_SPACES_SENSORY_RESEARCH.md sec 3)
-      the_fluorescent_120hz: "The overhead tubes buzz at 120Hz - the second harmonic of the 60Hz grid - and Kael has not only memorized the frequency, he uses it as a tuning reference his conscious mind doesn't admit to. It never flickers into a shape here the way infrasound can; it just sits under everything, the metallic hum of American industry, the sound of a building that was never built for anyone to feel comfortable in.",
-      the_dock_threshold_microweather: "Docks 3 and 4 open onto the night, and the seam where cold outside air meets warm warehouse air is a real thermal boundary you can stand inside - one foot in each temperature. In winter the cold pours across the concrete at ankle height while the heat pools up top; in summer the humidity rolls in and fogs the first ten feet of floor. Kael takes his breaks in this seam on purpose. It is the most honest edge in the building.",
-      the_cardboard_dominance: "Cardboard is the entire sensory field - the smell (dry, dusty, faintly sweet), the color (every shade of brown under the fluorescents), the sound (the scrape and thud of boxes, the tape-gun screech). By the end of a shift it is in his sinuses and on his hands, a fine brown dust like a gentler cousin of Jude's concrete.",
-      the_reverse_alarm_and_the_drone: "The soundscape is a machine orchestra with no dynamics: conveyor drone as the pad, scanner beeps as arrhythmic percussion, forklift reverse-alarms as a high piercing motif that cuts through everything and that everyone has stopped consciously hearing. The volume is high enough that a normal conversation requires leaning in and half-shouting - which is exactly why Kael's suppressed voice can hide here.",
-      the_break_room_at_3am: "Vending machines that steal dollars, a TV bolted to ESPN, plastic tables, the smell of microwaved burritos and cold Monster Energy. Fifteen minutes of relative quiet that isn't quiet - the floor's drone leaks under the door. Kael in the corner with a green Monster and Reddit, banking silence he will spend on the drive home."
-    },
-
-    infrasound_notes: {
-      // ADDED 2026-09-07 - old industrial buildings are classic infrasound sources (LOCATIONS_SENSORY_RESEARCH.md sec 8)
-      the_industrial_generator: "A concrete-block distribution hub is exactly the kind of structure that leaks infrasound: large HVAC and make-up-air units, the loading-dock door motors, forklift traffic hammering the slab, and the low-frequency byproduct of continuous mechanical operation. Most of it sits below 20Hz - felt, not heard.",
-      the_dock_door_motors: "The dock-door motors grind upward roughly every thirty minutes, and each cycle pushes a brief low-frequency pressure pulse through the slab that Kael feels in his sternum before the sound reaches his ears. He has learned the interval so precisely that his body braces a half-second early. Coworkers who work docks 3-4 for years develop a vague, unexamined dislike of one corner near the motor housing - a corner where the standing wave happens to node.",
-      why_it_reads_as_nothing_here: "In a haunted house this pressure would become a ghost. In a warehouse it becomes fatigue, irritability, the flat low mood of the back half of a night shift - the same physiological response, filed under 'the job' instead of 'the supernatural.' The body responds identically; only the story changes.",
-      kael_specifically: "Kael's frequency sensitivity means he reads the building's sub-20Hz field as directional information - which is part of why the vibration in his chest has been getting more directional lately, and why it points, when he lets it, away from the warehouse and toward Ashland."
-    },
-
     the_raylan_incident: "Aisle 9. Danny Kovacs clips a racking upright with the forklift. Two tons of bottled water starts to lean. Kael says 'Danny. Stop.' at normal volume. Every person in the building hears it as if spoken directly into their inner ear. Danny stops. The rack holds. Raylan Meeks files it under 'good instincts' and goes back to scanning paper towels. The voice, even suppressed, finds its way through industrial noise."
   },
 
@@ -681,24 +581,6 @@ const LOCATIONS_ENGINE = {
       dominant_colors: ["Fluorescent white", "Pale blue — scrubs, gloves", "Red — blood, emergency", "Green — monitors, positive vitals"],
       temperature_feel: "Cold. Always cold. Hospitals run cool for infection control. Oren layers: compression socks, platform Crocs, a fleece under the scrub top when he can get away with it.",
       smell_notes: ["Antiseptic — always", "Blood — metallic, sharp", "Bad coffee", "Hand sanitizer — his hands are cracked from washing"]
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in ER-nurse first-person accounts and hospital-noise studies (both research files, sec 2)
-      the_fluorescent_relentlessness: "4000-5000K tubes, cool blue-white, institutional - the light that makes everyone look slightly sick and erases every shadow. There are no dim corners in an ER; every surface reflects it, and it bleaches color out of everything so thoroughly that blood looks more vivid than it should because everything else is desaturated. At 3 AM, eight hours in, staff describe it as humming at a frequency you can feel in your teeth. For Oren it is the ceiling of a world where 3 AM and 3 PM are visually identical - fluorescent time, where his temporal drift has perfect cover.",
-      the_devils_tritone: "90-99% of monitor alarms are false, and the ear learns to numb - documented alarm fatigue. But the alarms combine, at certain moments, into what one hospital sound researcher named the Devil's Tritone: the dissonant interval Renaissance churches literally banned, assembled by accident from a cardiac monitor, an SpO2 desat tone, and a dry IV pump. It raises the hair on the neck of anyone not yet numb. Oren hears it as music - and hears the SILENCE between surges more sharply than the noise, which is exactly how his gift is wired.",
-      the_night_shift_smell: "The dead-stretch signature, straight from the accounts: floor bleach, cold coffee, and old rain tracked in from the ambulance bay. On wet nights add the damp-wool funk of a waiting room full of coats. Under all of it, always, the metallic tang of blood and the sweet-wrong note of something biological that cleaning can't fully win. Fear-sweat is chemically different from exercise-sweat and the veteran nurses can tell them apart without thinking about it.",
-      the_wheels_on_linoleum: "The percussion of the department: computer carts, gurneys, and wheelchairs squeaking over waxed floor; the pneumatic hiss-thump of the automatic doors; chart binders snapping; the overhead PA flattening 'Code Blue, Room 7' into its own urgent cadence. Nurses speak softly - professionals lowering their voices is more unsettling than yelling, and Oren has learned that the quieter the trauma team gets, the worse it is.",
-      the_dead_hours: "2-5 AM: a calm after the storm that is not restful, because everyone knows the next ambulance could arrive any second. The tension doesn't drop with the pace. Time behaves strangely under unchanging light against black windows - minutes and hours become indistinguishable - and for a man whose soul is drifting loose from time, this is both the safest place to hide it and the place most likely to make it worse.",
-      the_break_room_decompression: "Windowless, same institutional tubes, a coffee machine that hasn't been properly cleaned in a decade producing caffeine that is not coffee. A mini-fridge of passive-aggressively labeled Tupperware. This is where a nurse wipes away tears after a bad room and then laughs at a joke ninety seconds later - gallows humor as survival, the come-down happening in stolen five-minute increments. Oren drinks a Monster Ultra Rosa here at the 3 AM wall."
-    },
-
-    infrasound_notes: {
-      // ADDED 2026-09-07 - hospital mechanical systems as a low-frequency source; the corridor staff avoid (LOCATIONS_SENSORY_RESEARCH.md sec 8)
-      the_building_hum: "A hospital is a machine that never turns off - air handlers, chillers, medical gas systems, elevator motors, the sheer mass of ductwork - and large commercial HVAC is the most common indoor infrasound source there is. Below the audible 60Hz transformer hum sit harmonics and fan imbalances that reach down under 20Hz, strongest in basements, mechanical floors, and the long parallel-walled corridors that act as resonance chambers.",
-      the_corridor_staff_avoid: "Every veteran ER has a stretch of hallway - often the back corridor to imaging or the old wing - that night staff dislike without being able to say why. Reports cluster there: a sense of being watched, a grey shape at the edge of vision near the end of the hall, an unearned dread. The likely cause is a standing wave from the building's mechanical systems pooling at that corridor length. The feeling is real and physiological; the ghost is the mind's oldest available caption for it.",
-      oren_and_the_absence: "Oren, tuned to the absence of expected patterns rather than their presence, notices this low field most on the nights maintenance shuts a unit down - the corridor abruptly feels 'lighter' and he cannot explain to Rachel why. His gift runs on subtraction: he feels the 19Hz leave the way most people would feel a sound arrive.",
-      why_it_belongs_here: "It grounds the ER's strangeness in physics without diminishing it. The department can feel liminal, watched, and time-broken at 3 AM for reasons that are measurable - and that makes the genuinely supernatural events, when they come, land harder against a floor of real science."
     }
   },
 
@@ -725,23 +607,6 @@ const LOCATIONS_ENGINE = {
       dominant_colors: ["Grey — concrete, dust, everything covered in demolition grey", "Safety orange — vests, cones, barriers", "Rust — exposed rebar, old structural steel", "Brown — exposed earth beneath broken foundations"],
       temperature_feel: "Extreme. Hot in summer (no shade, physical exertion). Cold in winter (exposed sites, wind through broken walls). Jude doesn't complain. Prison taught temperature indifference.",
       smell_notes: ["Concrete dust — the overwhelming dominant note", "Diesel exhaust — from the machinery", "Exposed earth — ancient smell beneath broken foundations", "Sweat — hard labor smell"]
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in demolition-industry accounts and HAVS medical literature (LOCATIONS_SENSORY_RESEARCH.md sec 6)
-      you_taste_demolition: "Demolition isn't only seen and heard - it is tasted. Fine concrete dust settles on the teeth and coats the tongue; a day near grinding and cutting leaves a metallic aftertaste that outlasts the drive home. Jude blows his nose at night and it runs grey. The dust is in his eyebrows, the creases of his neck, the cab of the truck, the sandwich in the lunchbox.",
-      the_sledgehammer_shock: "The long handle is a lever; the whole body loads the swing - legs, core, shoulders - and the head builds speed through the arc. On concrete the impact shock is sharp and brief and travels up the handle through wrist and forearm into the shoulder. On steel it rings and sustains. On wood it thuds and is absorbed. Jude reads which surface he's hitting through the return shock alone, eyes closed, the way another man reads a drum head.",
-      the_phantom_vibration: "After hours of it, ordinary demo workers get numbness and tingling in the fingers - the early edge of Hand-Arm Vibration Syndrome, and over years, vibration white finger. Jude never crosses that line because he operates at ~5% and the impact barely registers in his tissue - but he mimics the phantom buzz on purpose sometimes, shaking out his hands at the truck like the other men, because a man who never gets tired the right way gets noticed.",
-      the_break_time_smells: "Bitter site coffee from a stained kettle in a thin plastic cup. A sandwich that has festered in a hot lunchbox, crusts curling. The camaraderie of eating badly together - a bond forged by shared filth, deafness, and exhaustion that doesn't exist in comfortable work. It is, quietly, one of the few belongings Jude has that prison didn't teach him and the band hasn't yet given him.",
-      the_silence_after: "When the machines cut for break or end of day, the sudden quiet is startling and the ears ring. The site ticks and settles - concrete dust pinging off metal as it falls, rebar cooling, a wall finding its new balance. In that silence Jude can hear the building he just wounded still moving, and it is the closest thing to prayer he has."
-    },
-
-    infrasound_notes: {
-      // ADDED 2026-09-07 - machinery and collapsing geometry as transient infrasound sources (LOCATIONS_SENSORY_RESEARCH.md sec 8)
-      machinery_through_the_ground: "A twenty-tonne excavator sends waves through the earth you feel through boots and up the legs before the sound arrives. Standing near working plant, the body is bathed in sub-20Hz pressure continuously - low mood, low-grade dread, and irritability that the crew attributes to the noise and the heat and each other, never to the frequency itself.",
-      the_temporary_haunted_rooms: "This is the site type unique to Jude: as a half-demolished structure comes down, its geometry changes minute by minute, and briefly - a particular corridor length, a floor with three walls left, a stairwell open to sky - it becomes an accidental resonance chamber. For a few minutes a space can 'feel haunted,' complete with the grey-edge presence, and then the next wall drops and the frequency is gone forever. Jude feels these before anyone; a room going quiet-wrong is his cue to clear the crew.",
-      jude_hears_the_structure: "Where infrasound is an ambient hazard for the others, for Jude it is language. He puts a palm on a wall and reads its resonant frequency, its stress points, the exact note the building will sing when it fails. He doesn't experience the dread - he experiences information. The same 19Hz that would make a civilian feel watched tells Jude precisely where to swing.",
-      the_honest_hinge: "As everywhere in Signal Decay, the science is the floor and the interpretation is the story. The demolition site proves it in fast-forward: haunted geometries appear and vanish in real time, on a schedule, under a foreman's clipboard - the supernatural feeling manufactured and dismantled by physics in a single shift."
     }
   },
 
@@ -816,23 +681,6 @@ const LOCATIONS_ENGINE = {
         "Takeout — someone always brings food. Containers accumulate around the couch.",
         "Coffee — Kael brings a thermos. Oren brings a sugary latte. They judge each other's choices silently."
       ]
-    },
-
-    sensory_realism_notes: {
-      // ADDED 2026-09-07 - grounded in real commercial rehearsal-complex accounts and soundproofing reality (URBAN_SPACES_SENSORY_RESEARCH.md sec 6)
-      the_soundproofing_that_isnt: "The foam panels are the aspirational kind of soundproofing that doesn't actually work - egg-crate and carpet stop almost nothing, because the only things that truly block sound are mass and trapped air, and this building has neither. So the room leaks and drinks: highs die in the foam and sound dead, lows have nowhere to go. What escapes to the neighbors isn't the guitars - it's the low end. They don't hear the band; they feel Jude's bottom string.",
-      the_metal_band_next_door: "There is always a metal band next door. Always, in every rehearsal complex on earth, and this one is no exception - a wall of blast beats and down-tuned chugging that bleeds through the shared wall at frequencies that interact with Signal Decay's own, sometimes clashing, occasionally and eerily locking into time with Oren's kick. The complex is windowless, down a corridor of eight identical doors, in the desolate industrial part of town where the only post-practice food is a gas station.",
-      the_smell_of_the_room: "The exact commercial-rehearsal cocktail: old carpet, stale sweat soaked into that carpet over years, the ozone-and-hot-electronics smell of tube amps cooking, fresh guitar strings' faint metallic tang, and whatever died in the mini-fridge. Add the band's own layer - Kael's thermos coffee, Oren's sugary latte, someone's takeout accreting around the couch.",
-      the_couch_you_dont_examine: "The brown sagging couch is the venue's true green room - stained with something that might be coffee and might be beer and might be neither, a spring poking through the right cushion so everyone races for the left. It has absorbed the sweat and nerves of every band that rented this room. Nobody looks at it too closely under the one bright bulb. Oren sits cross-legged with his shoes off and makes it a home in four seconds.",
-      the_low_ceiling_pressure: "Eight-foot ceiling over a 15x20 room is too small for what five people and a wall of amps produce, and that is the point: the low ceiling compresses the sound into a dense, close, physical blast with nowhere to breathe. You don't listen to the band in this room, you're inside it. Bass builds in the corners until you can't tell what the low notes are - which is precisely where the frequency anomalies first hide in plain hearing."
-    },
-
-    infrasound_notes: {
-      // ADDED 2026-09-07 - small-room bass buildup and shared-wall bleed as a frequency environment (URBAN_SPACES_SENSORY_RESEARCH.md sec 4, 6, 8)
-      the_boomy_corners: "In a small hard-walled room the low frequencies swirl - close parallel walls reflect and overlap the bass until it becomes an unreadable boom, the reason you can never tell what the bass is playing in a tiny club. Signal Decay's room has this in every corner, and when Zara sets up her portable reference monitors she is fighting the room's acoustic lies to hear the truth underneath.",
-      jude_below_the_floor: "When Jude drops below 5% the sound stops being heard and starts being felt - sub-20Hz content that travels through the concrete under the carpet. The boot-print stain by the drum kit dates from the night the vibration reached the foundation and the complex manager came down to ask if they'd felt an earthquake. They said no. The frequency was Jude, and the room had briefly become a resonance chamber for a force that has no business in a rented practice room.",
-      where_the_anomaly_hides: "The room's own resonant modes, the metal band's bleed, and Jude's sub-bass combine into a low-frequency soup dense enough that the first genuinely supernatural frequency event can occur inside it unnoticed - a note that shouldn't exist masked by a room already full of notes nobody can quite identify. This is by design in the world's logic: the anomaly chooses the one room where it can hide.",
-      the_ventilation_b1: "Oren has identified the ventilation drone at approximately 63Hz - B1 on a bass - which means the room hums a fixed pitch under everything the band plays. On nights they happen to play in B or E, the room joins in uninvited, and for a few bars the ventilation is a sixth member holding a drone none of them wrote."
     }
   },
 
@@ -998,14 +846,7 @@ const LOCATIONS_ENGINE = {
       sensory: {
         ambient_sounds: ["Traffic — amplified at this intersection, louder than surrounding blocks", "A subsonic drone from the underground water main", "Bus air brakes — the frequency trigger"],
         temperature_feel: "Warm. Noticeably warmer than surrounding blocks. Frequency convergence generates micro-thermal effects."
-      },
-
-      infrasound_notes: {
-      // ADDED 2026-09-07 - urban infrastructure as a real infrasound convergence (both research files, sec 8)
-      the_real_sources: "Three of the intersection's 'ley lines' are documented infrasound generators: heavy bus traffic (rush-hour road noise produces ambient infrasound in the 1-20Hz band), an underground water main (flow and pressure resonance in large pipes), and the resonance of surrounding building faces forming an urban canyon. Layered, they create a genuine street-level low-frequency node - measurable, not metaphorical.",
-      why_people_feel_pulled: "Standing-wave pressure at street level, combined with the eyeball-resonance range near 19Hz, is enough to produce the reported sensations: a vague unease, a sense of being drawn in a direction, brief peripheral smears. Frequency-sensitive people read the gradient and feel 'pulled' toward Ashland; the science offers a floor under what the story calls convergence.",
-      the_demolished_church_note: "The residual D#2 of the demolished church's bells is the world's supernatural layer - but it rides on top of a real acoustic reality, because a bus-and-water-main node genuinely boosts low frequencies at this corner. Jude's truck turning involuntarily is the myth; the hot node in his gut has a physics address."
-    }
+      }
     },
 
     the_viaduct: {
@@ -1018,14 +859,7 @@ const LOCATIONS_ENGINE = {
         ambient_sounds: ["Traffic echo — transformed by the tunnel into something musical", "Train overhead — the bridge vibrating in sympathy", "The voices — residual frequency impressions. Most people don't hear them. Mira does."],
         smell_notes: ["Exhaust concentrated in the underpass", "Wet concrete", "Something metallic that doesn't match any known construction material"],
         temperature_feel: "Cool even in summer. Thermal pocket. Damp air."
-      },
-
-      infrasound_notes: {
-      // ADDED 2026-09-07 - tunnel/underpass geometry as an infrasound amplifier (URBAN_SPACES_SENSORY_RESEARCH.md sec 8)
-      the_underpass_amplifier: "Highway and rail underpasses are known low-frequency amplifiers: traffic and passing trains create sustained rumble, and the underpass geometry reflects and concentrates it. This viaduct already boosts 100-300Hz by ~12dB per the frequency_properties above; below that, in the sub-20Hz band, the train passing overhead pushes compression pulses through the concrete that a body feels as a wave of pressure and unease.",
-      why_the_echo_feels_wrong: "The combination of amplified low-mid frequencies, sub-audible pressure from the train, and the eyeball-resonance range is a near-perfect recipe for the 'presence' effect - which is why Kael's voice produced an echo that didn't match his words and why Mira hears residual voices most people don't. The tunnel is a chamber that makes the brain reach for the oldest explanation, and Signal Decay lets it.",
-      the_cool_damp_pocket: "The thermal pocket - cool even in summer, damp - is real underpass physics too: shaded thermal mass and trapped air. It adds the bodily chill that infrasound research pairs with dread, so the place delivers the full haunted-feeling package by ordinary means before any residual frequency is invoked."
-    }
+      }
     },
 
     the_empty_lot: {
@@ -1077,14 +911,7 @@ const LOCATIONS_ENGINE = {
         ambient_sounds: ["Darius playing blues — warm, open, breathing", "Jude below 5% — sound stops being HEARD and starts being FELT", "Beer bottles vibrating on the workbench", "Garage door rattling"],
         smell_notes: ["Gasoline and motor oil", "Old tools — iron and rust", "Beer — open bottles sweating"],
         temperature_feel: "Warm in summer (no AC, two amps). Cold in winter (concrete). They play in hoodies in December."
-      },
-
-      infrasound_notes: {
-      // ADDED 2026-09-07 - concrete-slab transmission of sub-bass into a residential foundation
-      the_slab_as_transmitter: "A concrete garage floor poured onto a residential foundation is a near-ideal transmitter for sub-20Hz energy - it couples directly into the ground and radiates into every neighboring foundation within about 100 meters. When Jude drops below 5%, the neighbors don't hear a garage jam; they feel a low vibration in their own floors on Saturday afternoons, the same physiological unease the research ties to infrasound, filed under 'must be a truck.'",
-      the_aquarium: "The fish that jumped its tank is exactly what sub-audible resonance does to a body of water - the standing wave finds the tank's resonant frequency and the surface starts to slosh. Jude was horrified because to him it wasn't mysterious: he felt the tank enter sympathy through the slab and understood instantly what his own force had done. He pulled back. He always pulls back.",
-      inadequate_foam: "The egg-crate foam on the walls does nothing for the frequencies that matter - it's the aspirational soundproofing again. Highs die politely; the lows walk straight out through the foundation. Darius's warm open blues sit safely in the audible band. Jude's playing lives below it, in the part of the spectrum the neighborhood feels instead of hears."
-    }
+      }
     },
 
     montrose_beach_hotspot: {
@@ -1098,14 +925,7 @@ const LOCATIONS_ENGINE = {
         smell_notes: ["Lake water — mineral, fresh, vast", "Cold sand — more stone than organic", "Pre-dawn air — atmosphere resetting"],
         dominant_colors: ["Black-blue lake", "Silver moonlight", "Amber city glow on horizon"],
         temperature_feel: "Cold. Lake effect = 5-10 degrees cooler than inland. At 4 AM: actively frigid."
-      },
-
-      infrasound_notes: {
-      // ADDED 2026-09-07 - natural infrasound from waves; 'singing water' grounded in acoustics (both research files, sec 8)
-      the_natural_source: "Ocean and large-lake waves are documented natural infrasound generators in the 0.1-5Hz range, and Montrose's frequency_properties already places the lake at 0.5-4Hz. This is the real floor under 'the singing water': wind over the water and wave action produce continuous sub-audible pressure that a sensitive body registers as mood and presence long before any tone becomes audible.",
-      the_audible_emergence: "On nights of low atmospheric pressure (below 29.5 inHg), geological and shoreline features can amplify specific harmonics of that infrasound up into the audible range - the sustained 60-80Hz tones locals have reported for a century. It is the same mechanism as singing sand dunes and Fingal's Cave: a natural resonance chamber lifting a felt frequency into a heard one. The Potawatomi name 'the singing water' was accurate observation, not poetry.",
-      why_zara_rests_here: "Where a warehouse corner or an ER corridor generates the DREAD version of infrasound, the lake generates the CALMING version - broadband, slow, oceanic, at frequencies the body reads as vastness rather than threat. It is one of three Chicago sites where the barrier thins, and the only one where the low frequency soothes the alien instead of hunting her."
-    }
+      }
     }
   },
 

@@ -331,7 +331,7 @@ And every single time, it worked.
 
 ---
 
-## KAEL CARTER — THE FREQUENCY WALL
+## KAEL VOSS — THE FREQUENCY WALL
 
 ### Visit 1: Troy Williams — The Shimmer
 
@@ -646,7 +646,7 @@ No one ever did.
 
 ---
 
-## JUDE ABRAMS — THE RESONANT SHIELD
+## JUDE OKAFOR — THE RESONANT SHIELD
 
 ### Visit 1: Darius Johnson — The Garage
 
@@ -802,7 +802,7 @@ Never thought about it again.
 
 ---
 
-## ZARA HASSAN — THE FREQUENCY GUARDIAN
+## ZARA KOVAČ — THE FREQUENCY GUARDIAN
 
 ### Visit 1: Marcus Webb — The Impossible Readings
 
@@ -908,7 +908,7 @@ Jerome looked at his screen. The article WAS complete, wasn't it? His thesis was
 
 "Yeah," Jerome agreed. "Yeah, that's probably right. Too dry."
 
-He published the article four days later. The title: "Zara Hassan: The Most Talented Sound Engineer You've Never Heard Of." No spectrographs. No frequency analysis. Just a human-interest piece about a skilled young woman in a male-dominated field.
+He published the article four days later. The title: "Zara Kovač: The Most Talented Sound Engineer You've Never Heard Of." No spectrographs. No frequency analysis. Just a human-interest piece about a skilled young woman in a male-dominated field.
 
 The article was widely shared. It was, people said, a great piece.
 
@@ -986,7 +986,7 @@ She didn't try to tell anyone again for four years.
 
 ---
 
-## OREN PATEL — THE PRECOGNITIVE SHIELD
+## OREN MALIK — THE PRECOGNITIVE SHIELD
 
 ### Visit 1: Hass Olofsson — The Ongoing Failure (See Part 7 for full details)
 
@@ -1044,7 +1044,7 @@ The men stood. All at once. Not sequentially — simultaneously. As if the "stan
 
 He changed his paper topic that afternoon. Submitted it in April. Got an A-. His professor wrote: "Solid work, though I thought the original direction was more innovative. Still, this is well-supported and clearly argued."
 
-The original paper — the one about Oren — would have been published. Would have attracted attention from researchers who studied anomalous cognition. Would have created a data trail pointing directly at Oren Patel, age 19, precognitive.
+The original paper — the one about Oren — would have been published. Would have attracted attention from researchers who studied anomalous cognition. Would have created a data trail pointing directly at Oren Malik, age 19, precognitive.
 
 Instead: an A-minus paper about confirmation bias. Filed. Forgotten. Ordinary.
 
@@ -1862,23 +1862,23 @@ Remembering what it feels like to be PLAYED instead of PLAYED THROUGH.
 
 | Date | Target | Harmonic Protected | Location | Suppression Duration | Status |
 |------|--------|-------------------|----------|---------------------|--------|
-| Mar 2016 | Troy Williams | Kael Carter | AutoZone, South Side | Permanent (7+ years) | Holding |
-| Oct 2017 | Patricia Goodwin | Kael Carter | Oak Park residence | Permanent (8+ years) | Holding |
-| Jun 2018 | Jasmine Torres | Kael Carter | Southside Academy | Permanent (7+ years) | Holding |
+| Mar 2016 | Troy Williams | Kael Voss | AutoZone, South Side | Permanent (7+ years) | Holding |
+| Oct 2017 | Patricia Goodwin | Kael Voss | Oak Park residence | Permanent (8+ years) | Holding |
+| Jun 2018 | Jasmine Torres | Kael Voss | Southside Academy | Permanent (7+ years) | Holding |
 | Sep 2014 | Dr. Robert Chen | Mira Okafor | Northwestern office | Permanent (11+ years) | Holding |
 | Apr 2018 | Brittany Mills | Mira Okafor | School parking lot | Permanent (7+ years) | Holding |
 | Nov 2019 | Sage Washington | Mira Okafor | Wicker Park apartment | Permanent (6+ years) | Holding |
-| Jul 2019 | Darius Johnson | Jude Abrams | FedEx parking lot | Permanent (6+ years) | Holding |
-| Aug 2020 | Frank Moretti | Jude Abrams | Blue Island office | Permanent (5+ years) | Holding |
-| May 2021 | Amara Wilson | Jude Abrams | Auburn Gresham salon | Permanent (4+ years) | Holding |
-| Mar 2019 | Marcus Webb | Zara Hassan | Home studio, Humboldt Park | Permanent (6+ years) | Holding |
-| Sep 2020 | Jerome Patterson | Zara Hassan | Home studio, Albany Park | Permanent (5+ years) | Holding |
-| Dec 2014 | Yara Khoury | Zara Hassan | Rogers Park school | Permanent (11+ years) | Holding |
-| Jan 2023 | Hass Olofsson | Oren Patel | Pilsen apartment | 5 weeks | **FAILED** |
-| Jul 2023 | Hass Olofsson | Oren Patel | Pilsen apartment | 6 days | **FAILED** |
-| Nov 2024 | Hass Olofsson | Oren Patel | Milwaukee Avenue | 6 hours | **FAILED** |
-| Feb 2021 | Ravi Chakrabarti | Oren Patel | DePaul Library | Permanent (4+ years) | Holding |
-| Oct 2022 | Angela Reyes | Oren Patel | Hospital garage | Permanent (3+ years) | Holding |
+| Jul 2019 | Darius Johnson | Jude Okafor | FedEx parking lot | Permanent (6+ years) | Holding |
+| Aug 2020 | Frank Moretti | Jude Okafor | Blue Island office | Permanent (5+ years) | Holding |
+| May 2021 | Amara Wilson | Jude Okafor | Auburn Gresham salon | Permanent (4+ years) | Holding |
+| Mar 2019 | Marcus Webb | Zara Kovač | Home studio, Humboldt Park | Permanent (6+ years) | Holding |
+| Sep 2020 | Jerome Patterson | Zara Kovač | Home studio, Albany Park | Permanent (5+ years) | Holding |
+| Dec 2014 | Yara Khoury | Zara Kovač | Rogers Park school | Permanent (11+ years) | Holding |
+| Jan 2023 | Hass Olofsson | Oren Malik | Pilsen apartment | 5 weeks | **FAILED** |
+| Jul 2023 | Hass Olofsson | Oren Malik | Pilsen apartment | 6 days | **FAILED** |
+| Nov 2024 | Hass Olofsson | Oren Malik | Milwaukee Avenue | 6 hours | **FAILED** |
+| Feb 2021 | Ravi Chakrabarti | Oren Malik | DePaul Library | Permanent (4+ years) | Holding |
+| Oct 2022 | Angela Reyes | Oren Malik | Hospital garage | Permanent (3+ years) | Holding |
 
 ---
 

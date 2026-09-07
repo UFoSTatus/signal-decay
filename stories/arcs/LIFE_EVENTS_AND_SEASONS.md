@@ -2,7 +2,7 @@
 
 *Created: 2026-08-26*
 *Purpose: Full lives for five people — the mundane, the beautiful, the bittersweet, the just-Tuesday*
-*Characters: Oren Malik, Mira Solana, Jude Okafor, Zara Kovač, Kael Voss*
+*Characters: Oren Malik, Mira Chen, Jude Okafor, Zara Kovač, Kael Voss*
 *Rule: 80% normal human texture, 20% subtle ability leaks*
 
 ---
@@ -10,7 +10,7 @@
 ## TABLE OF CONTENTS
 
 1. [OREN MALIK — The Boy Who Kept Time](#oren)
-2. [MIRA SOLANA — The Girl Who Was Never Alone](#mira)
+2. [MIRA CHEN — The Girl Who Was Never Alone](#mira)
 3. [JUDE OKAFOR — The Ground Beneath](#jude)
 4. [ZARA KOVAČ — The Signal Walker](#zara)
 5. [KAEL VOSS — The Quiet Frequency](#kael)
@@ -499,7 +499,7 @@ Oren wakes from this dream calm. Not sad. Calm. Like his father visited and left
 ---
 ---
 
-# <a name="mira"></a>II. MIRA SOLANA — Life Events and Seasons
+# <a name="mira"></a>II. MIRA CHEN — Life Events and Seasons
 
 **Filipina-American | Bay Area (Daly City → San Francisco) | Guitarist/Vocalist | Creative Family**
 **Father: Rafael "Rafe" Solana (musician, session guitarist, eventually music teacher)**

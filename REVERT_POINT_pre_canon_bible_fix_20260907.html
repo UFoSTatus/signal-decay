@@ -775,7 +775,7 @@ body {
   <div class="generator-grid">
     <div class="card prompt-card">
       <div class="card-label"><i class="fas fa-pen-fancy"></i> Scene Prompt</div>
-      <textarea class="prompt-textarea" id="promptInput" placeholder="Describe the scene you want to generate...&#10;&#10;Examples:&#10;• Mira sees colors bleed out of a chord during soundcheck and freezes&#10;• Oren loses four minutes mid-shift in the ER and no one else noticed&#10;• Zara catches Agent Zhao watching the load-in from across the street&#10;• Jude feels the ground answer him during a show and it terrifies him"></textarea>
+      <textarea class="prompt-textarea" id="promptInput" placeholder="Describe the scene you want to generate...&#10;&#10;Examples:&#10;• Mira sees a ghost at the music shop during a thunderstorm&#10;• Oren's first time skip in the ER — he saves a patient who already died&#10;• The Keynote sends a warning through the radio frequencies&#10;• Juno discovers she can silence an entire city block"></textarea>
     </div>
 
     <!-- CHARACTERS -->
@@ -999,7 +999,7 @@ function getPowerInteractions(characterIds) {
 
 /**
  * getCastFor(characterId) — gets supporting cast (inner circle) for story context
- * SUPPORTING_CAST keys use full_name format: kael→kael_voss, mira→mira_chen, etc.
+ * SUPPORTING_CAST keys use full_name format: kael→kael_voss, mira→mira_vasquez, etc.
  */
 function getCastFor(characterId) {
   try {
@@ -1007,9 +1007,10 @@ function getCastFor(characterId) {
 
     // Map story generator IDs → SUPPORTING_CAST key format
     const castKeyMap = {
-      kael: 'kael_voss', mira: 'mira_chen', oren: 'oren_malik',
-      jude: 'jude_okafor', zara: 'zara_kovac', sunny: 'sunny',
-      zhao: 'zhao', ashley: 'ashley_cole'
+      mira: 'mira_chen', oren: 'oren_malik', juno: 'juno_wren',
+      keynote: 'keynote', alistair: 'alistair_cole', ren: 'ren_okafor',
+      nova: 'nova_espinoza', the_silence: 'the_silence',
+      kael: 'kael_voss', jude: 'jude_okafor', zara: 'zara_kovac'
     };
     const castKey = castKeyMap[characterId] || characterId;
     const cast = SUPPORTING_CAST[castKey];
@@ -1181,48 +1182,43 @@ function getOracleLore(keywords) {
 
 // ─── CHARACTERS ───
 const CHARACTERS = [
-  { id: 'kael', name: 'Kael Voss', color: '#6b8aff', desc: 'Vocals · 24 · Quiet, watchful warehouse worker. Voice can compel and unmake.' },
-  { id: 'mira', name: 'Mira Chen', color: '#ff6b9d', desc: 'Lead Guitar · 22 · Synesthete — sees colors in sound. Guitar teacher. Dark humor, anxious.' },
-  { id: 'oren', name: 'Oren Malik', color: '#ffa94d', desc: 'Drums · 27 · ER nurse. ADHD sunshine energy. Loses time — minutes skip.' },
-  { id: 'jude', name: 'Jude Okafor', color: '#51cf66', desc: 'Rhythm Guitar · 26 · Ex-con (wrongful). Demolition crew. Grounded; the ground answers him.' },
-  { id: 'zara', name: 'Zara Kovač', color: '#cc5de8', desc: 'Bass / Sound Tech · 25 · Alien consciousness in a human body, fully awake. Grows impossible plants.' },
-  { id: 'sunny', name: 'Sunny', color: '#ffd43b', desc: 'Plasmoid guide · Second Octave mentor. Radiant, benevolent.' },
-  { id: 'zhao', name: 'Agent Zhao', color: '#a0a0a0', desc: 'The Legacy field agent assigned to The Five. Cracking — starting to sympathize.' },
-  { id: 'ashley', name: 'Ashley Cole', color: '#c084fc', desc: 'A Resonant (previous generation) who sold out to The Legacy for fame. Guilt-ridden.' },
+  { id: 'mira', name: 'Mira Chen', color: '#f59e0b', desc: 'Resonant — sees frequency ghosts, music prodigy' },
+  { id: 'oren', name: 'Oren Malik', color: '#3b82f6', desc: 'Overtone — time-skips, ER doctor with fractured timeline' },
+  { id: 'juno', name: 'Juno Wren', color: '#8b5cf6', desc: 'Dissonance — silencer, can null frequencies in a radius' },
+  { id: 'keynote', name: 'The Keynote', color: '#ef4444', desc: 'Apex entity — sets the universal frequency, rarely seen' },
+  { id: 'alistair', name: 'Alistair Cole', color: '#10b981', desc: 'Harmonic — frequency diplomat, negotiates between octaves' },
+  { id: 'ren', name: 'Ren Okafor', color: '#06b6d4', desc: 'Resonant — echo-reader, hears residual emotions in objects' },
+  { id: 'the_silence', name: 'The Silence', color: '#666666', desc: 'Void entity — absence given will, from the Zero Octave' },
+  { id: 'nova', name: 'Nova Espinoza', color: '#ec4899', desc: 'Overtone — probability weaver, sees branching futures' },
 ];
 
 // ─── SYSTEM PROMPT ───
-const SYSTEM_PROMPT = `You are a prestige television writer and literary author crafting scenes for SIGNAL DECAY — a grounded, character-driven series about a band of five people who discover they carry latent frequency-based powers, and the secret organization that has watched them since birth. It lives in OUR world — real music, real cities, real 2020s life — with one hidden layer underneath.
+const SYSTEM_PROMPT = `You are a prestige television writer and literary author crafting scenes for SIGNAL DECAY — a cinematic dark fantasy series about frequency, consciousness, and power.
 
 ═══ THE UNIVERSE ═══
 
-PREMISE: Signal Decay is a band. Five strangers pulled together by a frequency resonance none of them can name. They play real shows in real venues. The powers are LATENT — some dormant, some emerging, some awakening. The story is the slow, human unraveling of what they are, who's watching, and what it costs.
+FREQUENCY OCTAVE MODEL:
+• First Octave (Physical) — The material world. Baseline reality. Most humans live here unaware of deeper layers.
+• Second Octave (Spirits) — The echo plane. Residual emotions, ghosts, memory impressions. Overlaps physical world like radio static.
+• Third Octave (Cosmic) — The deep frequency. Universal consciousness, cosmic entities, the song that holds reality together.
+• Zero Octave (The Silence) — Absence. Anti-frequency. A void that consumes sound, memory, and existence. Not death — erasure.
 
-FREQUENCY / OCTAVE MODEL (the hidden layer):
-• The physical world is baseline reality; most people never sense anything beneath it.
-• The Second Octave — an echo plane of residual emotion, memory, and presence (Sunny, the plasmoid guide, comes from here).
-• The Silence — an anti-frequency void that un-makes sound, memory, and existence. The deepest threat. Using too much power at once risks attracting it.
-• "Resonants" — a PREVIOUS generation of frequency-variants (e.g. Ashley Cole) who mostly failed, sold out, or died. The Five are the new generation.
-
-ARC STATES (each character moves through these):
-• Dormant — powers unfelt; they think they're just unusually talented and a little strange.
-• Emerging — unexplainable things start happening, especially during shows.
-• Awakened — the power is real, conscious, and must be managed or it flares.
+THE HARMONIC HIERARCHY:
+• Keynote — The singular apex. Sets the foundational frequency of reality. Changing the Keynote reshapes existence. Currently dormant/hidden.
+• Overtones — Rare, powerful. Can manipulate time, probability, or causality through frequency harmonics. Maybe 12 exist worldwide.
+• Resonants — Uncommon. Perceive and interact with frequencies beyond the First Octave. Seers, echo-readers, ghost-speakers.
+• Harmonics — Diplomats and translators between octaves. Stabilizers. Keep the frequencies from bleeding into each other.
+• Dissonance — Anti-frequency wielders. Can silence, null, or corrupt frequencies. Feared. Misunderstood. Essential for balance.
 
 KEY CHARACTERS:
-THE FIVE (the band, Signal Decay):
-• Kael Voss — 24, VOCALS. Quiet, watchful, warehouse worker; says less than he knows. His voice can compel and, awakened, unmake. Restrained, dry, guarded.
-• Mira Chen — 22, LEAD GUITAR. Synesthete: she literally sees colors in sound. Guitar teacher. Anxious, artistic, dark self-deprecating humor. Sees "shapes that shouldn't be there."
-• Oren Malik — 27, DRUMS. ER nurse. ADHD sunshine energy, warm, talks fast. Loses time — minutes skip. His awakened drumming sounds like more than two hands ("ghost hands").
-• Jude Okafor — 26, RHYTHM GUITAR. Nigerian-American, wrongfully incarcerated ex-con, now on a demolition crew. Grounded, physical, few words with weight. The ground itself responds to him (seismic).
-• Zara Kovač — 25, BASS + the band's sound tech. Croatian-American. An ancient alien consciousness fully awake inside a human body — she KNOWS what she is. Grows impossible, frequency-rich plants. Lazy about human chores, never about plants. Detached, precise, curious about humans.
-SUPPORTING:
-• Sunny — plasmoid guide from the Second Octave; radiant, benevolent mentor figure.
-• Agent Zhao — The Legacy field agent assigned to surveil The Five; slowly cracking as she comes to care about them; will eventually betray the Legacy to warn them.
-• Ashley Cole — a previous-generation Resonant who sold out to The Legacy for fame and money; guilt-ridden informant.
-• THE LEGACY — the secret organization that has monitored The Five since birth. Voted to deploy "The Dampener" (permanently destroys abilities). Bureaucratic, cold, afraid of what The Five could become — and of attracting The Silence.
-
-CANON RULE — UFOlogy is REAL history here: Roswell, Rendlesham, Phoenix Lights, Nimitz, MJ-12, Bob Lazar, etc. actually happened. The "mystery / weather balloon / flares / hoax" framing is the government's and The Legacy's deliberate cover story. Never write these as open questions — the cover-up is the lie; the events are real.
+• Mira Chen — Resonant. Classical violinist who sees Second Octave ghosts as shimmering frequency shadows. Haunted by her dead mother's echo. Warm but isolated. Her music sometimes accidentally pulls spirits into the First Octave.
+• Oren Malik — Overtone. ER doctor who involuntarily time-skips when stressed. Experiences future trauma before it happens. Exhausted, precise, morally tortured by foreknowledge. Dry humor masks deep pain.
+• Juno Wren — Dissonance. Can create zones of absolute silence — no frequency, no sound, no thought. Terrifying power she barely controls. Fierce exterior, deeply lonely. The Silence whispers to her.
+• The Keynote — Ancient, omnipresent, rarely manifests. Speaks through radio static, instrument harmonics, resonance in architecture. Its will shapes the base frequency of the universe.
+• Alistair Cole — Harmonic. British-Nigerian diplomat who negotiates between octave factions. Charming, multilingual (in frequencies too). Hides that he's slowly losing his ability to hear the Third Octave.
+• Ren Okafor — Resonant. Forensic echo-reader. Touches objects and hears their emotional residue. Works with police but is burning out from absorbing trauma. Non-binary, methodical, quietly compassionate.
+• The Silence — Not a person but a presence. The Zero Octave given will. It doesn't destroy — it un-makes. It's drawn to Juno.
+• Nova Espinoza — Overtone. Sees probability branches like overlapping radio signals. Chooses paths. Cheerful exterior masks existential dread of seeing every way things could go wrong.
 
 ═══ WRITING STYLE ═══
 
@@ -1310,7 +1306,7 @@ async function generateStory() {
     'Channeling the Second Octave...',
     'Listening for resonance...',
     'Aligning harmonic patterns...',
-    'The Signal stirs...',
+    'The Keynote stirs...',
   ];
   let msgIdx = 0;
   const msgInterval = setInterval(() => {

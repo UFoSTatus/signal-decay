@@ -50,10 +50,10 @@ Your Signal Decay reader has **five audio/AI systems** built in. Here's how each
 3. Each character sounds different:
    - **Narrator** — slow, deep, calm
    - **Marcus Chen** — natural male pitch
-   - **Oren Nakamura** — slightly higher, faster (energetic hacker)
+   - **Oren Malik** — slightly higher, faster (energetic hacker)
    - **Hass Rivera** — deep, deliberate (ex-military)
    - **Juno Park** — high pitch, warm (journalist)
-   - **Mira Volkov** — medium-high, slower (mysterious physicist)
+   - **Mira Chen** — medium-high, slower (mysterious physicist)
    - **Sunny Martinez** — highest pitch, fast (kid energy)
    - **Legacy Agent** — very deep, very slow (menacing)
    - **Abuela Rosa** — warm, medium-high, slow (grandmotherly)

@@ -3742,7 +3742,7 @@ This provides Legacy worldbuilding texture — security personnel who defect, wh
 - **Second Octave native species** — they can phase between physical and non-physical states
 - Their "7 belts of creation" (Material belt being only one with physical life/time) maps PERFECTLY to Signal Decay's Frequency Octave system
 - Billy Meier's Pleiadians literally describe a universe where consciousness exists at multiple frequency bands — this IS the Octave system
-- Zara Volkov's "not entirely human" nature could be partial Pleiadian/Nordic lineage — a being with Second Octave frequency heritage living in First Octave body
+- Zara Kovač's "not entirely human" nature could be partial Pleiadian/Nordic lineage — a being with Second Octave frequency heritage living in First Octave body
 - The Pleiadians' time-travel method (altering particle oscillation relative to the time-wave) could be the mechanism behind Signal Decay's "frequency drift"
 - Their teaching about spirit surviving death through 7 cycles = The Five Harmonics' reincarnation cycle
 
@@ -4013,7 +4013,7 @@ This provides Legacy worldbuilding texture — security personnel who defect, wh
 - The faulty genetic engineering (4 genes removed, 2 added) = why humans can't fully hear the Signal — we're MISSING frequencies
 - Their internal schism (interfere vs. observe) maps to the central conflict in Signal Decay
 - Nibiru's 3,600-year orbit = a massive harmonic cycle — the bass note beneath everything
-- The Nephilim (Annunaki-human hybrids) could be what Zara Volkov is — partial Third Octave consciousness in a First Octave body
+- The Nephilim (Annunaki-human hybrids) could be what Zara Kovač is — partial Third Octave consciousness in a First Octave body
 
 ---
 
@@ -4449,7 +4449,7 @@ This provides Legacy worldbuilding texture — security personnel who defect, wh
 3. **The Species Angelicus** — but they only sing/observe, never act
 4. **BEST FIT: The 8th Plane Annunaki/Arcturians** — beings who stayed at Third Octave when others descended, now monitoring the consequences
 
-### Zara Volkov's "Not Entirely Human" Nature Could Be:
+### Zara Kovač's "Not Entirely Human" Nature Could Be:
 1. **Partial Pleiadian/Nordic lineage** — Second Octave genetics expressing in a First Octave body (can phase, sense frequencies others can't)
 2. **Nephilim descendant** — Annunaki-human hybrid bloodline, carrying Third Octave consciousness fragments in human DNA
 3. **Milton-type heritage** — partial Second/Third Octave being incarnated into human form, with the blue-beneath-translucent-skin manifesting subtly

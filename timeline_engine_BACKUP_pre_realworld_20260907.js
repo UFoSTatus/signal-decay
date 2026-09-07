@@ -21,36 +21,6 @@
 // Format: ES5-compatible global object (PWA renderer constraint)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ═══ REAL-WORLD ANCHORING ENHANCEMENT — September 7, 2026 ═══
-// ═══════════════════════════════════════════════════════════════════════════════
-// ADDITIVE UPDATE. Nothing removed. Every original field preserved.
-//
-// WHAT WAS ADDED (Sep 7 2026):
-//   1. real_world_context : a new field on many existing events, anchoring
-//      each story beat to the real music / tech / meme / news / UAP-disclosure
-//      moment the characters actually lived through at that exact date.
-//   2. real_world_eras : NEW section. Era-by-era (2013-2026) texture — the
-//      music on the radio, the platforms, the memes, the Gen Z condition.
-//   3. uap_disclosure_parallel_timeline : NEW section. The REAL public UAP /
-//      UAP-disclosure timeline (Nimitz 2004 → NYT 2017 → Navy confirms 2020 →
-//      first hearing 2022 → Grusch 2023 → PURSUE files 2026) woven alongside
-//      Signal Decay's cosmic mythology.
-//   4. cultural_touchstones : NEW section. Per-character (Oren/Pakistani,
-//      Jude/Nigerian, Zara/Croatian+Black, Kael, Mira) real music, food,
-//      family, identity and formative-event anchors.
-//   5. New real-world events (id prefix evt_rw_*) woven into the events array
-//      under category 'real_world'.
-//   6. New query helpers: getRealWorldEra(), getUAPTimeline(),
-//      getCulturalTouchstones(), getRealWorldEvents(), getRealWorldContext().
-//
-// Sources: CULTURAL_TIMELINE_RESEARCH.md, TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md
-// Canon note: character birth years / ethnicities follow this engine's own
-// registry (Oren Malik b.1999 Pakistani-American; Jude Okafor b.2000
-// Nigerian-American; Zara Kovač b.2001 Croatian/Black; Kael Voss b.2002;
-// Mira Chen b.2004), NOT the research docs where they differ.
-// ═══════════════════════════════════════════════════════════════════════════════
-
 var TIMELINE_ENGINE = {
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -62,24 +32,13 @@ var TIMELINE_ENGINE = {
     total_events: 0,  // set at init
     categories: [
       "ancient", "legacy", "resonant", "childhood", "highschool",
-      "preband", "present", "future_seed", "real_world"
+      "preband", "present", "future_seed"
     ],
     significance_scale: "1 (minor texture) to 5 (universe-altering)",
     sagas: {
       awakening: { seasons: [1, 2, 3], label: "Awakening Saga" },
       fracture:  { seasons: [4, 5, 6], label: "Fracture Saga" },
       resolution:{ seasons: [7, 8, 9], label: "Resolution Saga" }
-    },
-    // Added Sep 7 2026 — real-world anchoring enhancement (additive)
-    real_world_enhancement: {
-      applied: "2026-09-07",
-      description: "Real cultural touchstones (2013-2026), real UAP-disclosure parallel timeline, and era-accurate per-character music/tech/identity anchors woven in. Additive only; no original fields removed.",
-      new_sections: ["real_world_eras", "uap_disclosure_parallel_timeline", "cultural_touchstones"],
-      new_event_category: "real_world",
-      new_event_id_prefix: "evt_rw_",
-      new_event_field: "real_world_context",
-      new_query_methods: ["getRealWorldEra", "getUAPTimeline", "getCulturalTouchstones", "getRealWorldEvents", "getRealWorldContext"],
-      sources: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"]
     }
   },
 
@@ -840,8 +799,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_child_oren_001", "evt_hs_oren_002"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "May 2013: Oren is 14. On the radio that spring — Macklemore 'Thrift Shop,' Daft Punk 'Get Lucky,' Imagine Dragons 'Radioactive.' Snowden's NSA leaks break in June; his cohort learns early that everything is watched. At home the grief runs on dhol rhythms and qawwali (Nusrat Fateh Ali Khan) at the janazah — the pounding double-headed drum is already in his body."
+      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"]
     },
     {
       id: "evt_hs_oren_002",
@@ -852,8 +810,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_hs_oren_001", "evt_hs_oren_003"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Oct 2013: freshman year, Vine's six-second era at its peak ('Road work ahead? Uh, yeah, I sure hope it does'). Instagram is still the chronological photo feed teens curate identity on. Oren's the ADHD kid whose brain never stops — undiagnosed, told to 'just focus.'"
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_003",
@@ -864,8 +821,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 2,
       connected_events: ["evt_hs_oren_002", "evt_hs_oren_004"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Dec 2014: sophomore year. Ferguson protests and the birth of #BlackLivesMatter as a movement dominate the feed. Party soundtrack: 'Uptown Funk,' 'Fancy,' Taylor Swift's 1989. Everyone still watches the same music on the same radio — the last of the monoculture."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_004",
@@ -876,8 +832,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_hs_oren_002"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Feb 2015: The SoundCloud-rap era is igniting; Billie Eilish (13) has just uploaded 'Ocean Eyes' to SoundCloud. Twenty One Pilots' 'Stressed Out' will soon become the anxiety anthem of Oren's exact cohort. Spotify has overtaken CDs; he has never owned a physical album."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_005",
@@ -888,8 +843,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_hs_oren_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Feb 14 2016: junior year. Beyoncé's 'Formation' drops days before; Chance the Rapper's 'Coloring Book' and Frank Ocean's 'Blonde' define the year. Oren — a brown, Muslim ER-nurse-to-be — is coming of age post-9/11 under a surveillance shadow he already feels in every TSA line."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_006",
@@ -900,8 +854,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_ancient_010", "evt_hs_oren_004"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Apr 2016: Tyler, the Creator is mid-pivot toward 'Flower Boy' (2017) — proof to every young musician you can be vulnerable and still cool. Pokémon GO (July) is about to send the whole world outside together one last time."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_007",
@@ -912,8 +865,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_hs_oren_002"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Nov 2016: senior year. Trump is elected days earlier — the first election Oren's cohort tracked closely, and school the next morning is surreal. Vine officially dies (Oct); AirPods and the jack-less iPhone 7 land. Frank Ocean 'Blonde' on repeat."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_oren_008",
@@ -924,8 +876,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_hs_oren_007"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "Mar 2017: Kendrick's 'DAMN.' (Pulitzer-winning) and 'HUMBLE.' are inescapable. NYT's December 2017 Nimitz 'Tic Tac' bombshell is just months away — UFOs are about to go from tabloid joke to front-page news right as Oren graduates."
+      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"]
     },
 
     // --- JUDE (2014-2018) ---
@@ -939,8 +890,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_child_jude_001", "evt_hs_jude_002"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Oct 2014: Jude is 14, freshman year. Home is Fela Kuti on his father's vinyl and the new Afrobeats wave (Wizkid 'Ojuelegba') on the family WhatsApp. What he chooses for himself is heavy and rhythmic — Metallica, Pantera — music that matches his internal pressure. First-gen pressure: 'we did not cross an ocean for you to be average.'"
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_002",
@@ -951,8 +901,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 2,
       connected_events: ["evt_hs_jude_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Feb 2015: Kendrick's 'To Pimp a Butterfly' arrives in March; 'Alright' becomes a protest anthem. Jude discovers Animals as Leaders — Tosin Abasi, a Nigerian-American metal guitarist — proof a Black man with Nigerian heritage belongs in metal."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_003",
@@ -963,8 +912,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_hs_jude_001", "evt_hs_jude_005"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Sep 2015: the Charleston church massacre (June) hit the diaspora church community hard; the Paris Bataclan attack (Nov) puts violence at a rock show in every feed. Afrobeats (Burna Boy, Davido 'IF') is the sound of home; metal is the sound of the pressure."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_004",
@@ -975,8 +923,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_legacy_012", "evt_hs_jude_005"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Apr 2016: Beyoncé's 'Lemonade' as cultural earthquake; Drake's 'One Dance' (with Wizkid) puts Afrobeats on global #1 radio — Jude's home music is suddenly everyone's music. The Jollof wars meme is peak diaspora identity."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_005",
@@ -987,8 +934,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_hs_jude_003"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Nov 2016: Trump elected; Jude, a young Black man, feels the political shift as existential, not abstract. Meanwhile his heaviness deepens — the seismic pressure has nowhere sanctioned to go."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_006",
@@ -999,8 +945,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_hs_jude_004", "evt_hs_jude_007"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Oct 2017: Tyler's 'Flower Boy,' Cardi B's 'Bodak Yellow' at #1, and the #MeToo reckoning break the same month. UFOs are two months from the NYT Nimitz story. Jude's pre-prison year — the incident approaches."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_jude_007",
@@ -1011,8 +956,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_hs_jude_004", "evt_hs_jude_003", "evt_preband_jude_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Apr 2018: TikTok has just absorbed Musical.ly; the algorithmic For You Page era begins. XXXTentacion will be murdered in June, Lil Peep died the prior November — the SoundCloud generation is burying its own, impossibly young. Jude's arrest year."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
 
     // --- ZARA (2015-2019) ---
@@ -1026,8 +970,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_child_zara_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Dec 2016: Zara's freshman-ish year. Bedroom pop is coalescing — Clairo's webcam-shot 'Pretty Girl' is a year off, but the aesthetic (Rex Orange County, lo-fi beats to study to) is her lane. The analytical, alien ear is drawn to what breaks the rules."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_zara_002",
@@ -1038,8 +981,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_child_zara_001", "evt_hs_zara_003"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Oct 2017: NYT's Nimitz 'Tic Tac' story lands in December — the crack in the wall. Fitting texture for the one character who arrived conscious and alien. Croatian Catholic Christmas prep (sarma, Badnjak fast, midnight Mass) frames her home life."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_zara_003",
@@ -1050,8 +992,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 4,
       connected_events: ["evt_hs_zara_002", "evt_hs_zara_004"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Mar 2018: shoegaze/post-punk revival building (Fontaines D.C.'s 'Dogrel' a year off). Zara gravitates to drone and microtonal music — Sunn O))), King Gizzard's 'Flying Microtonal Banana' — sound as frequency-information, not song. Her mother's tomato-and-pepper garden is her displaced-homeland classroom."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_hs_zara_004",
@@ -1062,8 +1003,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 5,
       connected_events: ["evt_hs_zara_003", "evt_child_zara_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "Sep 2018: senior year approaching. The Navy is about to formalize UAP reporting (2019). Zara's detachment reads to her Croatian-American parents as depression or defiance — the cultural pressure to be 'normal' makes her alienation literally unbearable."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
 
     // --- KAEL (2016-2020) ---
@@ -1077,8 +1017,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_child_kael_002"],
-      story_refs: ["CHILDHOOD_VISITS.md", "character_engines.js"],
-      real_world_context: "2016: Kael avoids music because it opens something dangerous — but he knows it. Radiohead's 'OK Computer' (found at 14) proved music could articulate what he couldn't. Post-punk vocalists of command — Ian Curtis, and the coming Fontaines D.C./IDLES wave — are his hidden lane. His senior year (2020) will be erased by COVID."
+      story_refs: ["CHILDHOOD_VISITS.md", "character_engines.js"]
     },
 
     // --- MIRA (2018-2022) ---
@@ -1092,8 +1031,7 @@ var TIMELINE_ENGINE = {
       category: "highschool",
       significance: 3,
       connected_events: ["evt_child_mira_004"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "2018: TikTok's launch year. Mira, a chromesthete, curates for visual experience — My Bloody Valentine's 'Loveless,' Slowdive, Cocteau Twins, the 2020s shoegaze revival. Shoegaze is a sunset inside her skull; the darker entities' music is beautiful but the colors are wrong."
+      story_refs: ["HIGH_SCHOOL_YEARS.md", "LIFE_EVENTS_AND_SEASONS.md"]
     },
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1109,8 +1047,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 2,
       connected_events: ["evt_hs_oren_008"],
-      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "Sep 2017: Oren enters SAIC. Tyler's 'Flower Boy' and Kendrick's 'DAMN.' dominate; the NYT Nimitz UFO story breaks that December. His ADHD-wired playlists jump 100 gecs → Turnstile → AP Dhillon → Knocked Loose in a breath."
+      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"]
     },
     {
       id: "evt_preband_oren_002",
@@ -1121,8 +1058,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 3,
       connected_events: ["evt_hs_oren_001"],
-      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "2019: pre-COVID peak. 'Storm Area 51' goes viral (2M RSVP) — UAP culture meets internet culture. Billie Eilish sweeps; Tyler's 'IGOR' proves genre is dead. Then everything is about to stop."
+      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"]
     },
     {
       id: "evt_preband_oren_003",
@@ -1133,8 +1069,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 4,
       connected_events: ["evt_preband_oren_002", "evt_hs_oren_005"],
-      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "2020: COVID lockdown and the George Floyd summer. Oren is in nursing clinicals — seeing death for the first time, a lot of it — while the largest protest movement in US history fills the streets. The Pentagon officially releases the three Navy UAP videos in April, watched by a nation stuck indoors."
+      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"]
     },
     {
       id: "evt_preband_jude_001",
@@ -1145,8 +1080,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 5,
       connected_events: ["evt_hs_jude_007", "evt_preband_jude_002"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "2018-2021: Jude is in prison through the George Floyd summer (2020) — watching BLM from inside a cell, unable to march, the frustration physical. COVID means lockdowns within lockdowns, no visitors. Music reaches him only through commissary MP3s and common-room radio (Kendrick, J. Cole, Nipsey Hussle, murdered 2019). Rhythm goes into his body: palms on thighs, feet on concrete."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_preband_jude_002",
@@ -1157,8 +1091,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 4,
       connected_events: ["evt_preband_jude_001"],
-      story_refs: ["HIGH_SCHOOL_YEARS.md"],
-      real_world_context: "2021: released into the post-COVID hangover and the Great Resignation. Afrobeats is fully global now (Wizkid & Tems 'Essence,' CKay 'Love Nwantiti,' Rema 'Calm Down'). He comes out heavier — Meshuggah, Gojira, Deftones — the mathematically precise polyrhythm that his seismic power sounds like."
+      story_refs: ["HIGH_SCHOOL_YEARS.md"]
     },
     {
       id: "evt_preband_kael_001",
@@ -1169,8 +1102,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 3,
       connected_events: ["evt_hs_kael_001"],
-      story_refs: ["character_engines.js"],
-      real_world_context: "2020: Kael's senior year erased by COVID; he chooses warehouse smallness during lockdown, an 'essential worker' whose loneliness deepens while the world stops. The DIY bedroom-recording explosion (GarageBand/Logic/Ableton, Bandcamp) that will birth Signal Decay's sound is happening all around him."
+      story_refs: ["character_engines.js"]
     },
     {
       id: "evt_preband_mira_001",
@@ -1181,8 +1113,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 4,
       connected_events: ["evt_hs_mira_001"],
-      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"],
-      real_world_context: "2022: post-lockdown, ChatGPT is about to launch (Nov 30) and the AI-vs-authenticity panic that shadows every young musician begins. Mira's Joshua Tree silence lands in a world where 'human-made' is becoming a value worth defending."
+      story_refs: ["LIFE_EVENTS_AND_SEASONS.md"]
     },
     {
       id: "evt_preband_mira_002",
@@ -1193,8 +1124,7 @@ var TIMELINE_ENGINE = {
       category: "preband",
       significance: 3,
       connected_events: ["evt_preband_mira_001", "evt_present_001"],
-      story_refs: ["S01E01_STATIC.md"],
-      real_world_context: "2025: Mira arrives in Chicago amid the AI backlash, the indie-rock/shoegaze revival, and a post-COVID live-music hunger driving small-venue culture. The entities follow; the pull she can't name is the same one drawing all five."
+      story_refs: ["S01E01_STATIC.md"]
     },
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1210,8 +1140,7 @@ var TIMELINE_ENGINE = {
       category: "present",
       significance: 5,
       connected_events: ["evt_present_002", "evt_present_003"],
-      story_refs: ["THE_NIGHT_THEY_MEET.md", "S01E01_STATIC.md"],
-      real_world_context: "2025: the five converge. Real backdrop — AI is everywhere and a 'human-made' counterculture is rising; indie/live music is booming again; UAP disclosure is escalating toward the PURSUE releases. This cohort spent its formative years in COVID and never fully re-socialized — they are strangers pulled together by circumstance, exactly how lockdown-era bands formed."
+      story_refs: ["THE_NIGHT_THEY_MEET.md", "S01E01_STATIC.md"]
     },
     {
       id: "evt_present_002",
@@ -1233,8 +1162,7 @@ var TIMELINE_ENGINE = {
       category: "present",
       significance: 5,
       connected_events: ["evt_present_002", "evt_present_004"],
-      story_refs: ["THE_NIGHT_THEY_MEET.md", "S01E02_CONVERGENCE.md"],
-      real_world_context: "2025: The Frequency showcase, $10 door, three bands — the small-venue revival made real. The generation that grew up on SoundCloud DIY and bedroom production now wants the room, the sweat, the human imperfection an algorithm can't fake."
+      story_refs: ["THE_NIGHT_THEY_MEET.md", "S01E02_CONVERGENCE.md"]
     },
     {
       id: "evt_present_004",
@@ -1289,8 +1217,7 @@ var TIMELINE_ENGINE = {
       category: "present",
       significance: 4,
       connected_events: ["evt_present_007", "evt_present_009"],
-      story_refs: ["S01E02_CONVERGENCE.md"],
-      real_world_context: "2026: Signal Decay's reputation grows in the 'human-made' moment — a live band that makes rooms shake is the punk answer to Suno/Udio AI-generated music. The 'human-made' tag is a selling point; authenticity is resistance."
+      story_refs: ["S01E02_CONVERGENCE.md"]
     },
     {
       id: "evt_present_009",
@@ -1312,8 +1239,7 @@ var TIMELINE_ENGINE = {
       category: "present",
       significance: 5,
       connected_events: ["evt_ancient_008", "evt_future_001"],
-      story_refs: ["APP_SIGNAL_EVENTS.md"],
-      real_world_context: "Aug 2026: the Creator's app broadcasts. Real-world parallel: the PURSUE declassification is mid-rollout (375 files by Aug 7 2026), scientists are publicly analyzing 100+ UAP videos, and the cultural question has shifted from 'are they real?' to 'how do we live with this?' The story's signal gets louder exactly as the real signal does."
+      story_refs: ["APP_SIGNAL_EVENTS.md"]
     },
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1495,318 +1421,8 @@ var TIMELINE_ENGINE = {
       significance: 4,
       connected_events: ["evt_present_010", "evt_ancient_003"],
       story_refs: ["APP_SIGNAL_EVENTS.md"]
-    },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // CATEGORY: REAL_WORLD — Actual events the characters lived through
-    // (Added Sep 7 2026 — real cultural + UAP-disclosure anchors woven inline)
-    // ═══════════════════════════════════════════════════════════════════════
-
-    {
-      id: "evt_rw_uap_001",
-      date: "2004-11-14",
-      title: "REAL: The Nimitz 'Tic Tac' Encounter",
-      description: "Cmdr. David Fravor and the USS Nimitz Carrier Strike Group encounter a ~40-foot 'Tic Tac'-shaped object off San Diego. No wings, no exhaust; it drops from 80,000 ft to sea level in seconds and outmaneuvers an F/A-18. FLIR video is captured — then stays classified for 13 years. In the Signal Decay universe this is a real fragment of the same signal the Legacy has been tracking since 1947.",
-      characters: [],
-      category: "real_world",
-      significance: 4,
-      connected_events: ["evt_rw_uap_002", "evt_legacy_005"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "Actually happened Nov 14 2004. The oldest characters were toddlers. The video would not surface publicly until Dec 2017 — meaning the truth was sitting in a vault the entire time they were growing up."
-    },
-    {
-      id: "evt_rw_uap_002",
-      date: "2017-12-16",
-      title: "REAL: NYT Breaks AATIP — UFOs Go From Joke to News",
-      description: "The New York Times publishes 'Glowing Auras and Black Money,' revealing the Pentagon's secret AATIP program ($22M, 2007-2012) and releasing the Nimitz/Gimbal FLIR videos. The Pentagon does NOT deny them. Overnight, UFOs move from tinfoil-hat fringe to credible front-page news. Oren is 18 and graduating; Jude 17; the disclosure age begins as the characters enter adulthood.",
-      characters: [],
-      category: "real_world",
-      significance: 5,
-      connected_events: ["evt_rw_uap_001", "evt_rw_uap_003", "evt_hs_zara_002"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "Dec 16 2017. The moment the cultural stigma cracked. 'So aliens are real and nobody cares?' The characters' generation is the first to treat UAPs as a legitimate topic rather than an X-Files joke."
-    },
-    {
-      id: "evt_rw_uap_003",
-      date: "2019-09",
-      title: "REAL: 'Storm Area 51' — UAP Culture Meets Internet Culture",
-      description: "A Facebook joke event, 'They Can't Stop All of Us,' goes viral: ~2 million RSVP, ~150 actually show up, and it becomes a desert festival. The meme-to-reality pipeline puts UFO culture squarely in Gen Z's ironic-sincere wheelhouse. The same month, the Navy formalizes UAP reporting guidelines, destigmatizing pilot reports.",
-      characters: [],
-      category: "real_world",
-      significance: 3,
-      connected_events: ["evt_rw_uap_002", "evt_rw_uap_004", "evt_preband_oren_002"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md"],
-      real_world_context: "Sept 2019, the pre-COVID peak. Every character would know this meme. UFO culture went mainstream-ironic the same summer it went military-official."
-    },
-    {
-      id: "evt_rw_uap_004",
-      date: "2020-04-27",
-      title: "REAL: Pentagon Officially Confirms the Navy UAP Videos",
-      description: "The Pentagon formally declassifies and confirms FLIR1 (Tic Tac), Gimbal and GoFast as genuine, unresolved objects. It happens during COVID lockdown, watched by a nation stuck indoors and doomscrolling. In August the UAP Task Force is stood up — the first formal DoD body since Project Blue Book ended in 1969.",
-      characters: [],
-      category: "real_world",
-      significance: 4,
-      connected_events: ["evt_rw_uap_003", "evt_rw_uap_005", "evt_preband_oren_003"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "Apr 27 2020. Tone shift from 'is this real?' to 'what is this?' Oren is in COVID nursing clinicals; Jude is in prison lockdown; Zara, Kael and Mira are isolated. The signal arrives while everyone is alone."
-    },
-    {
-      id: "evt_rw_uap_005",
-      date: "2021-06-25",
-      title: "REAL: First ODNI UAP Report — 143 of 144 Unexplained",
-      description: "The Director of National Intelligence releases the first formal public UAP assessment: of 144 incidents (2004-2021), only ONE is explained (a deflating balloon). The report acknowledges 'unusual flight characteristics.' Weeks earlier, Obama on late-night TV admits 'there's footage of objects we don't know what they are.' A former president saying this out loud is surreal.",
-      characters: [],
-      category: "real_world",
-      significance: 4,
-      connected_events: ["evt_rw_uap_004", "evt_rw_uap_006"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "June 25 2021. The characters are 17-22, entering a pandemic-wrecked adulthood. Tone shifts from 'what is this?' toward 'what have they been hiding?'"
-    },
-    {
-      id: "evt_rw_uap_006",
-      date: "2022-05-17",
-      title: "REAL: First Congressional UAP Hearing in 54 Years",
-      description: "The House Intelligence Subcommittee holds the first open UAP hearing since the Project Blue Book era (1969). Officials concede the stigma around reporting 'has gotten in the way of good intelligence analysis.' NASA announces an independent UAP study; the permanent AARO office follows in December. The bureaucracy grows — always a sign the government takes something seriously.",
-      characters: [],
-      category: "real_world",
-      significance: 4,
-      connected_events: ["evt_rw_uap_005", "evt_rw_uap_007"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "May 17 2022. The same year ChatGPT launches (Nov 30) and Elon buys Twitter — the information environment fragments exactly as the UAP question goes institutional."
-    },
-    {
-      id: "evt_rw_uap_007",
-      date: "2023-07-26",
-      title: "REAL: The Grusch Testimony — 'Non-Human Biologics'",
-      description: "Former Air Force intelligence officer David Grusch testifies under oath that the US runs a 'multi-decade UAP crash-retrieval and reverse-engineering program' and possesses 'non-human biologics' from crash sites; he claims brutal retaliation for coming forward. Navy pilots Fravor and Ryan Graves testify alongside him. The Pentagon denies it. The Overton window on UFOs shifts permanently. This is the year the band forms.",
-      characters: [],
-      category: "real_world",
-      significance: 5,
-      connected_events: ["evt_rw_uap_006", "evt_rw_uap_008", "evt_present_001"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "July 26 2023 — the watershed. The characters would have watched it live. In Signal Decay's frame, the public 'veil thinning' parallels the Harmonics' powers waking as the signal strengthens."
-    },
-    {
-      id: "evt_rw_uap_008",
-      date: "2026-05-08",
-      title: "REAL: PURSUE Begins — The UAP Files Start Dropping",
-      description: "The Presidential Unsealing and Reporting System for UAP Encounters (PURSUE) begins rolling declassification of UAP records spanning 1947-2026. Tranches follow: May 22, June 12 (FBI orb videos, CIA Cold War files), July 10 (unresolved military IR videos), Aug 7 — 375 declassified documents, videos and photos by August 2026. Scientists publicly analyze 100+ UAP videos. The question shifts from 'what have they been hiding?' to 'how do we live with this knowledge?'",
-      characters: [],
-      category: "real_world",
-      significance: 5,
-      connected_events: ["evt_rw_uap_007", "evt_present_010", "evt_legacy_005"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "May-Aug 2026 — Signal Decay's present tense. The story unfolds during the most active period of real UAP disclosure in history. The Creator's app broadcast (Aug 2026) lands in a world where the dam has already broken."
-    },
-    {
-      id: "evt_rw_covid_001",
-      date: "2020-03-11",
-      title: "REAL: WHO Declares COVID a Pandemic — The Hinge",
-      description: "Lockdowns begin. For a cohort born 1999-2004 this is the defining collective trauma: cancelled graduations, Zoom senior years, stolen early twenties. Bedroom recording explodes (GarageBand, Logic, Ableton, Bandcamp), TikTok discovery goes nuclear, and lockdown bands form out of confinement and boredom — the exact conditions that will produce Signal Decay's sound. Kael works the warehouse as an 'essential worker'; Oren starts nursing amid mass death; Jude is locked down inside prison.",
-      characters: ["oren", "jude", "zara", "kael", "mira"],
-      category: "real_world",
-      significance: 5,
-      connected_events: ["evt_preband_oren_003", "evt_preband_kael_001", "evt_preband_jude_001", "evt_rw_covid_002"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "Mar 11 2020. The shared wound of the whole band. They never fully re-socialized — which is exactly why five strangers can lock together instantly when circumstance finally throws them into one room."
-    },
-    {
-      id: "evt_rw_covid_002",
-      date: "2020-05-25",
-      title: "REAL: George Floyd Murdered — The Summer Burns",
-      description: "George Floyd is murdered by Minneapolis police; the video goes everywhere. The largest protest movement in US history follows — an estimated 15-26 million Americans march. For Jude, a young Black man watching BLM from inside a prison cell, unable to march, the frustration is physical — the kind of emotional pressure his seismic ability answers. For the whole band, it is the event that politicizes a generation and shapes what they think art is for.",
-      characters: ["jude"],
-      category: "real_world",
-      significance: 5,
-      connected_events: ["evt_rw_covid_001", "evt_preband_jude_001"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "May 25 2020. For Jude specifically this is not abstract — it is personal, familial, existential, and it happens while he is caged and silent."
-    },
-    {
-      id: "evt_rw_ai_001",
-      date: "2022-11-30",
-      title: "REAL: ChatGPT Launches — The Authenticity Question Ignites",
-      description: "ChatGPT launches and the world changes overnight. For musicians the immediate question is existential: can AI make art, and is what we do replaceable? By 2023-2024, AI music generators (Suno, Udio) let someone who has never touched an instrument generate a song in 30 seconds. For characters who define themselves through their instruments, this is an identity crisis inside a technology — and it sets up the band's 'human-made' ethos as its own quiet resistance.",
-      characters: [],
-      category: "real_world",
-      significance: 4,
-      connected_events: ["evt_rw_ai_002", "evt_present_008"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md", "TIMELINE_CULTURAL_TOUCHSTONES_RESEARCH.md"],
-      real_world_context: "Nov 30 2022. Signal Decay's meta-layer: the band's own music is made with AI tools, so the real-world authenticity debate is baked into the project's DNA."
-    },
-    {
-      id: "evt_rw_ai_002",
-      date: "2026",
-      title: "REAL: 'Human-Made' Counterculture & '2026 is the New 2016'",
-      description: "By 2026 AI-generated content floods every feed and a 'human-made' counterculture rises in response; 'human-made' becomes a selling point and authenticity becomes resistance. The 'Great Meme Reset' / '2026 is the New 2016' TikTok trend captures a generational yearning to reset to pre-COVID optimism. Indie rock and small-venue live music surge. This is the exact cultural niche a room-shaking, unrepeatable live band fills.",
-      characters: [],
-      category: "real_world",
-      significance: 3,
-      connected_events: ["evt_rw_ai_001", "evt_present_008", "evt_present_010"],
-      story_refs: ["CULTURAL_TIMELINE_RESEARCH.md"],
-      real_world_context: "2026, the story's present. The audience is primed to crave exactly what Signal Decay is: live, human, imperfect, unrepeatable."
-    },
-  ],
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // REAL_WORLD_ERAS — Era-by-era cultural texture (2013-2026)
-  // (Added Sep 7 2026 — additive; the world the characters actually lived in)
-  // ───────────────────────────────────────────────────────────────────────────
-  real_world_eras: [
-    {
-      id: "era_2013_2014",
-      label: "2013-2014 — The Last Monoculture",
-      character_ages: "Oren 14-15, Jude 13-14, Zara 12-13, Kael 11-12, Mira 9-10",
-      music: "Radio monoculture: 'Thrift Shop,' 'Royals,' 'Get Lucky,' 'Radioactive,' 'Happy,' 'Fancy,' Taylor Swift 1989. EDM at its commercial zenith (Avicii, Calvin Harris). Everyone still hears the same songs.",
-      tech: "Vine's six-second era; Instagram still a chronological photo feed; Snapchat streaks as social currency; iPhone 5S/6; Spotify overtaking CDs.",
-      memes: "'Road work ahead? Uh, yeah, I sure hope it does.' 'And they were ROOMMATES.' Ice Bucket Challenge (2014) — the last wholesome viral moment.",
-      news: "Snowden's NSA leaks (2013) teach the cohort everything is watched; #BlackLivesMatter born after the Trayvon verdict; Ferguson protests (2014).",
-      gen_z_note: "First phones in middle school; school-shooting drills already normal post-Sandy Hook (2012). They cannot remember a world without pocket internet."
-    },
-    {
-      id: "era_2015_2016",
-      label: "2015-2016 — SoundCloud Ignites / The Year Everything Changed",
-      character_ages: "Oren 16-17, Jude 15-16, Zara 14-15, Kael 13-14, Mira 11-12",
-      music: "SoundCloud rap emerges (XXXTentacion, Lil Uzi, Lil Peep, Playboi Carti). Billie Eilish uploads 'Ocean Eyes' (2015). Frank Ocean 'Blonde,' Chance 'Coloring Book,' Beyonce 'Lemonade,' Kendrick 'To Pimp a Butterfly.' Twenty One Pilots 'Stressed Out' as anxiety anthem.",
-      tech: "AirPods launch (Dec 2016); iPhone 7 removes the headphone jack; Instagram goes algorithmic; Pokemon GO (July 2016) sends the world outside together one last time.",
-      memes: "Harambe (May 2016) — the first mega-meme this generation truly owned; 'This is fine' dog.",
-      news: "Marriage equality (Obergefell, 2015); Paris/Bataclan attacks (Nov 2015) — violence at a rock show; Pulse nightclub (June 2016); Trump elected (Nov 2016); Vine dies (Oct 2016).",
-      gen_z_note: "SoundCloud rap is this generation's punk rock — DIY, anti-establishment, raw. Their political consciousness ignites."
-    },
-    {
-      id: "era_2017_2019",
-      label: "2017-2019 — Peak SoundCloud, Bedroom Pop, Pre-COVID Peak",
-      character_ages: "Oren 18-20, Jude 17-19, Zara 16-18, Kael 15-17, Mira 13-15",
-      music: "Tyler 'Flower Boy' (2017) then 'IGOR' (2019) — proof genre is dead and vulnerability is cool. Kendrick 'DAMN.' (Pulitzer). Bedroom pop coalesces (Clairo, Rex Orange County, Steve Lacy). SoundCloud losses: Lil Peep (2017), XXXTentacion (2018), Juice WRLD (2019) hit like Cobain hit Gen X. Billie sweeps the Grammys.",
-      tech: "TikTok absorbs Musical.ly (2018); the For You Page algorithmic era begins; the platform migration Facebook->Instagram->Snapchat->Twitter->TikTok->Discord.",
-      memes: "'Storm Area 51' (2019) — 2M RSVP, the meme-to-reality pipeline; 'Distracted boyfriend'; 'Woman yelling at cat.'",
-      news: "NYT Nimitz UFO bombshell (Dec 2017); #MeToo; Charlottesville; Parkland (2018) — peers become activists; Greta Thunberg's strikes.",
-      gen_z_note: "Tyler's evolution is the template: you can change, be vulnerable, still be cool. UFOs become a legitimate topic."
-    },
-    {
-      id: "era_2020_2021",
-      label: "2020-2021 — The Great Disruption",
-      character_ages: "Oren 21-22, Jude 20-21, Zara 19-20, Kael 18-19, Mira 16-17",
-      music: "Lockdown listening: The Weeknd 'Blinding Lights,' Dua Lipa 'Future Nostalgia.' Bedroom recording explodes (GarageBand/Logic/Ableton, Bandcamp). TikTok music discovery goes nuclear. Olivia Rodrigo 'SOUR' (2021); Afrobeats goes global (Wizkid & Tems 'Essence').",
-      tech: "COVID drives TikTok through the roof; Zoom University; Discord becomes the everything-community platform; Among Us ('that's sus').",
-      memes: "'Coffin dance,' 'Bernie mittens' (Jan 2021), the 'are we watching a coup?' Jan 6 feeling.",
-      news: "COVID lockdowns (Mar 2020); George Floyd murdered (May 2020) and the largest protest movement in US history; Pentagon confirms Navy UAP videos (Apr 2020); first ODNI UAP report (June 2021); Jan 6 Capitol insurrection.",
-      gen_z_note: "The collective trauma of the cohort. Cancelled graduations, Zoom senior years, stolen early twenties. Lockdown bands form out of confinement — exactly how Signal Decay would form."
-    },
-    {
-      id: "era_2022_2024",
-      label: "2022-2024 — AI Arrives / The Band Forms",
-      character_ages: "Oren 23-25, Jude 22-24, Zara 21-23, Kael 20-22, Mira 18-20",
-      music: "Afrobeats mainstream (Rema 'Calm Down,' Burna Boy). Indie/shoegaze revival (Fontaines D.C., Wet Leg, Narrow Head). Kendrick vs. Drake ('Not Like Us,' 2024) — the biggest rap beef since Tupac/Biggie. Charli XCX 'brat' summer (2024).",
-      tech: "ChatGPT launches (Nov 30 2022); AI art and AI music generators (Suno, Udio) spark an existential authenticity crisis; Elon buys Twitter/X; BeReal's one summer.",
-      memes: "'It's corn' (2022), 'Roman Empire' trend (2023), Barbenheimer (2023), 'brain rot' (Oxford word of 2024).",
-      news: "Russia invades Ukraine (2022); Roe overturned (2022); Grusch testimony (July 2023) — the veil thins; Hollywood AI strikes; 2024 election.",
-      gen_z_note: "Post-COVID hangover: Great Resignation, gig economy as default, awareness-without-access mental health. The band gestates in this world."
-    },
-    {
-      id: "era_2025_2026",
-      label: "2025-2026 — Signal Decay's Present",
-      character_ages: "Oren 26-27, Jude 25-26, Zara 24-25, Kael 23-24, Mira 21-22",
-      music: "AI backlash and a 'human-made' counterculture; indie rock surging; post-COVID live-music hunger booming small-venue culture. Afrobeats fully mainstream. The perfect niche for a room-shaking live band.",
-      tech: "AI assistants normalized; AI-generated content everywhere; 'human-made' as differentiator; TikTok ban/reinstatement drama.",
-      memes: "'2026 is the New 2016' / the 'Great Meme Reset' — yearning to reset to pre-COVID optimism; #IndieSleaze revival; 'aura' / 'aura farming.'",
-      news: "PURSUE UAP declassification rolling out (375 files by Aug 2026); scientists analyzing 100+ UAP videos; climate events routine; financial nihilism among Gen Z.",
-      gen_z_note: "Characters aged 23-27 are the OLDER edge of Gen Z — they'd use 2020-2023 slang naturally and newer Gen Alpha terms only ironically. Baseline emotional state: 'permanent low-grade dread' + dark-humor coping ('we're all going to die but this song SLAPS')."
     }
   ],
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // UAP_DISCLOSURE_PARALLEL_TIMELINE — The REAL disclosure arc alongside the story
-  // (Added Sep 7 2026 — additive)
-  // ───────────────────────────────────────────────────────────────────────────
-  uap_disclosure_parallel_timeline: {
-    note: "The real-world public UAP disclosure process is the backbone of Signal Decay's cosmic mythology. As real disclosure accelerates, the Harmonics' powers awaken — the public 'veil thinning' mirrors the characters' awakening. Perception arc: pre-2017 joke -> 2017-19 crack -> 2020-21 acknowledgment -> 2022-23 'what have they hidden?' -> 2024-26 'how do we live with this?'",
-    phases: [
-      { phase: "Phase 0 — The Quiet Period (pre-2017)", events: [
-        { date: "2004-11-14", event: "Nimitz 'Tic Tac' encounter (Cmdr. David Fravor); FLIR captured, stays classified 13 years." },
-        { date: "2007-2012", event: "AATIP — secret $22M Pentagon UAP program (pushed by Sen. Harry Reid). Almost nobody knows it exists." }
-      ]},
-      { phase: "Phase 1 — The Crack in the Wall (2017-2019)", events: [
-        { date: "2017-12-16", event: "NYT reveals AATIP + releases FLIR1/Gimbal videos. Pentagon does not deny. UFOs go from joke to news." },
-        { date: "2017-2018", event: "Navy pilots go public; Fravor describes the Tic Tac. Lt. Ryan Graves: cubes-in-clear-spheres, daily 2014-15." },
-        { date: "2019-04", event: "Navy confirms the FLIR1/Gimbal/GoFast videos are authentic and unidentified." },
-        { date: "2019-09", event: "'Storm Area 51' viral event (~2M RSVP); Navy formalizes UAP reporting guidelines." }
-      ]},
-      { phase: "Phase 2 — Official Acknowledgment (2020-2021)", events: [
-        { date: "2020-04-27", event: "Pentagon officially releases/confirms the three Navy UAP videos, during COVID lockdown." },
-        { date: "2020-08", event: "UAP Task Force established — first formal DoD body since Project Blue Book (1969)." },
-        { date: "2021-06-25", event: "First ODNI UAP report: 143 of 144 incidents unexplained; 'unusual flight characteristics.'" },
-        { date: "2021-12", event: "NDAA FY2022 codifies a permanent UAP investigation office into federal law." }
-      ]},
-      { phase: "Phase 3 — Congressional Spotlight (2022-2023)", events: [
-        { date: "2022-05-17", event: "First public Congressional UAP hearing in 54 years (House Intel Subcommittee)." },
-        { date: "2022-07", event: "NASA announces an independent UAP study; Harvard's Galileo Project launches." },
-        { date: "2022-12", event: "AARO (All-domain Anomaly Resolution Office) established — permanent Pentagon UAP office." },
-        { date: "2023-07-26", event: "GRUSCH TESTIMONY under oath: multi-decade crash-retrieval program, 'non-human biologics,' retaliation. Fravor & Graves testify. Pentagon denies. The watershed — the year the band forms." }
-      ]},
-      { phase: "Phase 4 — Acceleration (2024-2026)", events: [
-        { date: "2024-03", event: "AARO Historical Record Report Vol. 1 finds 'no evidence'; widely criticized; Grusch calls it a whitewash." },
-        { date: "2024-10", event: "'Immaculate Constellation' — alleged unacknowledged UAP SAP revealed in open press." },
-        { date: "2026-05-08", event: "PURSUE begins — rolling declassification of UAP records 1947-2026 (Tranche 1)." },
-        { date: "2026-05-22", event: "PURSUE Release 02." },
-        { date: "2026-06-12", event: "PURSUE Release 03 — FBI orb videos, CIA Cold War tranche." },
-        { date: "2026-07-10", event: "PURSUE Release 04 — unresolved military IR videos (2015-2025)." },
-        { date: "2026-07-31", event: "ODNI issues preliminary guidance on UAP disclosure." },
-        { date: "2026-08-07", event: "PURSUE Release 05 — 375 total declassified records; scientists analyze 100+ UAP videos." }
-      ]}
-    ]
-  },
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // CULTURAL_TOUCHSTONES — Per-character real-world anchors (music/food/family/id)
-  // (Added Sep 7 2026 — additive). Ethnicity/birth-year follow this engine's registry.
-  // ───────────────────────────────────────────────────────────────────────────
-  cultural_touchstones: {
-    oren: {
-      character: "Oren Malik (b.1999, Pakistani-American, Hyde Park / Kenwood Academy)",
-      identity: "Second-gen Pakistani-American navigating the 'acceptable career' framework (doctor/engineer/lawyer/pharmacist). An ER nurse named Malik — respected but forever asked 'when will you go to medical school?' Grew up under the post-9/11 surveillance shadow: random TSA searches, 'where are you really from?'",
-      music_from_home: ["Dhol drumming at weddings/Bhangra — the syncopated pounding is in his bones", "Qawwali (Nusrat Fateh Ali Khan) — the trance, the building ecstasy that maps onto metal/hardcore", "AP Dhillon, Diljit Dosanjh — the 2020s Punjabi explosion", "Riz Ahmed — Pakistani identity in rap"],
-      music_he_chose: ["Turnstile 'Glow On'", "Knocked Loose", "Code Orange", "100 gecs (the ADHD album)", "Charli XCX", "JPEGMAFIA", "2020s pop-punk revival"],
-      food: ["Biryani (every family's recipe is 'the best')", "Nihari (Sunday-morning slow-cooked beef)", "Haleem, kebabs, daal, paratha", "Chai with cardamom — always offered to guests"],
-      family_gatherings: ["Eid: new clothes, mosque, eidi from elders, mountains of food", "Extended-family aunties/uncles not related by blood", "Oren is the kid who's everywhere at once, making the aunties laugh"],
-      neuro_note: "ADHD, undiagnosed for years ('you just need to focus'); the ADHD brain craves the constant input drums provide. Playlists jump genres like a hummingbird.",
-      formative_events: ["Sandy Hook drills (age ~13)", "NYT Nimitz UFO story as he graduates (2017)", "COVID nursing clinicals amid mass death (2020)"]
-    },
-    jude: {
-      character: "Jude Okafor (b.2000, Nigerian-American, West Side / Austin C&CA)",
-      identity: "First-gen pressure: 'we did not cross an ocean for you to be average.' Education as salvation; community reputation is collective. Prison inverted the immigration narrative — he became what America was supposed to protect the family from. Code-switches between home (Yoruba/Igbo + Pidgin) and school English.",
-      music_from_home: ["Fela Kuti (father's vinyl — the original Afrobeat, polyrhythmic foundation of Jude's sense of time)", "Wizkid, Burna Boy, Davido, Tems, Rema, CKay — the Afrobeats explosion going global", "Nollywood films always streaming", "Owambe party culture — aso ebi, spray money, Afrobeats until 3AM"],
-      music_he_chose: ["Metallica, Pantera, Lamb of God (pre-prison — matched his pressure)", "Animals as Leaders (Tosin Abasi — Nigerian-American metal guitarist; representation matters)", "Kendrick, J. Cole, Nipsey Hussle (in prison)", "Meshuggah, Gojira, Deftones, Spiritbox (heavier after — the sound of his seismic power)"],
-      food: ["Jollof rice (the centerpiece; Nigerian-vs-Ghanaian Jollof wars)", "Egusi soup, pounded yam/fufu, efo riro, suya (the smell of yaji = home)", "Puff puff, chin chin, meat pies", "His mother cooking for him is the first sign things might be okay after prison"],
-      family_gatherings: ["Nigerian-majority church (RCCG/Winners Chapel) as community, not just service", "Chaotic constant family WhatsApp groups", "Sunday-after-church gathering; parties run til 2AM"],
-      incarceration_note: "Three years (age 18-21) with no guitar; rhythm went INTO his body — palms on thighs, feet on concrete, the industrial-laundry 4/4. Watched the George Floyd summer / BLM from a cell, unable to march.",
-      formative_events: ["Charleston church shooting (2015) hit the diaspora church community", "BLM summer 2020 from inside prison", "Released into the post-COVID Great Resignation (2021)"]
-    },
-    zara: {
-      character: "Zara Kovac (b.2001, Croatian / Black American, Rogers Park / Sullivan HS)",
-      identity: "Arrived conscious — an alien soul (Za-Rah) self-containing since birth. Croatian-American families prize normalcy and stability ('don't make waves'); her detachment reads to her parents as depression/defiance, making her alienation unbearable. Likely post-Yugoslav-Wars (1991-95) immigrant family carrying unspoken war trauma.",
-      music_she_processes: ["Microtonal / rule-breaking: King Gizzard 'Flying Microtonal Banana,' Sevish, gamelan/raga/maqam", "Mathematical structure: Tool (Fibonacci), Meshuggah, Steve Reich phasing (she finds it calming)", "Drone as frequency, not song: Sunn O))), Earth, Pauline Oliveros", "NASA planetary radio emissions (Jupiter's magnetosphere) — she recognizes something"],
-      music_she_learns_to_love: "Bass itself — the most PHYSICAL instrument, felt in chest and feet not ears; and emotion, learned by watching Oren cry at a Turnstile show and Jude's body lock into a groove.",
-      food: ["Sarma (sauerkraut cabbage rolls) — THE winter dish, made for 30 and given to neighbors", "Cevapi with lepinja, ajvar, kajmak", "Burek, punjene paprike, strukli, peka", "Bakalar (dried cod) on Christmas Eve; rakija offered to every guest"],
-      traditions: ["Roman Catholic; Croatian parish as community infrastructure", "Christmas: Badnjak fast, midnight Mass, sarma feast", "Klapa a-cappella harmony singing; kolo circle dances", "'Croatians sing at the drop of a hat'"],
-      garden_note: "Her mother's garden is displaced Croatia — tomatoes, peppers (for punjene paprike), cabbage (for sarma). The alien consciousness is fascinated by the mycorrhizal networks; Zara stands still among the tomato plants, hands in dirt, listening to something her mother can't hear.",
-      formative_events: ["NYT Nimitz UFO story (2017) — fitting for the one who arrived alien", "Pandemic isolation (2020) alone with an alien consciousness"]
-    },
-    kael: {
-      character: "Kael Voss (b.2002, Mixed Black, Raleigh NC -> Bronzeville / King College Prep)",
-      identity: "Suppresses his voice (Resonant Command) since age 8; avoids music because it opens something dangerous — but he KNOWS it. Chose warehouse 'smallness' to protect others from his largeness. Senior year (2020) erased by COVID.",
-      music_he_secretly_knows: ["Radiohead 'OK Computer' (found at 14 — proved music could articulate what he couldn't)", "Post-punk vocalists of command: Joy Division (Ian Curtis), Bauhaus, Siouxsie", "Modern post-punk / crank wave: Fontaines D.C., IDLES (Joe Talbot's spoken-word fury), Shame, black midi, Black Country New Road, Dry Cleaning", "Nick Cave; Deafheaven 'Sunbather' (beauty + violence)"],
-      what_bleeds_through: "The warehouse speakers — classic rock (Zeppelin, Sabbath), forklift-guy country and sports radio. He endures the music he doesn't choose; sometimes a song hits the resonant frequency and he has to step outside.",
-      formative_events: ["Essential-worker warehouse shifts through COVID lockdown (2020)", "Choosing silence as a form of protection"]
-    },
-    mira: {
-      character: "Mira Chen (b.2004, arrived Chicago 2025)",
-      identity: "Chromesthete — SEES sound as color, texture, movement. Curates music for the visual experience, not catharsis. Knows she has anxiety and possibly psychotic features; the band is her therapy, the practice space her therapist's office.",
-      music_she_sees: ["Shoegaze (the visual genre): My Bloody Valentine 'Loveless,' Slowdive, Cocteau Twins (Liz Fraser's voice is VISIBLE to her)", "Modern revival: Nothing, Narrow Head, Feeble Little Horse, Cloakroom", "Ambient/textural: Brian Eno, Sigur Ros, Grouper, Stars of the Lid", "Art-rock: Bjork, Radiohead 'Kid A,' FKA Twigs"],
-      the_dark_side: "Aggressive, discordant music doesn't just sound bad — it LOOKS wrong, something she must look away from. The darker entities' music is the most visually stunning thing she's seen, but the colors are corrupted — beautiful and wrong.",
-      formative_events: ["Grew up fully in the TikTok era", "Joshua Tree silence (2022) — heard NOTHING respond for the first time", "Moved to Chicago (2025) in the AI-backlash / indie-revival moment"]
-    }
-  },
 
   // ───────────────────────────────────────────────────────────────────────────
   // QUERY METHODS
@@ -1997,77 +1613,6 @@ var TIMELINE_ENGINE = {
     };
   },
 
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // REAL-WORLD QUERY METHODS (Added Sep 7 2026 — additive)
-  // ───────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Get a real-world cultural era by id, or all eras if no id given.
-   * @param {string} [eraId] - e.g. 'era_2020_2021'
-   * @returns {Object|Array}
-   */
-  getRealWorldEra: function(eraId) {
-    if (!this.real_world_eras) return eraId ? null : [];
-    if (!eraId) return this.real_world_eras;
-    for (var i = 0; i < this.real_world_eras.length; i++) {
-      if (this.real_world_eras[i].id === eraId) return this.real_world_eras[i];
-    }
-    return null;
-  },
-
-  /**
-   * Get the real UAP disclosure parallel timeline.
-   * @param {string} [phaseKeyword] - optional filter matched against phase label
-   * @returns {Object|Array} full object, or array of matching phases when filtered
-   */
-  getUAPTimeline: function(phaseKeyword) {
-    if (!this.uap_disclosure_parallel_timeline) return null;
-    if (!phaseKeyword) return this.uap_disclosure_parallel_timeline;
-    var kw = phaseKeyword.toLowerCase();
-    var out = [];
-    var phases = this.uap_disclosure_parallel_timeline.phases || [];
-    for (var i = 0; i < phases.length; i++) {
-      if (phases[i].phase.toLowerCase().indexOf(kw) !== -1) out.push(phases[i]);
-    }
-    return out;
-  },
-
-  /**
-   * Get per-character cultural touchstones (music/food/family/identity).
-   * @param {string} [characterId] - 'oren','jude','zara','kael','mira'
-   * @returns {Object|null}
-   */
-  getCulturalTouchstones: function(characterId) {
-    if (!this.cultural_touchstones) return null;
-    if (!characterId) return this.cultural_touchstones;
-    var id = characterId.toLowerCase();
-    return this.cultural_touchstones[id] || null;
-  },
-
-  /**
-   * Get all woven real-world events (category 'real_world'), sorted by date.
-   * @returns {Array}
-   */
-  getRealWorldEvents: function() {
-    var results = this.getEventsByCategory("real_world");
-    return results.sort(function(a, b) {
-      var da = a.date_range ? a.date_range.start : a.date;
-      var db = b.date_range ? b.date_range.start : b.date;
-      return da < db ? -1 : da > db ? 1 : 0;
-    });
-  },
-
-  /**
-   * Get the real_world_context string for a given event id (null if none).
-   * @param {string} eventId
-   * @returns {string|null}
-   */
-  getRealWorldContext: function(eventId) {
-    var evt = this.getEvent(eventId);
-    return evt && evt.real_world_context ? evt.real_world_context : null;
-  },
-
   // ───────────────────────────────────────────────────────────────────────────
   // INITIALIZATION
   // ───────────────────────────────────────────────────────────────────────────
@@ -2082,12 +1627,3 @@ var TIMELINE_ENGINE = {
     return this;
   }
 }.init();
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// END OF TIMELINE ENGINE
-// Real-world anchoring enhancement applied 2026-09-07 (additive; nothing removed).
-// New: real_world_eras, uap_disclosure_parallel_timeline, cultural_touchstones,
-//      category 'real_world' events (evt_rw_*), per-event real_world_context field,
-//      and query helpers getRealWorldEra / getUAPTimeline / getCulturalTouchstones /
-//      getRealWorldEvents / getRealWorldContext.
-// ═══════════════════════════════════════════════════════════════════════════════

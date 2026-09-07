@@ -27,8 +27,8 @@ Signal Decay is a transmedia universe (band + story + AI music app + comics + fi
 | **Oren Malik** | Ori-Tahn | Drums | Temporal Drift (time bends around him) | Never played drums despite encyclopedic knowledge. ER nurse. |
 | **Mira Chen** | Mir-Ahk | Guitar | Frequency Sight (sees sound as color) | Her 1978 Mustang may have entities attached to it |
 | **Jude Okafor** | Ju-Dael | Guitar/Vocals | Emotional Resonance (makes people feel buried emotions) | Righteous anger as frequency. Prison guitar. |
-| **Zara Volkov** | Zar-Ahn | Bass | Harmonic Bridge (connects frequencies) | Not entirely human. Can feel frequency residue in instruments. |
-| **Kael Morrison** | Ka-El | Vocals/Keys | Voice Manipulation | Lost his voice for 6 months at 17. Writes at 4 AM. |
+| **Zara Kovač** | Zar-Ahn | Bass | Harmonic Bridge (connects frequencies) | Not entirely human. Can feel frequency residue in instruments. |
+| **Kael Voss** | Ka-El | Vocals/Keys | Voice Manipulation | Lost his voice for 6 months at 17. Writes at 4 AM. |
 
 These five are reincarnated souls who have cycled through multiple lifetimes. Their purpose: maintain cosmic frequency balance. When they play together, they generate THE SIGNAL — a frequency that repairs reality.
 

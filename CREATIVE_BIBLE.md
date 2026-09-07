@@ -226,6 +226,19 @@ The world doesn't know yet. But it will.
 
 ## THE WORLD
 
+### ⭐ CORE CANON PRINCIPLE — UFOlogy Is Real History (added 2026-09-07)
+
+**In the Signal Decay universe, UFOlogy events are REAL, documented history — not mysteries.**
+
+- Roswell, Rendlesham, Phoenix Lights, the Nimitz/Tic-Tac, Skinwalker Ranch, MJ-12, Bob Lazar/S-4, Element 115, the Wow! Signal, Varginha — in THIS world these are **things that actually happened**, exactly as (or more than) the witnesses described.
+- The "mystery," "unexplained," "swamp gas," "weather balloon," "flares," "mass hysteria," and "hoax" framings are the **deliberate cover story** manufactured by the government and, beneath them, **The Legacy**. The confusion is *engineered*, not real.
+- So the characters do NOT experience these as open questions. The awakened ones **know the events are real** — what they're uncovering is the *truth the cover-up hides* (why it happened, who's behind it, what it means for them).
+- **Framing rule for every UFOlogy entry / story beat:** present it as **REAL EVENT → OFFICIAL COVER STORY (the lie) → ACTUAL TRUTH (what really happened)**. The drama is the gap between the public lie and the known truth — dramatic irony, not whodunit.
+- **The reader's journey mirrors the characters':** a new reader may arrive thinking "these are fringe conspiracy theories," and the universe steadily reveals they were real all along — the same awakening the characters go through.
+- **Tonal note:** never write these as "could it be true?" skeptic-bait. Write from the position that it IS true and the establishment is lying about it. The Legacy WANTS the world to treat it as mystery — that's their camouflage.
+
+**Applies to:** ufology_knowledge_matrix.js (already frames per-character as real — this is the universe-level rule above it), the Investigation Board, oracle_knowledge_engine, all UFOlogy reference entries, and any story/comic that touches a real UFO case. New UFOlogy content must follow the REAL EVENT → COVER STORY → TRUTH structure.
+
 ### Rules of the Abilities
 - [ ] Do the abilities only work with their specific instrument?
 - [ ] Can they be used outside of music?

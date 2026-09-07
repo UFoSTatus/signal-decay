@@ -765,7 +765,7 @@ He knows this. He calculated it. The Signal Architect's function includes tempor
 
 He made the world LESS safe by trying to keep it safe.
 
-### The Jude Grant — A Specific Cruelty
+### The Jude Okafor — A Specific Cruelty
 
 Of all the interventions, the First Note Foundation rejection of Jude's grant application deserves special attention, because it represents the absolute nadir of Ashley's hypocrisy.
 

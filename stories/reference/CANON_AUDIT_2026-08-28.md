@@ -186,7 +186,7 @@
 - **Age:** 22 `[MIRA_ARC, HANDOFF]`
 - **Race/Ethnicity:** Chinese-American. Mother's dark eyes, father's angular jaw. `[MIRA_ARC]`
 - **Physical Description:** Medium height, lean ("the kind of body that forgets to eat"). Hair black with burgundy underlayer (dyed since 16). Silver rings on every finger of left hand (fretting hand). Paint under nails. Vintage olive army jacket from thrift store with moon patch on back pocket. Looks tired always — hollow cheekbones, translucent temples. `[MIRA_ARC]`
-- **NOTE:** `[LIFE_EVENTS]` header calls her "Mira Solana" — **CONFLICT with all other files which call her "Mira Chen." "Solana" appears to be a drafting error in LIFE_EVENTS.** All narrative content treats her as Chen.
+- **NOTE:** `[LIFE_EVENTS]` header calls her "Mira Chen" — **CONFLICT with all other files which call her "Mira Chen." "Solana" appears to be a drafting error in LIFE_EVENTS.** All narrative content treats her as Chen.
 
 ### Day Job & Living Situation
 - **Day Job:** Guitar teacher (private lessons). Small teaching room with acoustic panels, two chairs, music stand, Radiohead "Kid A" poster on wall. `[MIRA_ARC, S01E01]`
@@ -249,7 +249,7 @@
 - Present: Painting The Frequency address involuntarily, showing Sage `[NIGHT_THEY_MEET]`
 
 ### ⚠️ CONFLICTS FOUND
-1. **Name: "Mira Solana" vs "Mira Chen"** — `[LIFE_EVENTS]` header says Solana. Every other file says Chen. Almost certainly a drafting error in LIFE_EVENTS.
+1. **Name: "Mira Chen" vs "Mira Chen"** — `[LIFE_EVENTS]` header says Solana. Every other file says Chen. Almost certainly a drafting error in LIFE_EVENTS.
 2. **Keys' death year: 1958 vs 1977** — `[ALL_CHARACTERS]` says "died 1958, heroin." `[MIRA_ARC]` says "Died in 1977 of a heroin overdose." Different decades. Same cause. **NEEDS RESOLUTION.**
 3. **Jason's age:** `[INNER_CIRCLES]` = 25. `[MIRA_ARC]` describes him as "four years older" than Mira (22) = 26. Minor.
 
