@@ -682,15 +682,6 @@
 <script src="supporting_cast_engine.js"></script>
 <script src="social_media_engine.js"></script>
 <script src="daily_life_engine.js"></script>
-<!-- 8 new engines (Sep 2 2026) -->
-<script src="music_band_engine.js"></script>
-<script src="memory_recovery_engine.js"></script>
-<script src="emotional_state_machine.js"></script>
-<script src="conversation_flow_engine.js"></script>
-<script src="locations_engine.js"></script>
-<script src="legacy_operations_engine.js"></script>
-<script src="timeline_engine.js"></script>
-<script src="relationship_dynamics_engine.js"></script>
 
 <script>
 
@@ -933,130 +924,6 @@ function getSocialStyle(characterId) {
 }
 
 /**
- * getMusicInfo(characterId) — instrument + playing detail from MUSIC_BAND_ENGINE
- */
-function getMusicInfo(characterId) {
-  try {
-    if (typeof MUSIC_BAND_ENGINE === 'undefined') return '';
-    const profiles = MUSIC_BAND_ENGINE.MUSIC_PROFILES;
-    if (!profiles || !profiles[characterId]) return '';
-    const p = profiles[characterId];
-    const inst = p.instrument || {};
-    const instType = inst.type || '';
-    const gear = inst.primary_mic || inst.primary_guitar || inst.primary_kit || inst.primary_bass || {};
-    const gearStr = gear.make ? (gear.make + ' ' + (gear.model || '')) : '';
-    let out = instType ? ('You play: ' + instType) : '';
-    if (gearStr) out += ' (' + gearStr.trim() + ')';
-    if (p.playing_style) out += '. Style: ' + (typeof p.playing_style === 'string' ? p.playing_style.split('.')[0] : '');
-    return out.trim();
-  } catch(e) {
-    console.warn('[Engine] getMusicInfo error:', e);
-    return '';
-  }
-}
-
-/**
- * getEmotionalBaseline(characterId) — default emotional state from EMOTIONAL_STATE_MACHINE
- */
-function getEmotionalBaseline(characterId) {
-  try {
-    if (typeof EMOTIONAL_STATE_MACHINE === 'undefined') return '';
-    const baselines = EMOTIONAL_STATE_MACHINE.baselines;
-    if (!baselines || !baselines[characterId]) return '';
-    const b = baselines[characterId];
-    // Build a short descriptor from the dimensions
-    const parts = [];
-    if (typeof b.energy === 'number') parts.push('energy ' + b.energy);
-    if (typeof b.warmth === 'number') parts.push('warmth ' + b.warmth);
-    if (typeof b.anxiety === 'number') parts.push('anxiety ' + b.anxiety);
-    if (typeof b.openness === 'number') parts.push('openness ' + b.openness);
-    if (typeof b.focus === 'number') parts.push('focus ' + b.focus);
-    let out = 'Emotional baseline (0-100): ' + parts.join(', ') + '.';
-    if (b.description) out += ' ' + b.description.split('.')[0] + '.';
-    return out;
-  } catch(e) {
-    console.warn('[Engine] getEmotionalBaseline error:', e);
-    return '';
-  }
-}
-
-/**
- * getMemoryFragments(characterId) — suppressed-memory chat triggers from MEMORY_RECOVERY_ENGINE
- * Returns trigger phrases so the character reacts (defensively / with a fragment flash) when touched.
- */
-function getMemoryFragments(characterId) {
-  try {
-    if (typeof MEMORY_RECOVERY_ENGINE === 'undefined') return '';
-    const mems = MEMORY_RECOVERY_ENGINE.memories || MEMORY_RECOVERY_ENGINE.MEMORIES;
-    if (!mems) return '';
-    const triggers = [];
-    const keys = Object.keys(mems);
-    for (let i = 0; i < keys.length; i++) {
-      const mem = mems[keys[i]];
-      if (!mem || mem.character !== characterId) continue;
-      const ci = mem.chat_integration || {};
-      const ct = ci.chat_triggers || [];
-      for (let j = 0; j < ct.length && triggers.length < 6; j++) {
-        const phrases = ct[j].phrase_pattern || [];
-        if (phrases.length) triggers.push('"' + phrases[0] + '" (' + (ct[j].response_type || 'react') + ')');
-      }
-      if (triggers.length >= 6) break;
-    }
-    if (!triggers.length) return '';
-    return 'SUPPRESSED MEMORY TRIGGERS — if the user brings up any of these, react with unease/deflection, NOT full recall (you do not consciously remember): ' + triggers.join(', ');
-  } catch(e) {
-    console.warn('[Engine] getMemoryFragments error:', e);
-    return '';
-  }
-}
-
-/**
- * getRelationshipFeel(characterId) — how this character relates to bandmates, from RELATIONSHIP_DYNAMICS_ENGINE
- */
-function getRelationshipFeel(characterId) {
-  try {
-    if (typeof RELATIONSHIP_DYNAMICS_ENGINE === 'undefined') return '';
-    const pw = RELATIONSHIP_DYNAMICS_ENGINE.pairwise;
-    if (!pw) return '';
-    const bonds = [];
-    const keys = Object.keys(pw);
-    for (let i = 0; i < keys.length && bonds.length < 3; i++) {
-      const rel = pw[keys[i]];
-      if (!rel || !rel.pair) continue;
-      if (rel.pair.indexOf(characterId) === -1) continue;
-      const other = rel.pair[0] === characterId ? rel.pair[1] : rel.pair[0];
-      const bond = rel.core_bond ? rel.core_bond.split('.')[0] : '';
-      if (bond) bonds.push(other + ': ' + bond);
-    }
-    if (!bonds.length) return '';
-    return 'BOND FEELINGS — ' + bonds.join(' | ');
-  } catch(e) {
-    console.warn('[Engine] getRelationshipFeel error:', e);
-    return '';
-  }
-}
-
-/**
- * getConversationStyle(characterId) — how this character talks with others, from CONVERSATION_FLOW_ENGINE
- */
-function getConversationStyle(characterId) {
-  try {
-    if (typeof CONVERSATION_FLOW_ENGINE === 'undefined') return '';
-    // getInterruptionScore is exposed as a helper by the engine
-    if (typeof getInterruptionScore === 'function') {
-      const score = getInterruptionScore(characterId);
-      if (score !== undefined && score !== null && typeof score !== 'object') {
-        return 'Interruption tendency (0-100): ' + score + '.';
-      }
-    }
-    return '';
-  } catch(e) {
-    console.warn('[Engine] getConversationStyle error:', e);
-    return '';
-  }
-}
-
-/**
  * buildSystemPrompt(characterId) — MAIN FUNCTION: builds dynamic system prompt from engines
  * Falls back to hardcoded prompts if engines not loaded
  */
@@ -1074,13 +941,6 @@ function buildSystemPrompt(characterId) {
   const cast = getCastFor(characterId);
   const powerInfo = getPowerInfo(characterId, arcState);
   const socialStyle = getSocialStyle(characterId);
-  
-  // Pull from the 8 new engines (Sep 2 2026) — all safe-guarded
-  const musicInfo = getMusicInfo(characterId);
-  const emotionalBaseline = getEmotionalBaseline(characterId);
-  const memoryFragments = getMemoryFragments(characterId);
-  const relationshipFeel = getRelationshipFeel(characterId);
-  const conversationStyle = getConversationStyle(characterId);
   
   // Extract key traits from engine (safely)
   const meta = engine.meta || {};
@@ -1156,23 +1016,6 @@ ${ling.grammar_quirks ? 'Quirks: ' + (Array.isArray(ling.grammar_quirks) ? ling.
   }
   if (powerInfo) {
     prompt += `\nAbility: ${powerInfo}`;
-  }
-
-  // === NEW ENGINE DATA (Sep 2 2026) ===
-  if (musicInfo) {
-    prompt += `\n\nMUSIC: ${musicInfo}`;
-  }
-  if (emotionalBaseline) {
-    prompt += `\n\n${emotionalBaseline}`;
-  }
-  if (relationshipFeel) {
-    prompt += `\n\n${relationshipFeel}`;
-  }
-  if (conversationStyle) {
-    prompt += `\n${conversationStyle}`;
-  }
-  if (memoryFragments) {
-    prompt += `\n\n${memoryFragments}`;
   }
 
   prompt += `\n\nRULES:
