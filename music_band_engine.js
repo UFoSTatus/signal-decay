@@ -1042,3 +1042,7 @@ const MUSIC_BAND_ENGINE = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MUSIC_BAND_ENGINE;
 }
+
+/* Phase A (2026-09-07): expose to window so the self-aware registry (sd_registry.js)
+   can detect this const-declared engine. Additive; does not change existing behavior. */
+if (typeof window !== 'undefined') { try { window.MUSIC_BAND_ENGINE = MUSIC_BAND_ENGINE; } catch(e){} }

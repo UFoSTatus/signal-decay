@@ -1431,3 +1431,7 @@ const ORACLE_KNOWLEDGE = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { ORACLE_KNOWLEDGE };
 }
+
+/* Phase A (2026-09-07): expose to window so the self-aware registry (sd_registry.js)
+   can detect this const-declared engine. Additive; does not change existing behavior. */
+if (typeof window !== 'undefined') { try { window.ORACLE_KNOWLEDGE = ORACLE_KNOWLEDGE; } catch(e){} }

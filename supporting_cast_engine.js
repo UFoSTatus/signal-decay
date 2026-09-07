@@ -1083,3 +1083,7 @@ module.exports = {
   getCastRelationship,
   getCastCounts
 };
+
+/* Phase A (2026-09-07): expose to window so the self-aware registry (sd_registry.js)
+   can detect this const-declared engine. Additive; does not change existing behavior. */
+if (typeof window !== 'undefined') { try { window.SUPPORTING_CAST = SUPPORTING_CAST; } catch(e){} }

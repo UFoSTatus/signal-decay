@@ -2208,3 +2208,7 @@ const RELATIONSHIP_DYNAMICS_ENGINE = {
   }
 
 };
+
+/* Phase A (2026-09-07): expose to window so the self-aware registry (sd_registry.js)
+   can detect this const-declared engine. Additive; does not change existing behavior. */
+if (typeof window !== 'undefined') { try { window.RELATIONSHIP_DYNAMICS_ENGINE = RELATIONSHIP_DYNAMICS_ENGINE; } catch(e){} }

@@ -1298,3 +1298,7 @@ const LOCATIONS_ENGINE = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { LOCATIONS_ENGINE };
 }
+
+/* Phase A (2026-09-07): expose to window so the self-aware registry (sd_registry.js)
+   can detect this const-declared engine. Additive; does not change existing behavior. */
+if (typeof window !== 'undefined') { try { window.LOCATIONS_ENGINE = LOCATIONS_ENGINE; } catch(e){} }

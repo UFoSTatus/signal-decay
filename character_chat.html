@@ -841,6 +841,7 @@
 
 
 <!-- ═══ SIGNAL DECAY ENGINES (loaded before main script) ═══ -->
+<script src="sd_registry.js"></script><!-- Phase A: self-aware registry — MUST load before engines -->
 <script src="character_engines.js"></script>
 <script src="ufology_knowledge_matrix.js"></script>
 <script src="oracle_knowledge_engine.js"></script>
@@ -2387,6 +2388,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateVoiceToggleUI();
     }
     initMicButton();
+
+    // Phase A: self-aware registry — bootstrap-detect all present engines so the
+    // System Status view can report them. Runs ALONGSIDE existing wiring; does NOT
+    // change buildSystemPrompt() yet (safe rollout per SELF_AWARE_APP_RESEARCH.md).
+    if (typeof SD_REGISTRY !== 'undefined') {
+        try { SD_REGISTRY.bootstrapKnownEngines(); if (window.console) console.log('[SD_REGISTRY] ' + SD_REGISTRY.explain()); } catch(e){}
+    }
 });
 
 </script>
