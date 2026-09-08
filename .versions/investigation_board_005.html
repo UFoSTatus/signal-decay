@@ -1211,19 +1211,12 @@ function scheduleMinimap() {
 function snapZoomToStep() {
   const vp = getViewport();
   const closest = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-camera.scale) < Math.abs(prev-camera.scale) ? curr : prev);
+  if (closest === camera.scale) return;
   const cx = (vp.w/2 - camera.x) / camera.scale;
   const cy = (vp.h/2 - camera.y) / camera.scale;
   camera.targetScale = closest;
-  let tx = vp.w/2 - cx * closest;
-  let ty = vp.h/2 - cy * closest;
-  // Clamp the target to the pan limits recomputed AT THE NEW scale, so zooming out
-  // can't leave the board parked outside the soft edges.
-  const savedScale = camera.scale;
-  camera.scale = closest;              // temporarily, just to size the limits
-  const lim = getPanLimits();
-  camera.scale = savedScale;
-  camera.targetX = Math.max(lim.minX, Math.min(lim.maxX, tx));
-  camera.targetY = Math.max(lim.minY, Math.min(lim.maxY, ty));
+  camera.targetX = vp.w/2 - cx * closest;
+  camera.targetY = vp.h/2 - cy * closest;
   animateCamera();
 }
 
