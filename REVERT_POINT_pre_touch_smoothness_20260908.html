@@ -1191,35 +1191,6 @@ function applyCamera() {
   canvas.style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`;
 }
 
-// ── Touch-smoothness helpers (added 2026-09-08) ──
-// rAF-batch the transform: many touch events per paint collapse into ONE write.
-let _applyRAF = null;
-function scheduleApplyCamera() {
-  if (_applyRAF) return;
-  _applyRAF = requestAnimationFrame(() => { _applyRAF = null; applyCamera(); });
-}
-// Throttle the (main-thread canvas) minimap redraw to ~10fps so it can't stutter the pan.
-let _miniPending = false, _miniLast = 0;
-function scheduleMinimap() {
-  const now = Date.now();
-  if (now - _miniLast > 100) { _miniLast = now; updateMinimap(); return; }
-  if (_miniPending) return;
-  _miniPending = true;
-  setTimeout(() => { _miniPending = false; _miniLast = Date.now(); updateMinimap(); }, 100);
-}
-// After a pinch ends, ease to the nearest preset zoom step (anchored to viewport centre).
-function snapZoomToStep() {
-  const vp = getViewport();
-  const closest = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-camera.scale) < Math.abs(prev-camera.scale) ? curr : prev);
-  if (closest === camera.scale) return;
-  const cx = (vp.w/2 - camera.x) / camera.scale;
-  const cy = (vp.h/2 - camera.y) / camera.scale;
-  camera.targetScale = closest;
-  camera.targetX = vp.w/2 - cx * closest;
-  camera.targetY = vp.h/2 - cy * closest;
-  animateCamera();
-}
-
 function updateZoomDisplay() {
   document.getElementById('zoom-level').textContent = Math.round(camera.scale * 100) + '%';
 }
@@ -1280,13 +1251,13 @@ function onPointerMove(e) {
   const dy = e.clientY - dragStart.y;
   camera.x = cameraStart.x + dx;
   camera.y = cameraStart.y + dy;
-  scheduleApplyCamera();
+  applyCamera();
   const now = Date.now();
   const dt = now - lastDrag.t || 16;
   velocity.x = (e.clientX - lastDrag.x) / dt * 16;
   velocity.y = (e.clientY - lastDrag.y) / dt * 16;
   lastDrag = {x: e.clientX, y: e.clientY, t: now};
-  scheduleMinimap();
+  updateMinimap();
 }
 
 function onPointerUp() {
@@ -1305,7 +1276,7 @@ function startMomentum() {
     camera.x += velocity.x;
     camera.y += velocity.y;
     applyCamera();
-    scheduleMinimap();
+    updateMinimap();
     if (Math.abs(velocity.x) > 0.1 || Math.abs(velocity.y) > 0.1) {
       momentumRAF = requestAnimationFrame(tick);
     }
@@ -1342,7 +1313,8 @@ function onTouchMove(e) {
     const dist = Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
     let newScale = pinchStartScale * (dist / pinchStartDist);
     newScale = Math.max(0.25, Math.min(2.0, newScale));
-    // CONTINUOUS while fingers are down — no mid-gesture snapping (snaps on release instead).
+    const closest = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-newScale) < Math.abs(prev-newScale) ? curr : prev);
+    if (Math.abs(newScale - closest) < 0.08) newScale = closest;
     const midX = (touches[0].clientX + touches[1].clientX) / 2;
     const midY = (touches[0].clientY + touches[1].clientY) / 2;
     const cx = (midX - camera.x) / camera.scale;
@@ -1350,36 +1322,30 @@ function onTouchMove(e) {
     camera.scale = newScale;
     camera.x = midX - cx * newScale;
     camera.y = midY - cy * newScale;
-    scheduleApplyCamera();
+    applyCamera();
     updateZoomDisplay();
-    scheduleMinimap();
+    updateMinimap();
   } else if (touches.length === 1 && isDragging) {
     const dx = touches[0].clientX - dragStart.x;
     const dy = touches[0].clientY - dragStart.y;
     camera.x = cameraStart.x + dx;
     camera.y = cameraStart.y + dy;
-    scheduleApplyCamera();
+    applyCamera();
     const now = Date.now();
     const dt = now - lastDrag.t || 16;
     velocity.x = (touches[0].clientX - lastDrag.x) / dt * 16;
     velocity.y = (touches[0].clientY - lastDrag.y) / dt * 16;
     lastDrag = {x: touches[0].clientX, y: touches[0].clientY, t: now};
-    scheduleMinimap();
+    updateMinimap();
   }
 }
 
 function onTouchEnd(e) {
-  const wasPinching = touches.length === 2;
   if (e.touches.length === 0 && isDragging) {
     isDragging = false;
     if (Math.abs(velocity.x) > 0.5 || Math.abs(velocity.y) > 0.5) {
       startMomentum();
     }
-    checkBackButton();
-  }
-  // Fingers dropped from 2 -> fewer: ease the continuous zoom to the nearest preset step.
-  if (wasPinching && e.touches.length < 2) {
-    snapZoomToStep();
     checkBackButton();
   }
   touches = Array.from(e.touches);
