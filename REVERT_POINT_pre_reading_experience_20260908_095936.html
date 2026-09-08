@@ -9,10 +9,6 @@
 <title>Signal Decay — Universe Reader</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- Reading fonts (Phase: reading experience 2026-09-08): Literata = screen-built book serif (Google, free, like Kindle's Bookerly); OpenDyslexic for accessibility. Georgia is the instant offline fallback so file:// still looks right if these don't load. -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Inter:wght@400;600;700&family=OpenDyslexic&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -1364,165 +1360,6 @@ html, body {
   font-family: 'SF Mono', monospace;
 }
 
-
-/* ════════════════════════════════════════════════════════════════════
-   READING EXPERIENCE  (added 2026-09-08 — per READING_EXPERIENCE_TYPOGRAPHY_RESEARCH.md)
-   Applies ONLY inside the story reader (.reader-view). Home screen untouched.
-   Everything here is additive & later in the cascade, so it overrides the
-   older .reader-body rules without deleting them (easy revert).
-   ════════════════════════════════════════════════════════════════════ */
-
-/* OpenDyslexic (accessibility font) — Google Fonts doesn't host it, so pull from a CDN. */
-@font-face {
-  font-family: 'OpenDyslexic';
-  font-style: normal; font-weight: 400; font-display: swap;
-  src: url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.0.0/files/opendyslexic-latin-400-normal.woff2') format('woff2');
-}
-
-/* Reading knobs the Aa sheet writes to (per-device, remembered in localStorage). */
-.reader-view {
-  --read-font: 'Literata', Georgia, 'Times New Roman', serif;
-  --read-size: 19px;          /* phone default; tablet/desktop bump below */
-  --read-line: 1.7;
-  --read-measure: 680px;
-  --read-bg: #0d0d0f;         /* near-black, not pure black */
-  --read-fg: #e8e4dc;         /* soft off-white — avoids halation */
-  --read-fg-dim: #b3b0a8;
-  --read-accent: var(--amber);
-  --read-quote-bg: rgba(245,158,11,0.10);
-  background: var(--read-bg);
-}
-
-/* ── Reading themes (data-read-theme on .reader-view) ── */
-.reader-view[data-read-theme="sepia"] {
-  --read-bg: #f4ecd8; --read-fg: #4a3f2f; --read-fg-dim: #7a6a52;
-  --read-accent: #a9741f; --read-quote-bg: rgba(169,116,31,0.10);
-}
-.reader-view[data-read-theme="light"] {
-  --read-bg: #ffffff; --read-fg: #1a1a1a; --read-fg-dim: #555;
-  --read-accent: #b4770a; --read-quote-bg: rgba(180,119,10,0.08);
-}
-.reader-view[data-read-theme="softdark"] {
-  --read-bg: #1b1c20; --read-fg: #d7d4cc; --read-fg-dim: #9a978f;
-  --read-accent: var(--amber); --read-quote-bg: rgba(245,158,11,0.10);
-}
-/* default (dark) uses the :root-ish values already on .reader-view */
-
-/* The reading column itself */
-.reader-view .reader-body {
-  max-width: var(--read-measure);
-  background: var(--read-bg);
-  color: var(--read-fg);
-  font-family: var(--read-font);
-  transition: background 0.3s ease, color 0.3s ease;
-}
-.reader-view .reader-body p,
-.reader-view .reader-body li {
-  font-family: var(--read-font);
-  font-size: var(--read-size);
-  line-height: var(--read-line);
-  color: var(--read-fg);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-.reader-view .reader-body p { margin-bottom: 1.05em; }
-.reader-view .reader-body h1 { font-family: var(--read-font); color: var(--read-fg); }
-.reader-view .reader-body h2 {
-  font-family: var(--read-font); color: var(--read-accent);
-  border-bottom-color: color-mix(in srgb, var(--read-accent) 30%, transparent);
-}
-.reader-view .reader-body h3 { font-family: var(--read-font); color: var(--read-fg); }
-.reader-view .reader-body em { color: var(--read-fg-dim); font-style: italic; }
-.reader-view .reader-body strong { color: var(--read-fg); font-weight: 700; }
-.reader-view .reader-body blockquote {
-  border-left-color: var(--read-accent);
-  background: var(--read-quote-bg);
-  color: var(--read-fg);
-}
-.reader-view .reader-body a { color: var(--read-accent); }
-
-/* Font-family variants (Aa sheet toggles data-read-font) */
-.reader-view[data-read-font="sans"]  { --read-font: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif; }
-.reader-view[data-read-font="dys"]   { --read-font: 'OpenDyslexic', 'Comic Sans MS', sans-serif; }
-
-/* Tablet / desktop type bump (§7 of the research) */
-@media (min-width: 600px)  { .reader-view { --read-size: 20px; --read-measure: 700px; } }
-@media (min-width: 1024px) { .reader-view { --read-size: 21px; --read-measure: 720px; } }
-
-/* ── Disappearing UI: chrome fades while reading, one tap brings it back ── */
-.reader-view .reader-nav,
-.reader-view .reading-progress {
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.reader-view.chrome-hidden .reader-nav {
-  opacity: 0; transform: translateY(-100%); pointer-events: none;
-}
-.reader-view.chrome-hidden .reading-progress { opacity: 0; }
-.reader-view.chrome-hidden .aa-btn { opacity: 0; pointer-events: none; }
-
-/* ── "Aa" floating control + settings sheet ── */
-.aa-btn {
-  position: fixed; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom));
-  width: 48px; height: 48px; border-radius: 50%; z-index: 1002;
-  background: var(--bg-glass); backdrop-filter: blur(20px);
-  border: 1px solid var(--border-medium); color: var(--amber);
-  font-size: 1.05rem; font-weight: 700; cursor: pointer;
-  display: none; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: opacity 0.35s ease, transform 0.15s ease;
-}
-.reader-view.active ~ .aa-btn { display: flex; }
-.aa-btn:active { transform: scale(0.94); }
-
-.aa-sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1003;
-  background: var(--bg-glass); backdrop-filter: blur(24px);
-  border-top: 1px solid var(--border-medium);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: 20px 20px calc(24px + env(safe-area-inset-bottom));
-  transform: translateY(110%); transition: transform 0.3s var(--ease-spring, ease);
-  max-width: 640px; margin: 0 auto;
-}
-.aa-sheet.open { transform: translateY(0); }
-.aa-sheet h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 16px 0 8px; }
-.aa-sheet h4:first-child { margin-top: 0; }
-.aa-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.aa-opt {
-  flex: 1; min-width: 60px; min-height: 44px; padding: 10px 8px;
-  border: 1px solid var(--border-medium); background: var(--bg-tertiary);
-  color: var(--text-secondary); border-radius: var(--radius-sm);
-  cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.aa-opt.active { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
-.aa-swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
-.aa-size-row { display: flex; align-items: center; gap: 14px; }
-.aa-size-row button {
-  width: 44px; height: 44px; border-radius: var(--radius-sm); border: 1px solid var(--border-medium);
-  background: var(--bg-tertiary); color: var(--amber); font-size: 1.1rem; cursor: pointer;
-}
-.aa-size-row .aa-size-val { flex: 1; text-align: center; color: var(--text-primary); font-size: 0.9rem; }
-.aa-sheet-backdrop {
-  position: fixed; inset: 0; z-index: 1002; background: rgba(0,0,0,0.4);
-  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-}
-.aa-sheet-backdrop.open { opacity: 1; pointer-events: auto; }
-.aa-done {
-  width: 100%; margin-top: 18px; min-height: 46px; border: none; border-radius: var(--radius-sm);
-  background: var(--amber); color: #000; font-weight: 700; font-size: 0.9rem; cursor: pointer;
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   HOME-SCREEN POLISH  (2026-09-08 — per HOME_SCREEN_UI_DESIGN_RESEARCH.md)
-   Research verdict: the aesthetic is already right; these are refinements.
-   1) Widen the surface layers so cards read as layered, not flat.
-   2) Press feedback on tappable cards. (Hero ambient glow already exists.)
-   Appended last so it wins the cascade without touching existing rules.
-   ════════════════════════════════════════════════════════════════════ */
-:root {
-  --bg-tertiary: #1e1e1e;   /* was #1a1a1a — stronger depth separation */
-  --bg-card: #161616;       /* was #141414 — slightly lifted off the base */
-}
-.story-card:active { transform: scale(0.98); transition: transform 0.1s ease; }
-.app-card:active   { transform: scale(0.98); transition: transform 0.1s ease; }
 </style>
 </head>
 <body>
@@ -1870,39 +1707,7 @@ html, body {
       <button class="nav-btn" onclick="bookmarkPosition()" title="Bookmark"><i class="fa-regular fa-bookmark"></i></button>
     </div>
   </nav>
-  <div class="reader-body" id="readerBody" onscroll="updateReadingProgress()" onclick="readerBodyTap(event)"></div>
-</div>
-
-<!-- Aa reading controls (2026-09-08) — floating button + settings sheet -->
-<button class="aa-btn" id="aaBtn" onclick="openAaSheet()" title="Reading settings" aria-label="Reading settings">Aa</button>
-<div class="aa-sheet-backdrop" id="aaBackdrop" onclick="closeAaSheet()"></div>
-<div class="aa-sheet" id="aaSheet" role="dialog" aria-label="Reading settings">
-  <h4>Text size</h4>
-  <div class="aa-size-row">
-    <button onclick="aaAdjustSize(-1)" aria-label="Smaller text">A&minus;</button>
-    <span class="aa-size-val" id="aaSizeVal">19px</span>
-    <button onclick="aaAdjustSize(1)" aria-label="Larger text">A+</button>
-  </div>
-  <h4>Theme</h4>
-  <div class="aa-row" id="aaThemeRow">
-    <button class="aa-opt" data-theme="dark"    onclick="aaSetTheme('dark')"><span class="aa-swatch" style="background:#0d0d0f"></span>Dark</button>
-    <button class="aa-opt" data-theme="softdark" onclick="aaSetTheme('softdark')"><span class="aa-swatch" style="background:#1b1c20"></span>Soft</button>
-    <button class="aa-opt" data-theme="sepia"   onclick="aaSetTheme('sepia')"><span class="aa-swatch" style="background:#f4ecd8"></span>Sepia</button>
-    <button class="aa-opt" data-theme="light"   onclick="aaSetTheme('light')"><span class="aa-swatch" style="background:#ffffff"></span>Light</button>
-  </div>
-  <h4>Font</h4>
-  <div class="aa-row" id="aaFontRow">
-    <button class="aa-opt" data-font="serif" onclick="aaSetFont('serif')" style="font-family:Literata,Georgia,serif">Serif</button>
-    <button class="aa-opt" data-font="sans"  onclick="aaSetFont('sans')" style="font-family:Inter,sans-serif">Sans</button>
-    <button class="aa-opt" data-font="dys"   onclick="aaSetFont('dys')" style="font-family:OpenDyslexic,sans-serif">Dyslexic</button>
-  </div>
-  <h4>Line spacing</h4>
-  <div class="aa-row" id="aaLineRow">
-    <button class="aa-opt" data-line="1.5" onclick="aaSetLine('1.5')">Tight</button>
-    <button class="aa-opt" data-line="1.7" onclick="aaSetLine('1.7')">Normal</button>
-    <button class="aa-opt" data-line="1.9" onclick="aaSetLine('1.9')">Loose</button>
-  </div>
-  <button class="aa-done" onclick="closeAaSheet()">Done</button>
+  <div class="reader-body" id="readerBody" onscroll="updateReadingProgress()"></div>
 </div>
 
 <!-- COMMENTS PANEL -->
@@ -2154,8 +1959,6 @@ function openStory(id) {
   document.getElementById('readerTitle').textContent = story.title;
   document.getElementById('readerBody').innerHTML = '<div style="text-align:center;padding:48px;"><i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem;color:var(--amber);"></i><p style="margin-top:12px;color:var(--text-muted);font-size:0.8rem;">Loading story...</p></div>';
   document.getElementById('readerView').classList.add('active');
-  applyReaderSettings();      // font/size/theme/line + reset chrome (2026-09-08)
-  showChrome();
   
   // Fetch the actual .md file and render it
   fetch(story.path)
@@ -2235,79 +2038,6 @@ function generateMockContent(story) {
       <p style="font-size:0.7rem;color:var(--text-muted);margin-top:12px;">Source: ${story.path}</p>
     </div>
   `;
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   READER SETTINGS + DISAPPEARING UI  (2026-09-08)
-   Per-device, remembered in localStorage. Reads the research defaults:
-   Literata serif, 19px phone, line-height 1.7, dark theme, off-white text.
-   ════════════════════════════════════════════════════════════════════ */
-var READER_DEFAULTS = { size: 19, theme: 'dark', font: 'serif', line: '1.7' };
-function loadReaderSettings() {
-  var s = {};
-  try { s = JSON.parse(localStorage.getItem('sd_reader_settings') || '{}'); } catch(e) {}
-  return {
-    size:  (typeof s.size === 'number' && s.size >= 15 && s.size <= 30) ? s.size : READER_DEFAULTS.size,
-    theme: s.theme || READER_DEFAULTS.theme,
-    font:  s.font  || READER_DEFAULTS.font,
-    line:  s.line  || READER_DEFAULTS.line
-  };
-}
-function saveReaderSettings(s) {
-  try { localStorage.setItem('sd_reader_settings', JSON.stringify(s)); } catch(e) {}
-}
-function applyReaderSettings() {
-  var rv = document.getElementById('readerView');
-  var s = loadReaderSettings();
-  rv.setAttribute('data-read-theme', s.theme);
-  rv.setAttribute('data-read-font', s.font);
-  rv.style.setProperty('--read-size', s.size + 'px');
-  rv.style.setProperty('--read-line', s.line);
-  // reflect current selection in the sheet
-  syncAaSheet(s);
-}
-function syncAaSheet(s) {
-  document.getElementById('aaSizeVal').textContent = s.size + 'px';
-  ['theme','font','line'].forEach(function(kind){
-    var rowId = kind === 'theme' ? 'aaThemeRow' : kind === 'font' ? 'aaFontRow' : 'aaLineRow';
-    var attr = 'data-' + kind;
-    var row = document.getElementById(rowId);
-    if (!row) return;
-    var btns = row.querySelectorAll('.aa-opt');
-    for (var i=0;i<btns.length;i++){
-      btns[i].classList.toggle('active', btns[i].getAttribute(attr) === String(s[kind]));
-    }
-  });
-}
-function openAaSheet() {
-  applyReaderSettings();
-  document.getElementById('aaSheet').classList.add('open');
-  document.getElementById('aaBackdrop').classList.add('open');
-}
-function closeAaSheet() {
-  document.getElementById('aaSheet').classList.remove('open');
-  document.getElementById('aaBackdrop').classList.remove('open');
-}
-function aaAdjustSize(dir) {
-  var s = loadReaderSettings();
-  s.size = Math.max(15, Math.min(30, s.size + dir));
-  saveReaderSettings(s); applyReaderSettings();
-}
-function aaSetTheme(t){ var s=loadReaderSettings(); s.theme=t; saveReaderSettings(s); applyReaderSettings(); }
-function aaSetFont(f){ var s=loadReaderSettings(); s.font=f; saveReaderSettings(s); applyReaderSettings(); }
-function aaSetLine(l){ var s=loadReaderSettings(); s.line=l; saveReaderSettings(s); applyReaderSettings(); }
-
-/* ── Disappearing UI ── */
-var _chromeHidden = false;
-function showChrome(){ document.getElementById('readerView').classList.remove('chrome-hidden'); _chromeHidden=false; }
-function hideChrome(){ document.getElementById('readerView').classList.add('chrome-hidden'); _chromeHidden=true; }
-function toggleChrome(){ _chromeHidden ? showChrome() : hideChrome(); }
-// A center-tap on the reading text toggles chrome (ignores links/selection).
-function readerBodyTap(e){
-  if (e.target.closest('a')) return;                 // let links work
-  var sel = window.getSelection && window.getSelection();
-  if (sel && sel.toString().length) return;          // don't fight text selection
-  toggleChrome();
 }
 
 function closeReader() {
