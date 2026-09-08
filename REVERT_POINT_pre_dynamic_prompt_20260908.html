@@ -1875,22 +1875,20 @@ function getEmotionalBaseline(characterId) {
 function getMemoryFragments(characterId) {
   try {
     if (typeof MEMORY_RECOVERY_ENGINE === 'undefined') return '';
-    // REAL shape: MEMORY_RECOVERY_ENGINE[characterId + '_memories'] = { <id>_mem_01:{...}, ... }
-    // (Fixed 2026-09-08 — was looking for a flat .memories map that never existed, so memory
-    //  triggers were silently missing from every character's prompt.)
-    const group = MEMORY_RECOVERY_ENGINE[characterId + '_memories'];
-    if (!group || typeof group !== 'object') return '';
+    const mems = MEMORY_RECOVERY_ENGINE.memories || MEMORY_RECOVERY_ENGINE.MEMORIES;
+    if (!mems) return '';
     const triggers = [];
-    const keys = Object.keys(group);
-    for (let i = 0; i < keys.length && triggers.length < 6; i++) {
-      const mem = group[keys[i]];
-      if (!mem) continue;
+    const keys = Object.keys(mems);
+    for (let i = 0; i < keys.length; i++) {
+      const mem = mems[keys[i]];
+      if (!mem || mem.character !== characterId) continue;
       const ci = mem.chat_integration || {};
       const ct = ci.chat_triggers || [];
       for (let j = 0; j < ct.length && triggers.length < 6; j++) {
         const phrases = ct[j].phrase_pattern || [];
         if (phrases.length) triggers.push('"' + phrases[0] + '" (' + (ct[j].response_type || 'react') + ')');
       }
+      if (triggers.length >= 6) break;
     }
     if (!triggers.length) return '';
     return 'SUPPRESSED MEMORY TRIGGERS — if the user brings up any of these, react with unease/deflection, NOT full recall (you do not consciously remember): ' + triggers.join(', ');
@@ -1958,6 +1956,20 @@ function buildSystemPrompt(characterId) {
   // Get arc state from localStorage or default to 'dormant'
   const arcState = localStorage.getItem(`sd_arc_${characterId}`) || 'dormant';
   
+  // Pull components from engines (with safe fallbacks)
+  const timeCtx = getTimeContext(characterId);
+  const ufoKnowledge = getUfoKnowledge(characterId, arcState);
+  const cast = getCastFor(characterId);
+  const powerInfo = getPowerInfo(characterId, arcState);
+  const socialStyle = getSocialStyle(characterId);
+  
+  // Pull from the 8 new engines (Sep 2 2026) — all safe-guarded
+  const musicInfo = getMusicInfo(characterId);
+  const emotionalBaseline = getEmotionalBaseline(characterId);
+  const memoryFragments = getMemoryFragments(characterId);
+  const relationshipFeel = getRelationshipFeel(characterId);
+  const conversationStyle = getConversationStyle(characterId);
+  
   // Extract key traits from engine (safely)
   const meta = engine.meta || {};
   const ling = engine.linguistic || {};
@@ -2003,64 +2015,52 @@ Humor: ${humor}
 Profanity: ${profanity}
 ${ling.grammar_quirks ? 'Quirks: ' + (Array.isArray(ling.grammar_quirks) ? ling.grammar_quirks.slice(0, 2).join('. ') : ling.grammar_quirks) : ''}`;
 
+  if (timeCtx) {
+    prompt += `\n\nRIGHT NOW: ${timeCtx}`;
+  }
+  
   if (relSummary) {
     prompt += `\n\nRELATIONSHIPS: ${relSummary}`;
+  }
+  
+  if (cast) {
+    prompt += `\nYOUR PEOPLE: ${cast}`;
   }
 
   if (habits) {
     prompt += `\n\nBODY LANGUAGE: Occasionally include *italicized actions*: ${habits}`;
+  }
+  
+  if (socialStyle) {
+    prompt += `\nTEXTING STYLE: ${socialStyle}`;
   }
 
   prompt += `\n\nKNOWLEDGE STATE: ${arcState.toUpperCase()}`;
   if (kg.own_powers) {
     prompt += `\nYour powers: ${kg.own_powers.split('.')[0]}.`;
   }
-
-  // === DYNAMIC ENGINE SECTIONS (Phase A step 3 — 2026-09-08) ===
-  // Pull every additive 'character_prompt' contribution through the self-aware
-  // registry instead of hardcoded getX() calls. The 'character' engine is skipped
-  // here because its identity/personality is already built inline above.
-  // Pieces are self-labelled by their footers ("RIGHT NOW:", "MUSIC:", etc.).
-  // SAFE ROLLOUT: if the registry is missing OR returns too little (a sign the
-  // footers underperformed at runtime), fall back to the original hardcoded wiring.
-  let usedDynamic = false;
-  try {
-    if (typeof SD_REGISTRY !== 'undefined') {
-      const pieces = SD_REGISTRY.collect('character_prompt', characterId, arcState);
-      const kept = pieces.filter(function (pc) {
-        return pc.name !== 'character' && pc.text && pc.text.trim();
-      });
-      if (kept.length >= 3) {
-        kept.forEach(function (pc) { prompt += `\n\n${pc.text}`; });
-        usedDynamic = true;
-      }
-    }
-  } catch (e) {
-    console.warn('[buildSystemPrompt] dynamic collect failed, using fallback:', e);
+  if (ufoKnowledge) {
+    prompt += `\n${ufoKnowledge}`;
+  }
+  if (powerInfo) {
+    prompt += `\nAbility: ${powerInfo}`;
   }
 
-  if (!usedDynamic) {
-    // ── FALLBACK: original hardcoded wiring (unchanged behaviour) ──
-    const timeCtx = getTimeContext(characterId);
-    const ufoKnowledge = getUfoKnowledge(characterId, arcState);
-    const cast = getCastFor(characterId);
-    const powerInfo = getPowerInfo(characterId, arcState);
-    const socialStyle = getSocialStyle(characterId);
-    const musicInfo = getMusicInfo(characterId);
-    const emotionalBaseline = getEmotionalBaseline(characterId);
-    const memoryFragments = getMemoryFragments(characterId);
-    const relationshipFeel = getRelationshipFeel(characterId);
-    const conversationStyle = getConversationStyle(characterId);
-    if (timeCtx) prompt += `\n\nRIGHT NOW: ${timeCtx}`;
-    if (cast) prompt += `\nYOUR PEOPLE: ${cast}`;
-    if (socialStyle) prompt += `\nTEXTING STYLE: ${socialStyle}`;
-    if (ufoKnowledge) prompt += `\n${ufoKnowledge}`;
-    if (powerInfo) prompt += `\nAbility: ${powerInfo}`;
-    if (musicInfo) prompt += `\n\nMUSIC: ${musicInfo}`;
-    if (emotionalBaseline) prompt += `\n\n${emotionalBaseline}`;
-    if (relationshipFeel) prompt += `\n\n${relationshipFeel}`;
-    if (conversationStyle) prompt += `\n${conversationStyle}`;
-    if (memoryFragments) prompt += `\n\n${memoryFragments}`;
+  // === NEW ENGINE DATA (Sep 2 2026) ===
+  if (musicInfo) {
+    prompt += `\n\nMUSIC: ${musicInfo}`;
+  }
+  if (emotionalBaseline) {
+    prompt += `\n\n${emotionalBaseline}`;
+  }
+  if (relationshipFeel) {
+    prompt += `\n\n${relationshipFeel}`;
+  }
+  if (conversationStyle) {
+    prompt += `\n${conversationStyle}`;
+  }
+  if (memoryFragments) {
+    prompt += `\n\n${memoryFragments}`;
   }
 
   prompt += `\n\nRULES:
