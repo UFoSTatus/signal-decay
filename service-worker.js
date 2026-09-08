@@ -1,7 +1,7 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v12';
+const CACHE_NAME = 'signal-decay-v13';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
@@ -11,7 +11,8 @@ const HTML_APPS = [
   './universe_graph.html',
   './character_chat.html',
   './lore_oracle.html',
-  './story_generator.html'
+  './story_generator.html',
+  './system_status.html'
 ];
 
 // Engine files — pre-cache for offline support

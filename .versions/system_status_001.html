@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Signal Decay — System Status</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   SIGNAL DECAY — SYSTEM STATUS  (the app's "About / Diagnostics" screen)
+   Reads window.SD_REGISTRY (loaded below) and shows, in plain language:
+     • which engines loaded, which failed
+     • what each engine can provide (its capabilities)
+     • the capability × character coverage grid (where the gaps are)
+     • any errors the registry logged
+   Pure read-only. Touches no keys, changes no engine, writes nothing.
+   Matches the reader's dark-glass / amber theme.
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: #141414;
+  --bg-glass: rgba(20, 20, 20, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #666666;
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --amber-glow: rgba(245, 158, 11, 0.3);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --blue: #3b82f6;
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.12);
+  --purple: #8b5cf6;
+  --cyan: #06b6d4;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  padding: max(20px, env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)) 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  max-width: 1100px;
+  margin: 0 auto;
+}
+a { color: var(--amber); text-decoration: none; }
+
+/* ─── Header ─── */
+.topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.back-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-medium);
+  background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+}
+.back-btn:hover { background: var(--amber-dim); color: var(--amber); }
+h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+h1 .sub { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-top: 2px; letter-spacing: 0; }
+.actions { margin-left: auto; display: flex; gap: 8px; }
+.btn {
+  border: 1px solid var(--border-medium); background: var(--bg-tertiary); color: var(--text-secondary);
+  padding: 9px 14px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.8rem; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn:hover { background: var(--amber-dim); color: var(--amber); border-color: var(--amber-glow); }
+
+/* ─── Plain-English explainer line ─── */
+.explain {
+  background: var(--bg-glass); border: 1px solid var(--border-subtle); border-left: 3px solid var(--amber);
+  border-radius: var(--radius-md); padding: 14px 16px; margin: 16px 0 22px; color: var(--text-secondary);
+  font-size: 0.9rem; line-height: 1.6;
+}
+.explain b { color: var(--text-primary); }
+
+/* ─── Summary stat cards ─── */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 26px; }
+.stat {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+  padding: 16px 18px; position: relative; overflow: hidden;
+}
+.stat .num { font-size: 2rem; font-weight: 800; font-family: 'SF Mono', ui-monospace, monospace; line-height: 1; }
+.stat .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat.ok .num { color: var(--green); }
+.stat.amber .num { color: var(--amber); }
+.stat.err .num { color: var(--red); }
+.stat.err.zero .num { color: var(--green); }
+
+/* ─── Section headings ─── */
+.section-title {
+  font-size: 0.8rem; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 30px 0 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title .count { color: var(--text-muted); font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+/* ─── Engine list ─── */
+.engine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.engine {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+  padding: 14px 16px; border-left: 3px solid var(--green);
+}
+.engine.bootstrap { border-left-color: var(--amber); }
+.engine .ehead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.engine .name { font-weight: 700; font-size: 0.95rem; }
+.engine .ver { font-size: 0.68rem; color: var(--text-muted); font-family: 'SF Mono', ui-monospace, monospace; margin-left: auto; }
+.engine .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.engine.bootstrap .dot { background: var(--amber); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.chip {
+  font-size: 0.66rem; background: var(--bg-tertiary); color: var(--text-secondary);
+  padding: 3px 8px; border-radius: 100px; font-family: 'SF Mono', ui-monospace, monospace;
+}
+.chip.canon { background: var(--amber-dim); color: var(--amber); }
+.meta-row { display: flex; gap: 12px; margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); }
+.meta-row .yes { color: var(--green); }
+.meta-row .no { color: var(--text-muted); }
+
+/* ─── Coverage matrix ─── */
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-card); }
+table.matrix { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
+table.matrix th, table.matrix td { padding: 9px 12px; text-align: center; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+table.matrix thead th { background: var(--bg-tertiary); color: var(--amber); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; }
+table.matrix td.cap { text-align: left; font-family: 'SF Mono', ui-monospace, monospace; color: var(--text-secondary); font-size: 0.75rem; }
+table.matrix tr:last-child td { border-bottom: none; }
+.cell-yes { color: var(--green); }
+.cell-gap { color: var(--red); }
+.cell-na { color: var(--text-muted); }
+.provider-count { color: var(--text-muted); font-size: 0.7rem; }
+
+/* ─── Errors ─── */
+.errors {
+  background: var(--red-dim); border: 1px solid rgba(239,68,68,0.25); border-radius: var(--radius-md);
+  padding: 14px 16px; font-family: 'SF Mono', ui-monospace, monospace; font-size: 0.78rem; color: #fca5a5;
+}
+.errors .eitem { padding: 5px 0; border-bottom: 1px solid rgba(239,68,68,0.12); }
+.errors .eitem:last-child { border-bottom: none; }
+.errors .ewhen { color: var(--text-muted); font-size: 0.68rem; }
+.all-clear {
+  background: var(--green-dim); border: 1px solid rgba(16,185,129,0.25); border-radius: var(--radius-md);
+  padding: 14px 16px; color: var(--green); font-size: 0.85rem; display: flex; align-items: center; gap: 10px;
+}
+
+/* ─── Raw JSON ─── */
+details.raw { margin-top: 22px; }
+details.raw summary { cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; padding: 8px 0; }
+details.raw summary:hover { color: var(--amber); }
+pre.json {
+  background: #000; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+  padding: 14px; overflow-x: auto; font-size: 0.72rem; color: #9ca3af; line-height: 1.5; max-height: 400px;
+}
+.footnote { margin-top: 24px; font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.6; }
+@media (max-width: 600px) { h1 { font-size: 1.25rem; } .stat .num { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="goHome()" title="Back to home"><i class="fa-solid fa-chevron-left"></i></button>
+  <h1>System Status
+    <span class="sub">Self-aware engine registry &middot; Phase A diagnostics</span>
+  </h1>
+  <div class="actions">
+    <button class="btn" onclick="render()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    <button class="btn" onclick="copyReport()"><i class="fa-solid fa-copy"></i> Copy report</button>
+  </div>
+</div>
+
+<div class="explain" id="explain">Loading registry…</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="section-title"><i class="fa-solid fa-microchip"></i> Engines <span class="count" id="engHint"></span></div>
+<div class="engine-grid" id="engines"></div>
+
+<div class="section-title"><i class="fa-solid fa-table-cells"></i> Capability × Character coverage</div>
+<div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+<div class="footnote" id="matrixNote"></div>
+
+<div class="section-title"><i class="fa-solid fa-triangle-exclamation"></i> Errors <span class="count" id="errHint"></span></div>
+<div id="errors"></div>
+
+<details class="raw">
+  <summary><i class="fa-solid fa-code"></i> Show raw report JSON</summary>
+  <pre class="json" id="rawjson"></pre>
+</details>
+
+<div class="footnote">
+  Read-only diagnostics. This screen changes nothing — it only reports what the registry sees.<br>
+  While engines register through the <b>bootstrap bridge</b> (amber), per-character coverage shows as gaps until each engine gets its real footer (Phase A · step 2).
+</div>
+
+<!-- ═══ Registry loads FIRST, then every engine — SAME ORDER as character_chat.html ═══ -->
+<script src="sd_registry.js"></script>
+<script src="character_engines.js"></script>
+<script src="ufology_knowledge_matrix.js"></script>
+<script src="oracle_knowledge_engine.js"></script>
+<script src="frequency_power_engine.js"></script>
+<script src="supporting_cast_engine.js"></script>
+<script src="social_media_engine.js"></script>
+<script src="daily_life_engine.js"></script>
+<script src="music_band_engine.js"></script>
+<script src="memory_recovery_engine.js"></script>
+<script src="emotional_state_machine.js"></script>
+<script src="conversation_flow_engine.js"></script>
+<script src="locations_engine.js"></script>
+<script src="legacy_operations_engine.js"></script>
+<script src="timeline_engine.js"></script>
+<script src="relationship_dynamics_engine.js"></script>
+<script src="voice_engine.js"></script>
+
+<script>
+/* The 5 band members — the character set we measure coverage against.
+   (Registry supports any ids; these are the canonical playable five.) */
+var BAND = [
+  { id: 'kael', name: 'Kael' },
+  { id: 'mira', name: 'Mira' },
+  { id: 'oren', name: 'Oren' },
+  { id: 'jude', name: 'Jude' },
+  { id: 'zara', name: 'Zara' }
+];
+
+function goHome() {
+  // Prefer history back; fall back to the home app.
+  if (document.referrer && document.referrer.indexOf(location.host) !== -1) { history.back(); }
+  else { window.open('index.html', '_self'); }
+}
+
+function esc(s) {
+  return ('' + s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+var lastReport = null;
+
+function render() {
+  var reg = window.SD_REGISTRY;
+  var explainEl = document.getElementById('explain');
+
+  if (!reg) {
+    explainEl.innerHTML = '<b style="color:var(--red)">Registry not found.</b> sd_registry.js did not load. ' +
+      'Check that the file exists and loads before the engines.';
+    document.getElementById('stats').innerHTML = '';
+    document.getElementById('engines').innerHTML = '';
+    return;
+  }
+
+  // Make sure bootstrap has run so we see every engine that's present as a global.
+  try { reg.bootstrapKnownEngines(); } catch (e) {}
+
+  var report = reg.report();
+  lastReport = report;
+
+  // ── capabilities set ──
+  var capsMap = {}, i, j;
+  for (i = 0; i < report.engines.length; i++) {
+    for (j = 0; j < report.engines[i].provides.length; j++) { capsMap[report.engines[i].provides[j]] = true; }
+  }
+  var caps = []; for (var c in capsMap) { if (capsMap.hasOwnProperty(c)) { caps.push(c); } }
+  caps.sort();
+
+  var canonCount = 0, bootstrapCount = 0;
+  for (i = 0; i < report.engines.length; i++) {
+    if (report.engines[i].canon) { canonCount++; }
+    if (report.engines[i].version === '(bootstrap)') { bootstrapCount++; }
+  }
+
+  // ── explainer line ──
+  explainEl.innerHTML = 'The app has <b>' + report.engineCount + ' engines</b> loaded, providing <b>' +
+    caps.length + ' capabilities</b> (' + esc(caps.join(', ')) + '). ' +
+    'Errors logged: <b>' + report.errors.length + '</b>. ' +
+    (bootstrapCount ? '<b>' + bootstrapCount + '</b> registered via the bootstrap bridge (per-character data not wired yet).' :
+      'All engines self-register with their own footer.');
+
+  // ── stat cards ──
+  document.getElementById('stats').innerHTML =
+    stat('ok', report.engineCount, 'Engines loaded') +
+    stat('amber', caps.length, 'Capabilities') +
+    stat('amber', canonCount, 'Canon sources') +
+    stat('err' + (report.errors.length ? '' : ' zero'), report.errors.length, 'Errors');
+
+  // ── engine cards ──
+  var eng = reg.all(), html = '';
+  for (i = 0; i < eng.length; i++) {
+    var e = eng[i];
+    var isBoot = (e.version === '(bootstrap)');
+    var chips = '';
+    for (j = 0; j < e.provides.length; j++) {
+      chips += '<span class="chip' + (e.canon ? ' canon' : '') + '">' + esc(e.provides[j]) + '</span>';
+    }
+    var hasGetter = !!e.getForCharacter;
+    html += '<div class="engine' + (isBoot ? ' bootstrap' : '') + '">' +
+      '<div class="ehead"><span class="dot"></span><span class="name">' + esc(e.name) + '</span>' +
+      '<span class="ver">' + esc(e.version) + '</span></div>' +
+      '<div class="chips">' + chips + '</div>' +
+      '<div class="meta-row">' +
+        '<span>priority <b style="color:var(--text-secondary)">' + e.priority + '</b></span>' +
+        '<span>' + (e.canon ? '<span class="yes">canon</span>' : '<span class="no">non-canon</span>') + '</span>' +
+        '<span>getForCharacter: ' + (hasGetter ? '<span class="yes">yes</span>' : '<span class="no">— (bridge)</span>') + '</span>' +
+      '</div></div>';
+  }
+  document.getElementById('engines').innerHTML = html;
+  document.getElementById('engHint').textContent = report.engineCount + ' loaded' +
+    (bootstrapCount ? ' · ' + bootstrapCount + ' via bridge' : '');
+
+  // ── coverage matrix (capability rows × band columns) ──
+  var mt = '<thead><tr><th style="text-align:left">Capability</th><th>Providers</th>';
+  for (i = 0; i < BAND.length; i++) { mt += '<th>' + esc(BAND[i].name) + '</th>'; }
+  mt += '</tr></thead><tbody>';
+
+  var anyCharData = false;
+  for (i = 0; i < caps.length; i++) {
+    var cap = caps[i];
+    var providers = reg.providersOf(cap);
+    // Build a covered-set from providers that declared characters.
+    var covered = {}, providerHasChars = false;
+    for (j = 0; j < providers.length; j++) {
+      if (providers[j].characters && providers[j].characters.length) {
+        providerHasChars = true; anyCharData = true;
+        for (var k = 0; k < providers[j].characters.length; k++) { covered[providers[j].characters[k]] = true; }
+      }
+    }
+    mt += '<tr><td class="cap">' + esc(cap) + '</td>' +
+          '<td class="provider-count">' + providers.length + '</td>';
+    for (j = 0; j < BAND.length; j++) {
+      if (!providerHasChars) {
+        mt += '<td class="cell-na" title="Provider present, but characters not declared yet (bootstrap bridge)">&mdash;</td>';
+      } else if (covered[BAND[j].id]) {
+        mt += '<td class="cell-yes" title="Covered"><i class="fa-solid fa-check"></i></td>';
+      } else {
+        mt += '<td class="cell-gap" title="Gap — no provider declares this character"><i class="fa-solid fa-xmark"></i></td>';
+      }
+    }
+    mt += '</tr>';
+  }
+  mt += '</tbody>';
+  document.getElementById('matrix').innerHTML = mt;
+  document.getElementById('matrixNote').innerHTML = anyCharData
+    ? '<i class="fa-solid fa-check" style="color:var(--green)"></i> Green = a provider declares that character &nbsp;·&nbsp; <i class="fa-solid fa-xmark" style="color:var(--red)"></i> = coverage gap.'
+    : 'All cells show &ldquo;&mdash;&rdquo; because engines are on the <b>bootstrap bridge</b> and haven\u2019t declared per-character lists yet. Providers ARE present (see the count column). Real check-marks appear once engines get their footers (Phase A · step 2).';
+
+  // ── errors ──
+  var errEl = document.getElementById('errors');
+  if (report.errors.length) {
+    var eh = '<div class="errors">';
+    for (i = 0; i < report.errors.length; i++) {
+      eh += '<div class="eitem"><div>' + esc(report.errors[i].msg) + '</div>' +
+            '<div class="ewhen">' + esc(report.errors[i].when) + '</div></div>';
+    }
+    eh += '</div>';
+    errEl.innerHTML = eh;
+  } else {
+    errEl.innerHTML = '<div class="all-clear"><i class="fa-solid fa-circle-check"></i> No errors logged. Every engine registered cleanly.</div>';
+  }
+  document.getElementById('errHint').textContent = report.errors.length ? report.errors.length + ' logged' : 'none';
+
+  // ── raw json ──
+  document.getElementById('rawjson').textContent = JSON.stringify(report, null, 2);
+}
+
+function stat(cls, num, lbl) {
+  return '<div class="stat ' + cls + '"><div class="num">' + num + '</div><div class="lbl">' + lbl + '</div></div>';
+}
+
+function copyReport() {
+  if (!lastReport) { return; }
+  var txt = JSON.stringify(lastReport, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { toast('Report copied to clipboard'); },
+      function () { fallbackCopy(txt); });
+  } else { fallbackCopy(txt); }
+}
+function fallbackCopy(txt) {
+  var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta);
+  ta.select(); try { document.execCommand('copy'); toast('Report copied'); } catch (e) { toast('Copy failed — select the JSON manually'); }
+  document.body.removeChild(ta);
+}
+function toast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--amber-glow);color:var(--amber);padding:12px 20px;border-radius:12px;z-index:9999;font-size:0.85rem;';
+  document.body.appendChild(t);
+  setTimeout(function () { t.style.transition = 'opacity 0.4s'; t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); }, 1800);
+}
+
+/* Run after all engine scripts have parsed. */
+window.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>
