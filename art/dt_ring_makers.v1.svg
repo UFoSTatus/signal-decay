@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="The Ring Makers of Saturn — an ancient Loom re-inscribing the rings">
+  <defs>
+    <radialGradient id="rm-sky" cx="50%" cy="40%" r="85%">
+      <stop offset="0%" stop-color="#0d1622"/><stop offset="55%" stop-color="#080d15"/><stop offset="100%" stop-color="#04060b"/>
+    </radialGradient>
+    <linearGradient id="rm-planet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8c48a"/><stop offset="45%" stop-color="#d6a862"/><stop offset="78%" stop-color="#a97e42"/><stop offset="100%" stop-color="#6b4e28"/>
+    </linearGradient>
+    <linearGradient id="rm-ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0"/><stop offset="30%" stop-color="#cbe8f7" stop-opacity="0.55"/>
+      <stop offset="62%" stop-color="#e8eef5" stop-opacity="0.85"/><stop offset="70%" stop-color="#fcd34d" stop-opacity="0.9"/>
+      <stop offset="78%" stop-color="#7dd3fc" stop-opacity="0.2"/><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="rm-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#rm-sky)"/>
+  <!-- stars -->
+  <g fill="#cfe8f7">
+    <circle cx="140" cy="120" r="1.4" opacity="0.8"/><circle cx="380" cy="80" r="1" opacity="0.5"/><circle cx="1240" cy="110" r="1.5" opacity="0.8"/>
+    <circle cx="1460" cy="220" r="1.1" opacity="0.6"/><circle cx="90" cy="420" r="1.2" opacity="0.6"/><circle cx="1520" cy="640" r="1.3" opacity="0.7"/>
+    <circle cx="240" cy="760" r="1" opacity="0.4"/><circle cx="700" cy="60" r="1.1" opacity="0.5"/><circle cx="980" cy="90" r="1" opacity="0.4"/>
+  </g>
+
+  <!-- Saturn: big, offset right, with the great ring sweeping across -->
+  <g transform="translate(1050 470)">
+    <!-- rings behind -->
+    <g transform="rotate(-18)">
+      <ellipse cx="0" cy="0" rx="720" ry="150" fill="none" stroke="url(#rm-ring)" stroke-width="46"/>
+      <ellipse cx="0" cy="0" rx="620" ry="128" fill="none" stroke="url(#rm-ring)" stroke-width="18" opacity="0.7"/>
+      <ellipse cx="0" cy="0" rx="800" ry="166" fill="none" stroke="url(#rm-ring)" stroke-width="10" opacity="0.4"/>
+    </g>
+    <!-- planet -->
+    <circle cx="0" cy="0" r="250" fill="url(#rm-planet)"/>
+    <!-- banded storms -->
+    <g stroke-linecap="round" opacity="0.35">
+      <path d="M-230 -70 q 230 -34 460 0" stroke="#f4e3c2" stroke-width="10" fill="none"/>
+      <path d="M-244 -10 q 244 26 488 0" stroke="#8a6636" stroke-width="14" fill="none"/>
+      <path d="M-232 60 q 232 30 464 0" stroke="#f4e3c2" stroke-width="8" fill="none"/>
+      <path d="M-200 120 q 200 28 400 0" stroke="#8a6636" stroke-width="10" fill="none"/>
+    </g>
+    <!-- the hexagon storm at the pole (real feature) -->
+    <g transform="translate(0 -150)" opacity="0.5" stroke="#f4e3c2" stroke-width="3" fill="none">
+      <polygon points="-34,-20 34,-20 60,0 34,20 -34,20 -60,0"/>
+    </g>
+    <!-- rings in FRONT (crossing the planet) -->
+    <g transform="rotate(-18)">
+      <path d="M -800 166 A 800 166 0 0 0 800 166" fill="none" stroke="url(#rm-ring)" stroke-width="46"/>
+    </g>
+  </g>
+
+  <!-- THE LOOM: a bright leading edge on the ring, laying new ring-stuff, radiating 347MHz -->
+  <g transform="translate(1050 470) rotate(-18)" filter="url(#rm-glow)">
+    <!-- leading-edge node on the outer ring -->
+    <g transform="translate(700 -66)">
+      <circle r="14" fill="#fcd34d"/>
+      <circle r="26" fill="none" stroke="#fcd34d" stroke-width="1.5" opacity="0.7"/>
+      <circle r="40" fill="none" stroke="#7dd3fc" stroke-width="1" opacity="0.45"/>
+      <!-- the gap it is closing (incomplete A-ring) -->
+      <path d="M 0 0 a 720 150 0 0 1 120 26" fill="none" stroke="#060a0f" stroke-width="30"/>
+    </g>
+  </g>
+
+  <!-- title -->
+  <g opacity="0.6">
+    <text x="70" y="812" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#e8e4dc">The Ring Makers of Saturn</text>
+    <text x="70" y="846" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#fcd34d" letter-spacing="2">THE RINGS ARE A MASTER RECORDING \u00b7 347 MHz \u00b7 STILL BEING WRITTEN</text>
+  </g>
+</svg>

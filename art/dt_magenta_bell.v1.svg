@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="The Magenta Bell — 1933, Marconi's 347 MHz pulls a craft from the sky over Italy">
+  <defs>
+    <linearGradient id="mg-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1030"/><stop offset="42%" stop-color="#5a1840"/><stop offset="72%" stop-color="#7a1f3a"/><stop offset="100%" stop-color="#1a0a14"/>
+    </linearGradient>
+    <radialGradient id="mg-craft" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#f5d0ff"/><stop offset="45%" stop-color="#c98fe0"/><stop offset="100%" stop-color="#5a2f6e"/>
+    </radialGradient>
+    <linearGradient id="mg-field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2a12"/><stop offset="100%" stop-color="#120c05"/>
+    </linearGradient>
+    <filter id="mg-glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- magenta dusk sky -->
+  <rect width="1600" height="900" fill="url(#mg-sky)"/>
+  <g fill="#ffe0f2" opacity="0.7">
+    <circle cx="200" cy="90" r="1.3"/><circle cx="520" cy="60" r="1"/><circle cx="1180" cy="80" r="1.2"/><circle cx="1420" cy="140" r="1"/><circle cx="900" cy="50" r="1.1"/>
+  </g>
+
+  <!-- concentric 347 MHz pulses rising from the transmitter to the craft -->
+  <g transform="translate(300 760)" stroke="#ff77c8" fill="none" opacity="0.5">
+    <path d="M -60 0 a 60 60 0 0 1 120 0" stroke-width="2"/>
+    <path d="M -120 0 a 120 120 0 0 1 240 0" stroke-width="1.8" opacity="0.8"/>
+    <path d="M -200 0 a 200 200 0 0 1 400 0" stroke-width="1.5" opacity="0.6"/>
+    <path d="M -300 0 a 300 300 0 0 1 600 0" stroke-width="1.2" opacity="0.4"/>
+    <path d="M -420 0 a 420 420 0 0 1 840 0" stroke-width="1" opacity="0.25"/>
+  </g>
+
+  <!-- the transmitter tower (Marconi's array) lower-left -->
+  <g transform="translate(300 760)" stroke="#e8c48a" stroke-width="3" fill="none" filter="url(#mg-glow)">
+    <line x1="0" y1="0" x2="0" y2="-150"/>
+    <line x1="-26" y1="0" x2="0" y2="-150"/><line x1="26" y1="0" x2="0" y2="-150"/>
+    <line x1="0" y1="-150" x2="-20" y2="-170"/><line x1="0" y1="-150" x2="20" y2="-170"/>
+    <circle cx="0" cy="-150" r="5" fill="#fcd34d" stroke="none"/>
+  </g>
+
+  <!-- the craft, caught / pulled into physical reality mid-sky -->
+  <g transform="translate(1040 300)" filter="url(#mg-glow)">
+    <ellipse cx="0" cy="0" rx="200" ry="60" fill="url(#mg-craft)"/>
+    <ellipse cx="0" cy="-22" rx="90" ry="40" fill="#e8b8f5" opacity="0.9"/>
+    <!-- it's ringing: resonance rings around it -->
+    <ellipse cx="0" cy="0" rx="250" ry="76" fill="none" stroke="#ff77c8" stroke-width="2" opacity="0.6"/>
+    <ellipse cx="0" cy="0" rx="310" ry="96" fill="none" stroke="#ff77c8" stroke-width="1.4" opacity="0.35"/>
+    <!-- a beam of contact down toward the field -->
+    <path d="M -30 40 L -120 300 L 120 300 L 30 40 Z" fill="#ff77c8" opacity="0.12"/>
+  </g>
+
+  <!-- the wheat field, lower band, with the impression where it locked into matter -->
+  <path d="M0 720 Q 800 680 1600 720 L1600 900 L0 900 Z" fill="url(#mg-field)"/>
+  <g transform="translate(1040 760)" stroke="#5a4520" stroke-width="2" fill="none" opacity="0.7">
+    <ellipse cx="0" cy="0" rx="150" ry="30"/><ellipse cx="0" cy="0" rx="90" ry="18"/>
+  </g>
+
+  <g opacity="0.72">
+    <text x="70" y="822" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#ffe0f2">The Magenta Bell</text>
+    <text x="70" y="856" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#ff77c8" letter-spacing="2">ITALY, 1933 \u00b7 347 MHz \u00b7 THE ORIGIN HINGE OF THE LEGACY</text>
+  </g>
+</svg>

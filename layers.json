@@ -1,6 +1,6 @@
 {
   "_comment": "Signal Decay — REVEAL LAYERS manifest. Each story can gain optional media layers OVER TIME without touching the story text or anyone's saved progress. The reader always renders the text first; layers are a BONUS, never a wall. Old app versions ignore layer types they don't understand. Fetched network-first (fresh online, cached offline), merged over baked-in defaults. Add media by editing this file — same drop-switch workflow can edit it.",
-  "version": 2,
+  "version": 3,
   "updated": "2026-09-09",
   "_schema": {
     "hero": "URL of a wide illustration shown at the top of the story (optional). Use a content-hashed/immutable filename e.g. art/dt_first_octave.a1b2c3.jpg",
@@ -20,6 +20,16 @@
   "layers": {
     "dt_first_octave": {
       "hero": "art/dt_first_octave.v1.svg"
+    },
+    "dt_ring_makers": {
+      "hero": "art/dt_ring_makers.v1.svg"
+    },
+    "dt_maldek": {
+      "hero": "art/dt_maldek.v1.svg"
+    },
+    "dt_magenta_bell": {
+      "hero": "art/dt_magenta_bell.v1.svg"
     }
-  }
+  },
+  "_ambient_todo": "To add ambient audio to any of these: drop an .mp3 in audio/ and add e.g. \"ambient\": {\"src\":\"audio/<name>.v1.mp3\",\"label\":\"...\"} beside the hero. (No audio-gen tool available, so tracks must be supplied.)"
 }

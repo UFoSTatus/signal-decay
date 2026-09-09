@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="The Magenta Bell — a craft pulled from a dusk sky over a 1933 wheat field">
+<defs>
+  <!-- deep cinematic dusk gradient -->
+  <linearGradient id="v2sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#120616"/>
+    <stop offset="30%" stop-color="#3a0f38"/>
+    <stop offset="55%" stop-color="#6e1a44"/>
+    <stop offset="74%" stop-color="#8a2140"/>
+    <stop offset="86%" stop-color="#40121f"/>
+    <stop offset="100%" stop-color="#0a0509"/>
+  </linearGradient>
+  <!-- turbulent cloud/nebula texture -->
+  <filter id="v2clouds" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.011" numOctaves="5" seed="7" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.13  0 0 0 0 0.34  0 0 0 0.6 0"/>
+    <feComposite operator="in" in2="SourceGraphic"/>
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <!-- soft haze blur -->
+  <filter id="v2haze" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+  <!-- volumetric glow -->
+  <filter id="v2glow" x="-120%" y="-120%" width="340%" height="340%">
+    <feGaussianBlur stdDeviation="18" result="b1"/>
+    <feGaussianBlur stdDeviation="46" in="SourceGraphic" result="b2"/>
+    <feMerge><feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <!-- fine film grain -->
+  <filter id="v2grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="11" result="g"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  <radialGradient id="v2craftbody" cx="50%" cy="38%" r="65%">
+    <stop offset="0%" stop-color="#ffe9ff"/>
+    <stop offset="35%" stop-color="#f0b6ff"/>
+    <stop offset="70%" stop-color="#a35bc4"/>
+    <stop offset="100%" stop-color="#3a1a4a"/>
+  </radialGradient>
+  <radialGradient id="v2vign" cx="50%" cy="44%" r="72%">
+    <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+    <stop offset="62%" stop-color="#000" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#000" stop-opacity="0.82"/>
+  </radialGradient>
+  <linearGradient id="v2field" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#5a3d18"/><stop offset="30%" stop-color="#2e2010"/><stop offset="100%" stop-color="#080503"/>
+  </linearGradient>
+  <radialGradient id="v2beam" cx="50%" cy="0%" r="100%">
+    <stop offset="0%" stop-color="#ffb8ec" stop-opacity="0.5"/>
+    <stop offset="60%" stop-color="#ff77c8" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#ff77c8" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+
+<!-- base sky -->
+<rect width="1600" height="900" fill="url(#v2sky)"/>
+<!-- turbulent magenta cloudbank -->
+<rect width="1600" height="640" fill="#7a1f44" filter="url(#v2clouds)" opacity="0.9"/>
+<!-- distant haze band near horizon -->
+<rect x="0" y="560" width="1600" height="140" fill="#c05a86" opacity="0.18" filter="url(#v2haze)"/>
+
+<!-- faint stars bleeding through -->
+<g fill="#ffe0f2">
+  <circle cx="180" cy="70" r="1.2" opacity="0.6"/><circle cx="470" cy="46" r="0.9" opacity="0.4"/>
+  <circle cx="1180" cy="60" r="1.1" opacity="0.5"/><circle cx="1400" cy="120" r="0.9" opacity="0.4"/>
+  <circle cx="880" cy="38" r="1" opacity="0.5"/><circle cx="1520" cy="230" r="0.8" opacity="0.3"/>
+</g>
+
+<!-- the CRAFT: high, small-ish, uncanny, wreathed in its own resonance; volumetric glow -->
+<g transform="translate(1030 292)" filter="url(#v2glow)">
+  <ellipse cx="0" cy="0" rx="176" ry="49" fill="url(#v2craftbody)"/>
+  <ellipse cx="0" cy="-20" rx="74" ry="30" fill="#ffdcff" opacity="0.85"/>
+  <ellipse cx="0" cy="9" rx="176" ry="49" fill="#2a1030" opacity="0.35"/>
+  <!-- ringing resonance halos -->
+  <ellipse cx="0" cy="0" rx="230" ry="66" fill="none" stroke="#ff9ad8" stroke-width="1.6" opacity="0.55"/>
+  <ellipse cx="0" cy="0" rx="300" ry="86" fill="none" stroke="#ff77c8" stroke-width="1.1" opacity="0.3"/>
+  <ellipse cx="0" cy="0" rx="384" ry="112" fill="none" stroke="#ff77c8" stroke-width="0.8" opacity="0.16"/>
+</g>
+
+<!-- beam of contact pulling down to the field (the "wanting" — a reaching light) -->
+<path d="M 960 320 L 720 720 L 1300 720 L 1090 320 Z" fill="url(#v2beam)"/>
+
+<!-- transmitter silhouette lower-left, tiny against the vastness (scale = dread) -->
+<g transform="translate(250 720)" stroke="#1a0d10" stroke-width="4" fill="none" opacity="0.95">
+  <line x1="0" y1="0" x2="0" y2="-138"/><line x1="-22" y1="4" x2="0" y2="-138"/><line x1="22" y1="4" x2="0" y2="-138"/>
+  <line x1="0" y1="-92" x2="-16" y2="-104"/><line x1="0" y1="-92" x2="16" y2="-104"/>
+</g>
+<!-- pulses rising from it (347 MHz), faint -->
+<g transform="translate(250 588)" stroke="#ff77c8" fill="none" opacity="0.28">
+  <path d="M -70 0 a 70 70 0 0 1 140 0" stroke-width="1.4"/>
+  <path d="M -150 0 a 150 150 0 0 1 300 0" stroke-width="1.1"/>
+  <path d="M -260 0 a 260 260 0 0 1 520 0" stroke-width="0.9"/>
+</g>
+
+<!-- the wheat field, dark, with the burned impression glowing faintly (the aftermath) -->
+<path d="M0 690 Q 800 646 1600 690 L1600 900 L0 900 Z" fill="url(#v2field)"/>
+<g transform="translate(1010 760)" opacity="0.6">
+  <ellipse cx="0" cy="0" rx="150" ry="26" fill="none" stroke="#ff9ad8" stroke-width="1.4" opacity="0.5"/>
+  <ellipse cx="0" cy="0" rx="86" ry="15" fill="#ff77c8" opacity="0.10"/>
+</g>
+<!-- lone figure at the field edge, tiny, looking up (the human "wanting/fear") -->
+<g transform="translate(430 706)" fill="#0a0506">
+  <ellipse cx="0" cy="24" rx="10" ry="4" opacity="0.5"/>
+  <path d="M -4 24 L -5 4 Q 0 -6 5 4 L 4 24 Z"/>
+  <circle cx="0" cy="-2" r="4"/>
+</g>
+
+<!-- cinematic vignette -->
+<rect width="1600" height="900" fill="url(#v2vign)"/>
+<!-- grain pass -->
+<rect width="1600" height="900" fill="#000" opacity="0.001" filter="url(#v2grain)"/>
+
+<!-- restrained title, lower third -->
+<g>
+  <text x="80" y="828" font-family="Georgia,'Times New Roman',serif" font-size="40" fill="#ffe0f2" opacity="0.9" letter-spacing="0.5">The Magenta Bell</text>
+  <text x="82" y="860" font-family="-apple-system,'Segoe UI',sans-serif" font-size="14" fill="#ff9ad8" opacity="0.75" letter-spacing="3">ITALY · 1933 · SOMETHING ANSWERED THE SIGNAL</text>
+</g>
+</svg>
