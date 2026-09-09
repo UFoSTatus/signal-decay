@@ -1369,6 +1369,8 @@ document.addEventListener('keydown', (e) => {
 // ═══════════════════════════════════════════════════════════════
 
 function init() {
+  // Publish live node count so the home card can show an accurate, self-updating number.
+  try { localStorage.setItem('sd_graph_node_count', String(nodes.length)); } catch (e) {}
   renderLevel1();
   updateNav();
   window.addEventListener('resize', () => {
