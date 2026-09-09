@@ -1,0 +1,25 @@
+{
+  "_comment": "Signal Decay — REVEAL LAYERS manifest. Each story can gain optional media layers OVER TIME without touching the story text or anyone's saved progress. The reader always renders the text first; layers are a BONUS, never a wall. Old app versions ignore layer types they don't understand. Fetched network-first (fresh online, cached offline), merged over baked-in defaults. Add media by editing this file — same drop-switch workflow can edit it.",
+  "version": 2,
+  "updated": "2026-09-09",
+  "_schema": {
+    "hero": "URL of a wide illustration shown at the top of the story (optional). Use a content-hashed/immutable filename e.g. art/dt_first_octave.a1b2c3.jpg",
+    "ambient": "{ src: URL to a looping ambient audio bed, label: short name }. Off by default; the reader shows a subtle 'Play ambience' toggle.",
+    "gallery": "[ {src,caption} ] extra illustrations shown at the end (optional).",
+    "motion": "reserved for future motion-comic data — ignored by current clients"
+  },
+  "_examples_disabled": {
+    "dt_first_octave": {
+      "hero": "art/dt_first_octave.PLACEHOLDER.jpg",
+      "ambient": {
+        "src": "audio/deep_hum_62hz.PLACEHOLDER.mp3",
+        "label": "The First Octave"
+      }
+    }
+  },
+  "layers": {
+    "dt_first_octave": {
+      "hero": "art/dt_first_octave.v1.svg"
+    }
+  }
+}
