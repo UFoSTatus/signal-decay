@@ -1572,41 +1572,6 @@ html, body {
 /* ── 4. Spacing rhythm (8px grid — a touch more breathing room) ── */
 #page-home .section-header { margin-top: 30px; margin-bottom: 14px; }
 #page-home .section-header:first-child { margin-top: 8px; }
-
-/* ════════════════════════════════════════════════════════════════════
-   PREMIUM POLISH II  (2026-09-08) — nav + hero refinements (CSS-only)
-   Appended last (later-wins). Home/nav only; no JS, no collisions.
-   ════════════════════════════════════════════════════════════════════ */
-
-/* ── Active-nav indicator: a soft amber dot that pops in under the active tab ── */
-.tab-item { position: relative; }
-.tab-item::after {
-  content: ''; position: absolute; bottom: 2px; left: 50%;
-  width: 4px; height: 4px; border-radius: 50%; background: var(--amber);
-  transform: translateX(-50%) scale(0); opacity: 0;
-  transition: transform 0.25s var(--ease-spring, cubic-bezier(.34,1.56,.64,1)), opacity 0.25s ease;
-  box-shadow: 0 0 6px var(--amber-glow);
-}
-.tab-item.active::after { transform: translateX(-50%) scale(1); opacity: 1; }
-.tab-item:active { transform: scale(0.92); }
-.tab-item i { transition: transform 0.2s ease; }
-.tab-item.active i { transform: translateY(-1px); }
-
-/* ── Hero refinement: gradient title + a thin accent hairline at the top edge ── */
-#page-home .hero h2 {
-  background: linear-gradient(120deg, #fff 0%, #f5f5f5 40%, var(--amber) 140%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: var(--amber); /* fallback */
-}
-#page-home .hero {
-  border-top: 1px solid transparent;
-  background-image:
-    linear-gradient(180deg, rgba(245,158,11,0.08) 0%, transparent 60%),
-    linear-gradient(90deg, transparent, var(--amber-glow), transparent);
-  background-size: 100% 100%, 60% 1px;
-  background-position: 0 0, center top;
-  background-repeat: no-repeat, no-repeat;
-}
 </style>
 </head>
 <body>
@@ -3327,13 +3292,9 @@ console.log('[Signal Decay] AI features loaded. Demo mode active (set AZURE_CONF
 
 </script>
 <script>
-// Register PWA service worker for offline support.
-// Wrapped so sandboxed/preview iframes (where registration is disallowed and
-// throws/rejects) fail silently — real https origins (phone, GitHub Pages) work normally.
+// Register PWA service worker for offline support
 if ('serviceWorker' in navigator) {
-  try {
-    navigator.serviceWorker.register('service-worker.js').catch(function(){ /* sandbox / unsupported origin — ignore */ });
-  } catch (e) { /* ignore */ }
+  navigator.serviceWorker.register('service-worker.js');
 }
 </script>
 </body>
