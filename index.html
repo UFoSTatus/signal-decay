@@ -2414,7 +2414,7 @@ function renderLoreEntries() {
       desc = 'Read more stories to unlock this entry';
     }
     const onclick = (unlocked && l.story) ? ' onclick="openStory(\'' + l.story + '\')" style="cursor:pointer;"' : '';
-    var tuneBtn = (!unlocked && l.story) ? '<div class="lore-tune" data-tune="' + l.story + '" data-tunetitle="' + l.title + '" style="cursor:pointer;margin-top:6px;font-size:0.7rem;font-weight:700;color:#7dd3fc;">\uD83D\uDCFB Tune in to declassify now \u2192</div>' : '';
+    var tuneBtn = (!unlocked && l.story) ? '<div class="lore-tune" data-tune="' + l.story + '" data-tunetitle="' + l.title + '" data-req="' + eff + '" style="cursor:pointer;margin-top:6px;font-size:0.7rem;font-weight:700;color:#7dd3fc;">\uD83D\uDCFB Tune in to declassify now \u2192</div>' : '';
     return '<div class="' + cls + '"' + onclick + '>' +
              '<span class="lore-tier ' + tierClasses[l.tier] + '">' + tierLabels[l.tier] + '</span>' +
              '<div class="lore-title">' + title + '</div>' +
@@ -2430,7 +2430,9 @@ function renderLoreEntries() {
       ev.stopPropagation();
       var sid = this.getAttribute('data-tune'), stitle = this.getAttribute('data-tunetitle');
       if (window.SD_RECEIVER) {
-        SD_RECEIVER.open({ storyId: sid, title: stitle, difficulty: 0.5,
+        var reqVal = parseInt(this.getAttribute('data-req'), 10);
+        var diff = SD_RECEIVER.difficultyForTier ? SD_RECEIVER.difficultyForTier(reqVal) : 0.5;
+        SD_RECEIVER.open({ storyId: sid, title: stitle, difficulty: diff,
           onSuccess: function () { try { renderLoreEntries(); renderHeroStats(); } catch(e){} } });
       }
     });

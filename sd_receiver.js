@@ -378,8 +378,24 @@
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+  /* ── automatic difficulty by tier depth ──
+     Deeper signals (higher research-level req) are fainter and harder to
+     catch — thematically, a 2.6-billion-year-old carrier is harder to tune
+     than a 2023 one. Returns a difficulty value 0..1 where HIGHER = EASIER
+     (wider lock window). The bypass ladder still self-eases anyone who
+     struggles, so a harder baseline never means "stuck". */
+  function difficultyForTier(req) {
+    var r = (typeof req === 'number' && req > 0) ? req : 30;
+    // req ~2 (modern) -> ~0.85 easy ; req ~70 (deep past) -> ~0.28 hard
+    var d = 0.9 - (r / 70) * 0.62;
+    if (d < 0.28) d = 0.28;   // floor: never impossibly tight
+    if (d > 0.85) d = 0.85;   // ceiling: always a little skill required
+    return d;
+  }
+
   window.SD_RECEIVER = {
     open: open,
+    difficultyForTier: difficultyForTier,
     isCleared: isCleared,
     markCleared: markCleared,
     close: close,
