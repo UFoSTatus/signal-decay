@@ -2440,7 +2440,7 @@ function renderLoreEntries() {
       if (window.SD_RECEIVER) {
         var reqVal = parseInt(this.getAttribute('data-req'), 10);
         var diff = SD_RECEIVER.difficultyForTier ? SD_RECEIVER.difficultyForTier(reqVal) : 0.5;
-        SD_RECEIVER.open({ storyId: sid, title: stitle, difficulty: diff,
+        SD_RECEIVER.open({ storyId: sid, title: stitle, req: reqVal, difficulty: diff,
           onSuccess: function () { try { renderLoreEntries(); renderHeroStats(); } catch(e){} } });
       }
     });
