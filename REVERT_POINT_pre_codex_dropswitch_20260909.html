@@ -2192,8 +2192,6 @@ function init() {
   updateStreak();
   renderContinueReading();
   applySettings();
-  // Merge the remote drop switch, then repaint the codex so drops appear here too.
-  loadUnlocksManifest(function () { try { renderLoreEntries(); } catch (e) {} });
 }
 
 // ═══ TAB NAVIGATION ═══
@@ -2345,8 +2343,7 @@ function renderLoreEntries() {
   const tierClasses = { public: 'tier-public', reader: 'tier-reader', detective: 'tier-detective', harmonic: 'tier-harmonic', deep_time: 'tier-deep-time' };
 
   const html = lore.map(function(l){
-    const eff = loreEffectiveReq(l);
-    const unlocked = loreIsUnlocked(l, rc);
+    const unlocked = rc >= (l.req || 0);
     const cls = 'lore-entry' + (unlocked ? '' : ' locked') + (l.tier === 'deep_time' ? ' lore-deeptime' : '');
     const title = unlocked ? l.title : '████████████';
     let desc;
@@ -2354,8 +2351,8 @@ function renderLoreEntries() {
       desc = l.desc;
     } else if (l.tier === 'deep_time') {
       // telegraph the unlock condition (research: show the NEXT milestone)
-      const remaining = Math.max(0, eff - rc);
-      desc = '🔒 [CLASSIFIED — DEEP TIME] · Reach Research Level ' + eff + ' (read ' + remaining + ' more) to declassify';
+      const remaining = Math.max(0, (l.req || 0) - rc);
+      desc = '🔒 [CLASSIFIED — DEEP TIME] · Reach Research Level ' + l.req + ' (read ' + remaining + ' more) to declassify';
     } else {
       desc = 'Read more stories to unlock this entry';
     }
@@ -2371,51 +2368,6 @@ function renderLoreEntries() {
 
 function getReadCount() {
   return Object.keys(readingHistory).filter(k => readingHistory[k].progress >= 50).length;
-}
-
-/* ── REMOTE DROP SWITCH (shared with timeline.html) ──
-   unlocks.json is fetched network-first (SW handles offline) and merged OVER the
-   codex's baked-in read-count gating. It can only ADD unlocks / LOWER thresholds —
-   never re-locks a tier a reader already reached. Falls back to cache, then defaults. */
-let SD_UNLOCKS = { director_clearance:false, global_threshold_multiplier:1.0, force_unlock:[], threshold_overrides:{}, banner:'' };
-function loadUnlocksManifest(cb) {
-  let applied = false;
-  function apply(obj, cacheIt) {
-    if (applied || !obj) return;
-    applied = true;
-    if (typeof obj.director_clearance === 'boolean') SD_UNLOCKS.director_clearance = obj.director_clearance;
-    if (typeof obj.global_threshold_multiplier === 'number' && obj.global_threshold_multiplier > 0) SD_UNLOCKS.global_threshold_multiplier = obj.global_threshold_multiplier;
-    if (Array.isArray(obj.force_unlock)) SD_UNLOCKS.force_unlock = obj.force_unlock;
-    if (obj.threshold_overrides && typeof obj.threshold_overrides === 'object') SD_UNLOCKS.threshold_overrides = obj.threshold_overrides;
-    if (typeof obj.banner === 'string') SD_UNLOCKS.banner = obj.banner;
-    if (cacheIt) { try { localStorage.setItem('sd_unlocks_cache', JSON.stringify(obj)); } catch (e) {} }
-    if (cb) cb();
-  }
-  try {
-    fetch('unlocks.json', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
-      .then(function (j) { apply(j, true); })
-      .catch(function () {
-        let cached = null;
-        try { cached = JSON.parse(localStorage.getItem('sd_unlocks_cache') || 'null'); } catch (e) {}
-        apply(cached || {}, false);
-      });
-  } catch (e) { apply({}, false); }
-}
-/* effective req for a lore entry (per-title override, else global multiplier) */
-function loreEffectiveReq(l) {
-  const ov = SD_UNLOCKS.threshold_overrides;
-  if (ov && Object.prototype.hasOwnProperty.call(ov, l.title)) return ov[l.title];
-  return Math.ceil((l.req || 0) * SD_UNLOCKS.global_threshold_multiplier);
-}
-function loreIsForced(l) {
-  const f = SD_UNLOCKS.force_unlock;
-  if (!f || !f.length) return false;
-  for (let i = 0; i < f.length; i++) { if (f[i] === l.title || (l.story && f[i] === l.story)) return true; }
-  return false;
-}
-function loreIsUnlocked(l, rc) {
-  return SD_UNLOCKS.director_clearance || loreIsForced(l) || rc >= loreEffectiveReq(l);
 }
 
 // ═══ READER ═══
