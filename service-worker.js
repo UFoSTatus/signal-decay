@@ -1,7 +1,7 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v51';
+const CACHE_NAME = 'signal-decay-v52';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
@@ -20,6 +20,7 @@ const HTML_APPS = [
 // Engine files — pre-cache for offline support
 const ENGINE_FILES = [
   './sd_registry.js',
+  './sd_receiver.js',
   './character_engines.js',
   './ufology_knowledge_matrix.js',
   './oracle_knowledge_engine.js',

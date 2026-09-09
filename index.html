@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Inter:wght@400;600;700&family=OpenDyslexic&display=swap">
+<script src="sd_receiver.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -2413,13 +2414,27 @@ function renderLoreEntries() {
       desc = 'Read more stories to unlock this entry';
     }
     const onclick = (unlocked && l.story) ? ' onclick="openStory(\'' + l.story + '\')" style="cursor:pointer;"' : '';
+    var tuneBtn = (!unlocked && l.story) ? '<div class="lore-tune" data-tune="' + l.story + '" data-tunetitle="' + l.title + '" style="cursor:pointer;margin-top:6px;font-size:0.7rem;font-weight:700;color:#7dd3fc;">\uD83D\uDCFB Tune in to declassify now \u2192</div>' : '';
     return '<div class="' + cls + '"' + onclick + '>' +
              '<span class="lore-tier ' + tierClasses[l.tier] + '">' + tierLabels[l.tier] + '</span>' +
              '<div class="lore-title">' + title + '</div>' +
              '<div class="lore-desc">' + desc + '</div>' +
+             tuneBtn +
            '</div>';
   }).join('');
   document.getElementById('loreEntries').innerHTML = html;
+  // wire "Tune in" gate buttons on locked lore entries
+  var lt = document.querySelectorAll('.lore-tune');
+  for (var i = 0; i < lt.length; i++) {
+    lt[i].addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var sid = this.getAttribute('data-tune'), stitle = this.getAttribute('data-tunetitle');
+      if (window.SD_RECEIVER) {
+        SD_RECEIVER.open({ storyId: sid, title: stitle, difficulty: 0.5,
+          onSuccess: function () { try { renderLoreEntries(); renderHeroStats(); } catch(e){} } });
+      }
+    });
+  }
 }
 
 function getReadCount() {
@@ -2468,7 +2483,8 @@ function loreIsForced(l) {
   return false;
 }
 function loreIsUnlocked(l, rc) {
-  return SD_UNLOCKS.director_clearance || loreIsForced(l) || rc >= loreEffectiveReq(l);
+  var gated = (l.story && window.SD_RECEIVER && SD_RECEIVER.isCleared(l.story));
+  return SD_UNLOCKS.director_clearance || loreIsForced(l) || gated || rc >= loreEffectiveReq(l);
 }
 
 // ═══ READER ═══
