@@ -219,8 +219,6 @@ h1 .sub { display: block; font-size: 0.78rem; font-weight: 500; color: var(--tex
   </h1>
 </div>
 
-<div id="dropBanner" style="display:none;margin:14px 0 0;padding:11px 14px;border-radius:12px;border:1px solid var(--deeptime);background:var(--deeptime-dim);color:var(--deeptime);font-size:0.8rem;font-weight:600;"></div>
-
 <div class="progress-card">
   <div class="progress-head">
     <div class="progress-level" id="levelText">Research Level 0</div>
@@ -266,64 +264,6 @@ function getReadCount() {
 }
 function isDirector() {
   try { return localStorage.getItem('sd_director') === '1'; } catch (e) { return false; }
-}
-
-/* ── REMOTE DROP SWITCH ──
-   unlocks.json is fetched network-first (SW handles caching/offline) and merged
-   OVER the baked-in ERAS gating. It can only ADD unlocks / LOWER thresholds — it
-   never re-locks content a reader already reached. If the fetch fails, the app
-   falls back to last-known-good, then to baked-in defaults. */
-var SD_UNLOCKS = {
-  director_clearance: false,
-  global_threshold_multiplier: 1.0,
-  force_unlock: [],
-  threshold_overrides: {},
-  banner: ''
-};
-function loadUnlocksManifest(cb) {
-  var applied = false;
-  function apply(obj, cacheIt) {
-    if (applied || !obj) return;
-    applied = true;
-    if (typeof obj.director_clearance === 'boolean') SD_UNLOCKS.director_clearance = obj.director_clearance;
-    if (typeof obj.global_threshold_multiplier === 'number' && obj.global_threshold_multiplier > 0) SD_UNLOCKS.global_threshold_multiplier = obj.global_threshold_multiplier;
-    if (Object.prototype.toString.call(obj.force_unlock) === '[object Array]') SD_UNLOCKS.force_unlock = obj.force_unlock;
-    if (obj.threshold_overrides && typeof obj.threshold_overrides === 'object') SD_UNLOCKS.threshold_overrides = obj.threshold_overrides;
-    if (typeof obj.banner === 'string') SD_UNLOCKS.banner = obj.banner;
-    if (cacheIt) { try { localStorage.setItem('sd_unlocks_cache', JSON.stringify(obj)); } catch (e) {} }
-    if (cb) cb();
-  }
-  try {
-    fetch('unlocks.json', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
-      .then(function (j) { apply(j, true); })
-      .catch(function () {
-        // fall back to last-known-good cached manifest
-        var cached = null;
-        try { cached = JSON.parse(localStorage.getItem('sd_unlocks_cache') || 'null'); } catch (e) {}
-        apply(cached || {}, false);
-      });
-  } catch (e) {
-    apply({}, false);
-  }
-}
-/* effective req = baked-in req, overridden per-title, else scaled by the global multiplier */
-function effectiveReq(e) {
-  var ov = SD_UNLOCKS.threshold_overrides;
-  if (ov && ov.hasOwnProperty(e.title)) return ov[e.title];
-  return Math.ceil((e.req || 0) * SD_UNLOCKS.global_threshold_multiplier);
-}
-function isForced(e) {
-  var f = SD_UNLOCKS.force_unlock;
-  if (!f || !f.length) return false;
-  for (var i = 0; i < f.length; i++) {
-    if (f[i] === e.title || (e.story && f[i] === e.story)) return true;
-  }
-  return false;
-}
-/* single source of truth for "is this entry open?" */
-function isEntryUnlocked(e, rc, director) {
-  return director || SD_UNLOCKS.director_clearance || isForced(e) || rc >= effectiveReq(e);
 }
 
 /* ── The master spine. Oldest → newest (top → bottom). ──
@@ -462,15 +402,15 @@ function renderProgress() {
   for (var i = 0; i < ERAS.length; i++) {
     var e = ERAS[i];
     if (e.req == null) continue;
-    if (isEntryUnlocked(e, rc, director)) declassified++;
-    else { var er = effectiveReq(e); if (nextReq == null || er < nextReq) { nextReq = er; nextTitle = e.title; } }
+    if (director || rc >= e.req) declassified++;
+    else if (nextReq == null || e.req < nextReq) { nextReq = e.req; nextTitle = e.title; }
   }
-  document.getElementById('levelText').textContent = (director || SD_UNLOCKS.director_clearance) ? 'Director\u2019s Clearance' : ('Research Level ' + rc);
+  document.getElementById('levelText').textContent = director ? 'Director\u2019s Clearance' : ('Research Level ' + rc);
   document.getElementById('countText').textContent = declassified + ' / ' + TOTAL_GATED + ' entries declassified';
   var pct = Math.round((declassified / TOTAL_GATED) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   var nextEl = document.getElementById('nextText');
-  if (director || SD_UNLOCKS.director_clearance) {
+  if (director) {
     nextEl.textContent = 'Director\u2019s Clearance is ON \u2014 the entire timeline is declassified.';
     nextEl.style.color = 'var(--deeptime)';
   } else if (nextReq == null) {
@@ -504,11 +444,10 @@ function renderTimeline() {
       continue;
     }
 
-    var unlocked = isEntryUnlocked(e, rc, director);
+    var unlocked = director || rc >= e.req;
 
     if (!unlocked) {
-      var er = effectiveReq(e);
-      var remaining = Math.max(0, er - rc);
+      var remaining = Math.max(0, e.req - rc);
       html += '<div class="node locked ' + e.type + '">' +
                 '<div class="dot">\uD83D\uDD12</div>' +
                 '<div class="card">' +
@@ -555,14 +494,7 @@ function renderTimeline() {
   }
 }
 
-function renderBanner() {
-  var el = document.getElementById('dropBanner');
-  if (!el) return;
-  var b = SD_UNLOCKS.banner;
-  if (b && b.length) { el.textContent = '📡 ' + b; el.style.display = 'block'; }
-  else { el.style.display = 'none'; }
-}
-function refresh() { renderBanner(); renderProgress(); renderTimeline(); }
+function refresh() { renderProgress(); renderTimeline(); }
 
 /* ── Director's Clearance ── */
 function toggleDirector() {
@@ -609,10 +541,7 @@ function closeStory() {
 /* ── Boot ── */
 try {
   syncDirectorBtn();
-  refresh();                       // paint immediately with baked-in defaults
-  loadUnlocksManifest(function () { // then merge the remote drop switch and repaint
-    try { refresh(); } catch (e) {}
-  });
+  refresh();
 } catch (e) { console.error('Timeline init error:', e); }
 
 /* PWA — guarded (throws in sandboxed preview; harmless) */

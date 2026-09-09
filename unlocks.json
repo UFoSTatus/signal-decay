@@ -1,0 +1,21 @@
+{
+  "_comment": "Signal Decay — REMOTE DROP SWITCH. Edit this file (by hand, or via the Unlock Drop workflow) to control what is unlocked, without touching app code. The PWA fetches it network-first and merges it OVER the app's baked-in defaults. It can only ADD unlocks or LOWER thresholds — it never re-locks content a reader already reached, and never changes story wiring.",
+  "version": 1,
+  "updated": "2026-09-09",
+  "note": "Season 0 — Deep Time Layer live. Timeline gated by read-count as shipped.",
+
+  "director_clearance": false,
+  "_director_help": "Set true to reveal EVERYTHING for everyone (a global override of all gates). Normally false.",
+
+  "global_threshold_multiplier": 1.0,
+  "_multiplier_help": "Scales every deep-time req. 1.0 = as shipped (35-70). 0.5 = half (18-35). 0.1 = almost open. Use to make a whole season easier to reach.",
+
+  "force_unlock": [],
+  "_force_help": "Array of entry titles OR story ids to force-open regardless of read-count. e.g. [\"The Magenta Bell\", \"dt_first_octave\"]. This is the weekly/monthly 'drop' list.",
+
+  "threshold_overrides": {},
+  "_overrides_help": "Per-entry req overrides by title. e.g. {\"The Harmonic Manifest\": 8}. Beats the multiplier for that one entry.",
+
+  "banner": "",
+  "_banner_help": "Optional message shown at the top of the timeline (e.g. 'NEW DROP: The Magenta Bell is now declassified'). Empty string = no banner."
+}

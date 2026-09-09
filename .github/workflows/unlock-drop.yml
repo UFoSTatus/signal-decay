@@ -1,0 +1,119 @@
+name: Unlock Drop
+
+# Signal Decay — REMOTE DROP SWITCH.
+# Two triggers, one job, one file (unlocks.json):
+#   1. workflow_dispatch  -> the "Run workflow" button on GitHub. Fill the form
+#                            to unlock content WHENEVER you feel like it.
+#   2. schedule (cron)    -> optional timed drops (edit the cron below to enable).
+# GitHub Pages redeploys automatically after the commit, so the change goes live
+# within ~1 minute. No app code is touched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_unlock:
+        description: 'Titles/story-ids to force-open (comma-separated). e.g. The Magenta Bell, dt_first_octave'
+        required: false
+        default: ''
+      multiplier:
+        description: "Global threshold multiplier (1.0 = as shipped, 0.5 = half, 0.1 = almost open, blank = leave unchanged)"
+        required: false
+        default: ''
+      director_clearance:
+        description: 'Reveal EVERYTHING for everyone?'
+        required: false
+        default: 'no'
+        type: choice
+        options: ['no', 'yes']
+      banner:
+        description: 'Optional banner message shown atop the timeline (blank = clear)'
+        required: false
+        default: ''
+
+  # ── Optional scheduled drops ──
+  # Uncomment and edit to auto-drop on a cadence. Times are UTC.
+  # schedule:
+  #   - cron: '0 17 * * 5'   # every Friday 17:00 UTC (weekly drop)
+
+  # Keep-alive: a monthly no-op run so GitHub doesn't auto-disable the
+  # scheduled workflow after 60 days of repo inactivity.
+  # (Harmless when schedule is commented out; leave it on.)
+
+permissions:
+  contents: write
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Update unlocks.json
+        env:
+          IN_FORCE: ${{ github.event.inputs.force_unlock }}
+          IN_MULT: ${{ github.event.inputs.multiplier }}
+          IN_DIRECTOR: ${{ github.event.inputs.director_clearance }}
+          IN_BANNER: ${{ github.event.inputs.banner }}
+        run: |
+          python3 - <<'PY'
+          import json, os, datetime
+
+          path = "unlocks.json"
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          force  = os.environ.get("IN_FORCE", "").strip()
+          mult   = os.environ.get("IN_MULT", "").strip()
+          direct = os.environ.get("IN_DIRECTOR", "").strip().lower()
+          banner = os.environ.get("IN_BANNER", "")
+
+          # Manual runs carry inputs; scheduled/keep-alive runs carry none -> just bump.
+          if force:
+              add = [x.strip() for x in force.split(",") if x.strip()]
+              existing = data.get("force_unlock", [])
+              # additive + de-duped, preserving order
+              for a in add:
+                  if a not in existing:
+                      existing.append(a)
+              data["force_unlock"] = existing
+
+          if mult:
+              try:
+                  data["global_threshold_multiplier"] = float(mult)
+              except ValueError:
+                  pass
+
+          if direct in ("yes", "true", "1"):
+              data["director_clearance"] = True
+          elif direct in ("no", "false", "0"):
+              data["director_clearance"] = False
+
+          # banner: set when provided; explicit clear by passing a single space
+          if banner.strip():
+              data["banner"] = banner.strip()
+          elif banner == "":
+              # blank input on a manual run clears the banner
+              if os.environ.get("GITHUB_EVENT_NAME", "") == "workflow_dispatch":
+                  data["banner"] = ""
+
+          data["version"] = int(data.get("version", 0)) + 1
+          data["updated"] = datetime.date.today().isoformat()
+
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2, ensure_ascii=False)
+          print("Updated unlocks.json ->", json.dumps({k: data[k] for k in
+                ("version","director_clearance","global_threshold_multiplier","force_unlock","banner")}, ensure_ascii=False))
+          PY
+
+      - name: Commit and push
+        run: |
+          git config user.name  "signal-decay-bot"
+          git config user.email "actions@github.com"
+          git add unlocks.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Unlock drop: update unlocks.json (v$(python3 -c "import json;print(json.load(open('unlocks.json'))['version'])"))"
+            git push
+          fi
