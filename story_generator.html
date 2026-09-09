@@ -736,6 +736,21 @@ body {
   text-align: right;
   font-family: monospace;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   SHARED DEVICE FIXES  (2026-09-08 — per RESPONSIVE_DESIGN_DEVICES_RESEARCH.md)
+   dvh height (no address-bar clip) + safe-area vars/padding (notch/home-bar).
+   Appended last; additive; env(..,0px) => desktop gets 0, nothing breaks.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+}
+html, body { min-height: 100vh; min-height: 100dvh; }
+/* keep app content clear of the notch/status bar and home indicator */
+body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-sizing: border-box; }
 </style>
 </head>
 <body>
@@ -1257,12 +1272,7 @@ function init() {
 
 function renderCharacters() {
   const grid = document.getElementById('characterGrid');
-  grid.innerHTML = CHARACTERS.map(c => `
-    <div class="char-chip" data-id="${c.id}" onclick="toggleCharacter(this, '${c.id}')" title="${c.desc}">
-      <span class="char-dot" style="background:${c.color}"></span>
-      <span class="char-name">${c.name.split(' ')[0]}</span>
-    </div>
-  `).join('');
+  grid.innerHTML = CHARACTERS.map(c => '\n    <div class="char-chip" data-id="' + c.id + '" onclick="toggleCharacter(this, \'' + c.id + '\')" title="' + c.desc + '">\n      <span class="char-dot" style="background:' + c.color + '"></span>\n      <span class="char-name">' + c.name.split(' ')[0] + '</span>\n    </div>\n  ').join('');
 }
 
 function toggleCharacter(el, id) {
@@ -1463,7 +1473,7 @@ function displayStory(text) {
   formatted = formatted.replace(/\[SFX:\s*([^\]]+)\]/g, '<span class="sfx-tag">SFX: $1</span>');
   
   // Paragraphs
-  formatted = formatted.split('\n\n').map(p => `<p>${p}</p>`).join('');
+  formatted = formatted.split('\n\n').map(p => '<p>' + p + '</p>').join('');
   formatted = formatted.replace(/<p>\s*<\/p>/g, '');
   
   output.innerHTML = formatted;
@@ -1574,8 +1584,8 @@ function loadCollection() {
         <div class="item-meta">
           <span>${date}</span>
           <span>${item.wordCount || '?'}w</span>
-          ${item.mood ? `<span>${item.mood}</span>` : ''}
-          ${chars ? `<span>${chars}</span>` : ''}
+          ${item.mood ? ('<span>' + item.mood + '</span>') : ''}
+          ${chars ? ('<span>' + chars + '</span>') : ''}
         </div>
         <div class="item-preview">${escapeHtml(preview)}</div>
       </div>

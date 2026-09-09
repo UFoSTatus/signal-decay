@@ -1697,51 +1697,6 @@ html, body {
 /* Continue Reading: give the section a faint "resume" cue */
 #continueHeader h3 i { color: var(--amber); }
 #continueReading .story-card { border-left: 2px solid color-mix(in srgb, var(--cat, var(--amber)) 40%, transparent); }
-
-/* ════════════════════════════════════════════════════════════════════
-   RESPONSIVE / DEVICE FIXES  (2026-09-08 — per RESPONSIVE_DESIGN_DEVICES_RESEARCH.md)
-   Fixes: (1) dvh height — no address-bar clip; (2) safe-area padding —
-   notch/home-bar clearance; (3) desktop breakpoints — no stretched phone
-   layout. Appended last; additive; works on file:// and GitHub Pages.
-   ════════════════════════════════════════════════════════════════════ */
-:root{
-  --safe-top:    env(safe-area-inset-top, 0px);
-  --safe-right:  env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left:   env(safe-area-inset-left, 0px);
-}
-
-/* (1) Address-bar-proof height: dvh with vh fallback for old browsers */
-html, body { height: 100vh; height: 100dvh; }
-#app { height: 100vh; height: 100dvh; }
-
-/* (2) Safe-area clearance — top nav clears notch/Island, tab bar clears home bar */
-.top-nav { padding-top: var(--safe-top); box-sizing: content-box; }
-.tab-bar {
-  padding-bottom: var(--safe-bottom);
-  height: calc(var(--tab-height) + var(--safe-bottom));
-  box-sizing: border-box;
-}
-/* keep scroll content clear of the taller safe-area tab bar */
-.main-content { padding-bottom: var(--safe-bottom); }
-
-/* (3) Desktop breakpoints — center + cap width so it's not a skinny column in a void */
-@media (min-width: 600px) {
-  #page-home .story-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  #app { max-width: 1100px; margin: 0 auto; border-left: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); }
-  #page-home .story-grid { grid-template-columns: repeat(3, 1fr); }
-  .page { padding-left: 28px; padding-right: 28px; }
-}
-@media (min-width: 1440px) {
-  #app { max-width: 1280px; }
-}
-
-/* Phone landscape: trim tall chrome so content isn't crushed */
-@media (max-height: 480px) and (orientation: landscape) {
-  .top-nav { padding-top: calc(2px + var(--safe-top)); }
-}
 </style>
 </head>
 <body>

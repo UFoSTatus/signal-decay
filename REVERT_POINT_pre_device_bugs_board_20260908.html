@@ -727,31 +727,6 @@ html,body{
   #zoom-controls{bottom:12px;right:12px}
   #top-bar{padding:10px 12px}
 }
-
-/* ════════════════════════════════════════════════════════════════════
-   DEVICE FIXES — Investigation Board  (2026-09-08)
-   The board sets viewport-fit=cover but never padded for the notch/home-bar.
-   These offsets keep the top bar, zoom cluster, back button, minimap and
-   progress panel clear of the Dynamic Island / punch-hole / home indicator.
-   Appended last; additive. env(..,0px) => desktop gets 0, nothing breaks.
-   ════════════════════════════════════════════════════════════════════ */
-:root{
-  --safe-top:    env(safe-area-inset-top, 0px);
-  --safe-right:  env(safe-area-inset-right, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left:   env(safe-area-inset-left, 0px);
-}
-/* Address-bar-proof full height */
-html, body { height: 100vh; height: 100dvh; }
-
-/* Top chrome clears the notch / Island */
-#top-bar     { padding-top: calc(16px + var(--safe-top)); padding-left: calc(20px + var(--safe-left)); padding-right: calc(20px + var(--safe-right)); }
-#progress-panel { top: calc(16px + var(--safe-top)); }
-
-/* Bottom / side chrome clears the home indicator + rounded corners */
-#zoom-controls { bottom: calc(20px + var(--safe-bottom)); right: calc(20px + var(--safe-right)); }
-#minimap       { bottom: calc(20px + var(--safe-bottom)); left:  calc(20px + var(--safe-left)); }
-#back-btn      { bottom: calc(80px + var(--safe-bottom)); }
 </style>
 </head>
 <body>
@@ -1179,33 +1154,15 @@ function getBoardBounds() {
 function zoomToFit(animate=true) {
   const vp = getViewport();
   const bounds = getBoardBounds();
-  // Reserve REAL chrome + safe-area space instead of the old fixed 80/160 guess
-  // (2026-09-08): read env() insets + actual bar heights so "fit all" truly fits
-  // inside the visible area — not under the notch or home indicator.
-  const cs = getComputedStyle(document.documentElement);
-  const px = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
-  const safeTop = px(cs.getPropertyValue('--safe-top'));
-  const safeBottom = px(cs.getPropertyValue('--safe-bottom'));
-  const safeLeft = px(cs.getPropertyValue('--safe-left'));
-  const safeRight = px(cs.getPropertyValue('--safe-right'));
-  const topBarEl = document.getElementById('top-bar');
-  const topChrome = (topBarEl ? topBarEl.offsetHeight : 56) + safeTop + 12;
-  const bottomChrome = 60 + safeBottom + 12;   // zoom cluster / back btn zone
-  const sideChrome = 24 + Math.max(safeLeft, safeRight);
-  const availW = Math.max(120, vp.w - sideChrome * 2);
-  const availH = Math.max(120, vp.h - topChrome - bottomChrome);
-  const scaleX = availW / bounds.w;
-  const scaleY = availH / bounds.h;
-  // Cap at 1.0 on phones (never over-zoom a small board — it looks broken)
-  const maxFit = vp.w < 600 ? 1.0 : 1.5;
-  let scale = Math.min(scaleX, scaleY, maxFit);
+  const scaleX = (vp.w - 80) / bounds.w;
+  const scaleY = (vp.h - 160) / bounds.h;
+  let scale = Math.min(scaleX, scaleY, 1.5);
   scale = ZOOM_STEPS.reduce((prev,curr) => Math.abs(curr-scale) < Math.abs(prev-scale) ? curr : prev);
   const cx = bounds.x + bounds.w/2;
   const cy = bounds.y + bounds.h/2;
   camera.targetScale = scale;
-  // Center within the VISIBLE area (shift down by the top chrome we reserved)
   camera.targetX = vp.w/2 - cx * scale;
-  camera.targetY = (topChrome + availH/2) - cy * scale;
+  camera.targetY = vp.h/2 - cy * scale;
   if (animate) {
     animateCamera();
   } else {

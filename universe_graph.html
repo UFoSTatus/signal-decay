@@ -12,7 +12,7 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow: hidden;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; height: 100dvh;
 }
 
 /* NAVIGATION BAR */
@@ -187,6 +187,25 @@ html, body {
   #info-panel { width: 280px; right: -280px; }
   .l1-label { font-size: 11px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   SHARED DEVICE FIXES  (2026-09-08 — per RESPONSIVE_DESIGN_DEVICES_RESEARCH.md)
+   dvh height (no address-bar clip) + safe-area vars/padding (notch/home-bar).
+   Appended last; additive; env(..,0px) => desktop gets 0, nothing breaks.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+}
+html, body { min-height: 100vh; min-height: 100dvh; }
+/* keep app content clear of the notch/status bar and home indicator */
+/* (body padding intentionally omitted for this full-height app — inner elements use --safe-* directly) */
+
+/* Safe-area: top nav clears notch; view container starts below the taller nav (2026-09-08) */
+#nav { padding-top: calc(10px + var(--safe-top)); }
+#view-container { top: calc(48px + var(--safe-top)); }
 </style>
 </head>
 <body>

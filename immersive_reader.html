@@ -130,6 +130,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .voice-mic-btn{bottom:80px;right:12px;width:44px;height:44px;font-size:1.2rem}
 .voice-toast{bottom:135px;right:12px}
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   SHARED DEVICE FIXES  (2026-09-08 — per RESPONSIVE_DESIGN_DEVICES_RESEARCH.md)
+   dvh height (no address-bar clip) + safe-area vars/padding (notch/home-bar).
+   Appended last; additive; env(..,0px) => desktop gets 0, nothing breaks.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+}
+html, body { min-height: 100vh; min-height: 100dvh; }
+/* keep app content clear of the notch/status bar and home indicator */
+body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-sizing: border-box; }
 </style>
 </head>
 <body>

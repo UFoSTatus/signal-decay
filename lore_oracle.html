@@ -591,6 +591,21 @@ body::before {
   .chat-area { padding: 16px; }
   .input-area { padding: 12px 16px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   SHARED DEVICE FIXES  (2026-09-08 — per RESPONSIVE_DESIGN_DEVICES_RESEARCH.md)
+   dvh height (no address-bar clip) + safe-area vars/padding (notch/home-bar).
+   Appended last; additive; env(..,0px) => desktop gets 0, nothing breaks.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+}
+html, body { min-height: 100vh; min-height: 100dvh; }
+/* keep app content clear of the notch/status bar and home indicator */
+body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-sizing: border-box; }
 </style>
 </head>
 <body>
@@ -1080,7 +1095,7 @@ function appendMessage(type, content, sources = []) {
   
   let sourcesHTML = '';
   if (sources.length > 0) {
-    sourcesHTML = `<div class="msg-sources">${sources.map(s => `<span class="source-tag">📄 ${s}</span>`).join('')}</div>`;
+    sourcesHTML = `<div class="msg-sources">${sources.map(s => '<span class="source-tag">📄 ' + s + '</span>').join('')}</div>`;
   }
 
   let actionsHTML = '';
@@ -1201,7 +1216,7 @@ async function getOracleResponse() {
     if (sources.length > 0) {
       const sourcesDiv = document.createElement('div');
       sourcesDiv.className = 'msg-sources';
-      sourcesDiv.innerHTML = sources.map(s => `<span class="source-tag">📄 ${s}</span>`).join('');
+      sourcesDiv.innerHTML = sources.map(s => '<span class="source-tag">📄 ' + s + '</span>').join('');
       msgEl.querySelector('.msg-body').appendChild(sourcesDiv);
     }
 
