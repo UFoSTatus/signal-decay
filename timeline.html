@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Signal Decay — Deep Time</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   SIGNAL DECAY — DEEP TIME TIMELINE  (B4 + expansion, 2026-09-09)
+   A dense 2.6-billion-year → 2026 → future master spine.
+   Two marker types:
+     • STORY markers  → the written deep-time stories, open inline.
+     • LORE markers   → real event with COVER STORY (surface) + the
+                        SIGNAL DECAY TRUTH (beneath). The core engine.
+   All markers gate on the SAME read-count / research-level mechanic as
+   the Zero Octave lore tier (getReadCount from sd_history). Locked
+   markers redact + telegraph their unlock condition.
+   Director's Clearance toggle (sd_director) reveals everything on demand.
+   Read-only on shared state. Matches the reader's dark-glass theme.
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: #141414;
+  --bg-glass: rgba(20, 20, 20, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #666666;
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --amber-glow: rgba(245, 158, 11, 0.3);
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --cyan: #06b6d4;
+  /* deep-time signature — matches the board + lore tier */
+  --deeptime: #7dd3fc;
+  --deeptime-dim: rgba(125, 211, 252, 0.12);
+  --deeptime-glow: rgba(125, 211, 252, 0.35);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(125,211,252,0.06), transparent 60%),
+    radial-gradient(900px 500px at 50% 110%, rgba(139,92,246,0.06), transparent 60%),
+    var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;   /* address-bar-proof */
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  padding: max(20px, env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom)) 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  max-width: 820px;
+  margin: 0 auto;
+}
+a { color: var(--amber); text-decoration: none; }
+
+/* ─── Header ─── */
+.topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.back-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-medium);
+  background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+  text-decoration: none;
+}
+.back-btn:hover { background: var(--amber-dim); color: var(--amber); }
+h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em;
+     background: linear-gradient(120deg, var(--deeptime), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h1 .sub { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-muted); margin-top: 3px; letter-spacing: 0; -webkit-text-fill-color: var(--text-muted); }
+
+/* ─── Research-level progress ─── */
+.progress-card {
+  margin: 16px 0 8px; padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, var(--deeptime-dim), rgba(139,92,246,0.10));
+}
+.progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.progress-level { font-size: 0.95rem; font-weight: 700; color: var(--deeptime); }
+.progress-count { font-size: 0.72rem; color: var(--text-secondary); }
+.progress-bar { height: 7px; border-radius: 4px; background: rgba(255,255,255,0.07); margin-top: 10px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--deeptime), var(--purple)); transition: width .6s ease; }
+.progress-next { font-size: 0.68rem; color: var(--text-muted); margin-top: 8px; }
+
+/* ─── Director's Clearance toggle ─── */
+.director-row { display: flex; align-items: center; gap: 10px; margin: 12px 0 4px; flex-wrap: wrap; }
+.director-btn {
+  border: 1px solid var(--border-medium); background: var(--bg-tertiary); color: var(--text-secondary);
+  padding: 8px 13px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.74rem; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.director-btn:hover { border-color: var(--deeptime); color: var(--deeptime); }
+.director-btn.on { background: var(--deeptime-dim); border-color: var(--deeptime); color: var(--deeptime); box-shadow: 0 0 14px var(--deeptime-glow); }
+.director-note { font-size: 0.66rem; color: var(--text-muted); }
+
+/* ─── Timeline ─── */
+.timeline { position: relative; margin: 20px 0 0; padding-left: 34px; }
+.timeline::before {
+  content: ''; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 2px;
+  background: linear-gradient(180deg, var(--deeptime), var(--purple) 55%, var(--amber));
+  opacity: 0.5;
+}
+.era-band {
+  margin: 26px 0 12px -34px; padding-left: 34px;
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.era-band:first-child { margin-top: 0; }
+
+.node { position: relative; margin-bottom: 14px; }
+.node .dot {
+  position: absolute; left: -34px; top: 4px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 0.6rem;
+  border: 2px solid var(--bg-primary); z-index: 2;
+}
+.node.locked .dot { background: var(--bg-tertiary); color: var(--text-muted); box-shadow: 0 0 0 1px var(--border-medium); }
+.node.unlocked.story .dot { background: var(--deeptime); color: #04212f; box-shadow: 0 0 14px var(--deeptime-glow); }
+.node.unlocked.lore .dot  { background: var(--purple); color: #180a2e; box-shadow: 0 0 12px rgba(139,92,246,0.4); }
+.node.present .dot { background: var(--amber); color: #2a1a00; box-shadow: 0 0 14px var(--amber-glow); }
+
+.card {
+  position: relative;
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+  background: var(--bg-card); padding: 13px 15px; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.node.unlocked.story .card { cursor: pointer; }
+.node.unlocked.story .card:hover { transform: translateY(-2px); border-color: var(--deeptime); box-shadow: 0 8px 26px rgba(125,211,252,0.14); }
+.node.locked .card { border-style: dashed; border-color: var(--border-medium); }
+.node.locked .card::after {
+  content: ''; position: absolute; inset: 0; border-radius: var(--radius-md);
+  background: repeating-linear-gradient(45deg, transparent, transparent 9px, rgba(125,211,252,0.03) 9px, rgba(125,211,252,0.03) 18px);
+  pointer-events: none;
+}
+.node.present .card { border-color: var(--amber); background: linear-gradient(135deg, var(--amber-dim), transparent); }
+
+.card-when { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.5px; color: var(--deeptime); text-transform: uppercase; }
+.node.lore .card-when { color: var(--purple); }
+.node.present .card-when { color: var(--amber); }
+.node.locked .card-when { color: var(--text-muted); }
+.card-kind { float: right; font-size: 0.58rem; font-weight: 700; letter-spacing: 1px; opacity: 0.7; }
+.card-title { font-size: 1rem; font-weight: 700; margin: 3px 0 5px; }
+.node.locked .card-title { color: var(--text-muted); font-family: monospace; letter-spacing: 2px; }
+.card-desc { font-size: 0.81rem; line-height: 1.55; color: var(--text-secondary); }
+.card-lockmsg { font-size: 0.75rem; line-height: 1.5; color: var(--deeptime); opacity: 0.88; }
+.card-cta { margin-top: 9px; font-size: 0.72rem; font-weight: 600; color: var(--deeptime); display: inline-flex; align-items: center; gap: 6px; }
+
+/* cover story → truth reveal (lore markers) */
+.reveal { margin-top: 8px; }
+.reveal .lbl { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+.reveal .cover .lbl { color: var(--text-muted); }
+.reveal .truth .lbl { color: var(--deeptime); }
+.reveal .cover { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.5; }
+.reveal .truth {
+  margin-top: 8px; padding: 9px 11px; border-left: 3px solid var(--deeptime);
+  background: var(--deeptime-dim); border-radius: 6px; color: #dbeafe; font-size: 0.82rem; line-height: 1.55;
+}
+
+.foot { text-align: center; color: var(--text-muted); font-size: 0.68rem; margin-top: 30px; line-height: 1.6; }
+
+/* ─── Story overlay (inline reader) ─── */
+.reader-overlay {
+  position: fixed; inset: 0; z-index: 50; background: #0d0d0f;
+  display: none; flex-direction: column;
+  padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+}
+.reader-overlay.active { display: flex; }
+.reader-bar {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle); background: var(--bg-glass); backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+.reader-bar .r-title { font-size: 0.9rem; font-weight: 700; color: var(--deeptime); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reader-body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1;
+  padding: 28px max(20px, env(safe-area-inset-left)) 64px max(20px, env(safe-area-inset-right));
+}
+.reader-inner {
+  max-width: 680px; margin: 0 auto;
+  font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  font-size: 20px; line-height: 1.7; color: #e8e4dc;
+}
+.reader-inner h1, .reader-inner h2, .reader-inner h3 { font-family: -apple-system, 'Segoe UI', sans-serif; color: #f5f5f5; line-height: 1.25; margin: 1.4em 0 0.5em; }
+.reader-inner h1 { font-size: 1.5em; } .reader-inner h2 { font-size: 1.25em; } .reader-inner h3 { font-size: 1.08em; }
+.reader-inner p { margin: 0 0 1.05em; }
+.reader-inner em { color: #cbd5e1; }
+.reader-inner hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.8em 0; }
+.reader-inner blockquote { border-left: 3px solid var(--deeptime); padding-left: 16px; color: #b9c2cc; font-style: italic; margin: 1.2em 0; }
+
+/* Desktop */
+@media (min-width: 1024px) {
+  h1 { font-size: 1.75rem; }
+  .reader-inner { font-size: 21px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back-btn" href="index.html" title="Back to home"><i class="fa-solid fa-arrow-left"></i></a>
+  <h1>Deep Time
+    <span class="sub">2.6 billion years of the Signal — every real event has a cover story, and beneath it, the truth</span>
+  </h1>
+</div>
+
+<div class="progress-card">
+  <div class="progress-head">
+    <div class="progress-level" id="levelText">Research Level 0</div>
+    <div class="progress-count" id="countText">0 declassified</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-next" id="nextText">Read stories across the app to raise your Research Level and declassify the timeline.</div>
+</div>
+
+<div class="director-row">
+  <button class="director-btn" id="directorBtn" onclick="toggleDirector()"><i class="fa-solid fa-key"></i> <span id="directorLabel">Director's Clearance: OFF</span></button>
+  <span class="director-note">Reveal every entry at will — your override, independent of read progress.</span>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<div class="foot">
+  Entries unlock on the same Research Level as the Zero Octave lore tier — or all at once with Director's Clearance.<br>
+  Sources are documented UFOlogy claims, dramatized as Signal Decay canon (real event → cover story → truth).
+</div>
+
+<!-- Inline story reader -->
+<div class="reader-overlay" id="readerOverlay">
+  <div class="reader-bar">
+    <button class="back-btn" onclick="closeStory()" title="Close"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="r-title" id="rTitle">Story</div>
+  </div>
+  <div class="reader-body">
+    <div class="reader-inner" id="rBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+/* ── State: read the SAME reading history the home app writes ── */
+function getReadingHistory() {
+  try { return JSON.parse(localStorage.getItem('sd_history') || '{}'); } catch (e) { return {}; }
+}
+function getReadCount() {
+  var h = getReadingHistory(), n = 0;
+  for (var k in h) { if (h.hasOwnProperty(k) && h[k] && h[k].progress >= 50) n++; }
+  return n;
+}
+function isDirector() {
+  try { return localStorage.getItem('sd_director') === '1'; } catch (e) { return false; }
+}
+
+/* ── The master spine. Oldest → newest (top → bottom). ──
+   type 'story' : req, story id, path — opens inline.
+   type 'lore'  : req, cover + truth — the reveal engine.
+   'band'       : section header. 'present' : the now. */
+var ERAS = [
+  { band: 'Zero Octave · The Deep Past' },
+
+  { type:'story', when:'~2.6 billion years ago', title:'The First Octave', req:35, story:'dt_first_octave', path:'stories/deep_time/THE_FIRST_OCTAVE.md',
+    desc:'The Ancient Builders string the young Earth as an instrument — seven wells, a defense grid, stasis vaults with sleeping giants. The world was BUILT to sing.' },
+
+  { type:'lore', when:'~65 million years ago', title:'The Seeders and the Reptile World', req:30,
+    cover:'Science: a random asteroid ends the age of the dinosaurs.',
+    truth:'The Builders\u2019 inheritors pruned a reptile-locked world to clear a channel for a species that could one day HEAR the Signal. The extinction was gardening \u2014 not an accident.' },
+
+  { type:'lore', when:'~500,000 years ago', title:'The Grid Falls', req:32,
+    cover:'There is no cover story \u2014 no one was meant to remember there had ever been a shield at all.',
+    truth:'The Ancient Builders\u2019 solar defense grid finally went dark. Scavengers and gene-farmers poured through the open gate toward an undefended Earth. The First Octave\u2019s protection was over.' },
+
+  { type:'story', when:'~450,000 years ago', title:'The Gold and the Flood', req:40, story:'dt_gold_and_flood', path:'stories/deep_time/THE_GOLD_AND_THE_FLOOD.md',
+    desc:'Miners from a dying world strip Earth for gold and MUTE the frequency channel in its people. The clay remembers the theft and forgets the design. Why the Resonant gift sleeps.' },
+
+  { type:'lore', when:'~250,000 years ago', title:'The Twenty-Two Programs', req:34,
+    cover:'Textbooks: humans evolved slowly from apes, in a single unbroken line.',
+    truth:'Twenty-two hands spliced twenty-two signatures into the same clay, all at once. It\u2019s why humans vary so wildly \u2014 and why the number twenty-two keeps recurring in the record.' },
+
+  { type:'lore', when:'~100,000 years ago', title:'The De-Key', req:42,
+    cover:'Medicine: humans are simply prone to autoimmune disease, and much of our DNA is inert \u201Cjunk.\u201D',
+    truth:'The intruders muted the frequency channel to make an obedient workforce \u2014 four genes out, two in. The \u201Cjunk\u201D is the silenced instrument. This is why the Resonant gift lies dormant in everyone.' },
+
+  { type:'story', when:'~55,000 years ago', title:'The Ice Kings', req:45, story:'dt_ice_kings', path:'stories/deep_time/THE_ICE_KINGS.md',
+    desc:'Giant refugees from a broken world build a kingdom around an Antarctic frequency well, inherit the Builders\u2019 memory-archive \u2014 and freeze there at the pole shift.' },
+
+  { type:'story', when:'~13,000 years ago', title:'The Day the Poles Moved', req:50, story:'dt_poles_moved', path:'stories/deep_time/THE_DAY_THE_POLES_MOVED.md',
+    desc:'The stars slid, the water came, and a listening coastal people drowned. \u201CAtlantis\u201D is the human cover-name for the loss. The ache survived in the blood.' },
+
+  { type:'lore', when:'~12,000 years ago', title:'The Seven Cities', req:36,
+    cover:'Folklore: myths of an underworld; hollow-earth fantasy.',
+    truth:'The survivors who could still hear went DOWN \u2014 seven city-complexes, one per frequency well, waiting out the long silence underground. Some say they never stopped playing to the stone.' },
+
+  { type:'lore', when:'~6,000 years ago', title:'The Clay Gods', req:24,
+    cover:'History: Sumer invents writing, kingship, astronomy \u2014 the dawn of civilization.',
+    truth:'The tablets faithfully record the intruders as gods \u201Cwho from heaven came\u201D \u2014 and faithfully forget the Builders who wrote the world first. The cover story is six thousand years old.' },
+
+  { band: 'Antiquity · The Long Silence' },
+
+  { type:'lore', when:'Undated antiquity', title:'The Watchers', req:26,
+    cover:'Scripture: the \u201Csons of God,\u201D the Nephilim \u2014 folklore of giants.',
+    truth:'Frequency-bearers who came down to teach \u2014 and bred. The giant bloodlines are the record of a channel briefly re-opened, then buried again as demon-myth so no one would look for the door.' },
+
+  { band: 'The Cover Story Era · The Bell Wakes  (1900\u20131950)' },
+
+  { type:'lore', when:'1930s\u201340s', title:'The Ice Doorway', req:16,
+    cover:'Germany runs ordinary Antarctic expeditions in the years before the war.',
+    truth:'They found the edge of the Ice Kings\u2019 frozen kingdom and the tuning-engines inside it. What they pulled out started a hidden arms race for the Signal that never truly ended.' },
+
+  { type:'story', when:'1933', title:'The Magenta Bell', req:55, story:'dt_magenta_bell', path:'stories/deep_time/THE_MAGENTA_BELL.md',
+    desc:'Marconi\u2019s 347 MHz \u201Cfalse well\u201D pulls a maintenance craft out of the sky over Italy. RS/33, the Vatican, the OSS. The origin hinge of The Legacy.' },
+
+  { type:'lore', when:'1942 (Feb 25)', title:'The Battle of Los Angeles', req:8,
+    cover:'Wartime jitters: 1,440 anti-aircraft rounds fired at a stray balloon \u2014 or at nothing at all.',
+    truth:'Something answered the new radar frequencies over the coast. Nothing fell because nothing up there could be touched by shells. The bell was awake now, and listening.' },
+
+  { type:'lore', when:'1947 (July)', title:'Roswell', req:6,
+    cover:'A weather balloon. Then a \u201CMogul\u201D balloon. The Army\u2019s story changed twice in a single day.',
+    truth:'A Second-Octave craft, pulled down like Magenta. The recovery gave The Legacy its first bodies \u2014 and its permanent mandate. Every modern secret is built on this one field in New Mexico.' },
+
+  { type:'lore', when:'1947 (Sept)', title:'The Committee of Twelve', req:10,
+    cover:'\u201CMajestic 12\u201D \u2014 a set of leaked documents, widely dismissed as a hoax.',
+    truth:'The public rumor is a decoy shaped around a real structure. The Legacy let \u201CMJ-12\u201D leak precisely so no one would go looking for the far older thing underneath it.' },
+
+  { band: 'Cold War Era  (1950\u20131980)' },
+
+  { type:'lore', when:'1952', title:'The Legacy Named', req:12,
+    cover:'The Washington D.C. radar flap; the Robertson Panel instructs the public to stop looking.',
+    truth:'Capt. Hollowell folds the scattered recovery groups into one continuity: The Legacy. Their founding policy is not the containment of craft \u2014 it is the containment of FREQUENCY. Debunking is just a tool.' },
+
+  { type:'lore', when:'1980 (Dec)', title:'Rendlesham', req:14,
+    cover:'UK/USAF: a misidentified lighthouse; off-duty airmen imagining things in the dark.',
+    truth:'A landed craft transmits binary coordinates and a string of frequencies to a decoding airman. The Legacy classified the numbers \u2014 never the lights. The lights were never the point.' },
+
+  { band: 'The Lazar Era  (1980\u20132000)' },
+
+  { type:'story', when:'1989', title:'The Harmonic Manifest', req:60, story:'dt_harmonic_manifest', path:'stories/deep_time/THE_HARMONIC_MANIFEST.md',
+    desc:'At S-4, a 347 MHz test makes the Magenta bell read a MANIFEST aloud: five soul-signatures, not yet born, inbound. This is why the band are Resonant.' },
+
+  { type:'lore', when:'1989 (Nov)', title:'Lazar Goes Public', req:5,
+    cover:'A discredited physicist with no verifiable records makes wild claims about Element 115.',
+    truth:'Lazar wasn\u2019t lying \u2014 he was standing three doors down from the Magenta bell during Test #7. His \u201Cgravity amplifier\u201D is a tuning stage. Element 115 was synthesized in 2003, exactly as he said.' },
+
+  { type:'lore', when:'1997 (March 13)', title:'The Phoenix Lights', req:4,
+    cover:'Flares. The governor mocks it on live TV \u2014 then admits, decades later, that he saw the craft.',
+    truth:'A mile-wide Shepherd craft drifts the Arizona corridor, sampling the desert\u2019s quiet frequencies. The Legacy runs the flare story before the craft has even cleared the valley.' },
+
+  { band: 'Modern Disclosure Era  (2000\u20132026)' },
+
+  { type:'lore', when:'2004 (Nov)', title:'The Tic Tac', req:3,
+    cover:'Navy pilots film a white object off the California coast that they cannot identify.',
+    truth:'A Shepherd craft checks an undersea well off San Diego. For the first time the cover story slips onto gun-camera tape the Legacy can\u2019t fully bury \u2014 and the fracture inside begins.' },
+
+  { type:'lore', when:'2017 (Dec)', title:'The Program Surfaces', req:3,
+    cover:'The New York Times reveals a secret Pentagon UAP program (AATIP). The videos go public.',
+    truth:'A faction inside the modern Legacy begins leaking on purpose \u2014 the first real crack in eighty years of silence. Someone wants the five to be found BEFORE the Dampener is ever used.' },
+
+  { type:'lore', when:'2023 (July)', title:'Grusch Under Oath', req:2,
+    cover:'A whistleblower testifies to Congress about \u201Cnon-human biologics\u201D \u2014 yet no craft is produced.',
+    truth:'The testimony is real, and sanctioned from inside. The Legacy is splitting between those who guard the silence and those who have decided the Signal must finally be heard.' },
+
+  { type:'lore', when:'2025 (May)', title:'The Measurable Mute', req:4,
+    cover:'A fringe paper claims \u201Calien\u201D genetic traces in 581 families. Mainstream science scoffs.',
+    truth:'It\u2019s the de-key \u2014 finally visible in the data. The muted channel from 100,000 years ago, written in living DNA. The proof arrives in the world just as five strangers are about to form a band.' },
+
+  { band: 'Present' },
+
+  { type:'present', when:'2026 — You are here', title:'The Signal',
+    desc:'Five strangers form a band. None of them know what they are, or that the bell has been waiting 93 years for their voices. The story you are reading begins now.' },
+
+  { band: 'The Note Not Yet Played' },
+
+  { type:'lore', when:'Soon', title:'The Solar Flash', req:70,
+    cover:'Scientists speak only of an ordinary, if strong, solar cycle.',
+    truth:'A coming pulse from the Sun is tuned to the very channel the intruders muted 100,000 years ago. When it lands, everything that was put to sleep wakes at once \u2014 and the band is meant to be playing when it does.' }
+];
+
+/* total gated entries (story + lore, i.e. anything with a req) */
+var TOTAL_GATED = 0;
+for (var _i = 0; _i < ERAS.length; _i++) { if (ERAS[_i].req != null) TOTAL_GATED++; }
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderProgress() {
+  var rc = getReadCount();
+  var director = isDirector();
+  var declassified = 0, nextReq = null, nextTitle = '';
+  for (var i = 0; i < ERAS.length; i++) {
+    var e = ERAS[i];
+    if (e.req == null) continue;
+    if (director || rc >= e.req) declassified++;
+    else if (nextReq == null || e.req < nextReq) { nextReq = e.req; nextTitle = e.title; }
+  }
+  document.getElementById('levelText').textContent = director ? 'Director\u2019s Clearance' : ('Research Level ' + rc);
+  document.getElementById('countText').textContent = declassified + ' / ' + TOTAL_GATED + ' entries declassified';
+  var pct = Math.round((declassified / TOTAL_GATED) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  var nextEl = document.getElementById('nextText');
+  if (director) {
+    nextEl.textContent = 'Director\u2019s Clearance is ON \u2014 the entire timeline is declassified.';
+    nextEl.style.color = 'var(--deeptime)';
+  } else if (nextReq == null) {
+    nextEl.textContent = '\u2713 Every entry declassified. The full chronology is open.';
+    nextEl.style.color = 'var(--deeptime)';
+  } else {
+    var remaining = Math.max(0, nextReq - rc);
+    nextEl.style.color = '';
+    nextEl.textContent = 'Next: \u201C' + nextTitle + '\u201D unlocks at Research Level ' + nextReq + ' \u2014 read ' + remaining + ' more stor' + (remaining === 1 ? 'y' : 'ies') + '.';
+  }
+}
+
+function renderTimeline() {
+  var rc = getReadCount();
+  var director = isDirector();
+  var html = '';
+  for (var i = 0; i < ERAS.length; i++) {
+    var e = ERAS[i];
+
+    if (e.band) { html += '<div class="era-band">' + esc(e.band) + '</div>'; continue; }
+
+    if (e.type === 'present') {
+      html += '<div class="node present">' +
+                '<div class="dot"><i class="fa-solid fa-tower-broadcast"></i></div>' +
+                '<div class="card">' +
+                  '<div class="card-when">' + esc(e.when) + '</div>' +
+                  '<div class="card-title">' + esc(e.title) + '</div>' +
+                  '<div class="card-desc">' + esc(e.desc) + '</div>' +
+                '</div>' +
+              '</div>';
+      continue;
+    }
+
+    var unlocked = director || rc >= e.req;
+
+    if (!unlocked) {
+      var remaining = Math.max(0, e.req - rc);
+      html += '<div class="node locked ' + e.type + '">' +
+                '<div class="dot">\uD83D\uDD12</div>' +
+                '<div class="card">' +
+                  '<div class="card-when">' + esc(e.when) + '<span class="card-kind">' + (e.type === 'story' ? 'STORY' : 'LORE') + '</span></div>' +
+                  '<div class="card-title">\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588</div>' +
+                  '<div class="card-lockmsg">\uD83D\uDD12 [CLASSIFIED] \u00b7 Reach Research Level ' + e.req + ' (read ' + remaining + ' more) to declassify</div>' +
+                '</div>' +
+              '</div>';
+      continue;
+    }
+
+    if (e.type === 'story') {
+      html += '<div class="node unlocked story" data-path="' + e.path + '" data-title="' + esc(e.title) + '">' +
+                '<div class="dot"><i class="fa-solid fa-book-open"></i></div>' +
+                '<div class="card">' +
+                  '<div class="card-when">' + esc(e.when) + '<span class="card-kind">STORY</span></div>' +
+                  '<div class="card-title">' + esc(e.title) + '</div>' +
+                  '<div class="card-desc">' + esc(e.desc) + '</div>' +
+                  '<div class="card-cta">Read the story <i class="fa-solid fa-arrow-right"></i></div>' +
+                '</div>' +
+              '</div>';
+    } else { // lore
+      html += '<div class="node unlocked lore">' +
+                '<div class="dot"><i class="fa-solid fa-folder-open"></i></div>' +
+                '<div class="card">' +
+                  '<div class="card-when">' + esc(e.when) + '<span class="card-kind">LORE</span></div>' +
+                  '<div class="card-title">' + esc(e.title) + '</div>' +
+                  '<div class="reveal">' +
+                    '<div class="cover"><span class="lbl">Cover Story</span>' + esc(e.cover) + '</div>' +
+                    '<div class="truth"><span class="lbl">Signal Decay Truth</span>' + esc(e.truth) + '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+    }
+  }
+  document.getElementById('timeline').innerHTML = html;
+
+  // wire clicks on unlocked STORY nodes only
+  var nodes = document.querySelectorAll('.node.unlocked.story');
+  for (var j = 0; j < nodes.length; j++) {
+    nodes[j].addEventListener('click', function () {
+      openStory(this.getAttribute('data-path'), this.getAttribute('data-title'));
+    });
+  }
+}
+
+function refresh() { renderProgress(); renderTimeline(); }
+
+/* ── Director's Clearance ── */
+function toggleDirector() {
+  var on = !isDirector();
+  try { localStorage.setItem('sd_director', on ? '1' : '0'); } catch (e) {}
+  syncDirectorBtn();
+  refresh();
+}
+function syncDirectorBtn() {
+  var on = isDirector();
+  var btn = document.getElementById('directorBtn');
+  var lbl = document.getElementById('directorLabel');
+  if (on) { btn.classList.add('on'); lbl.textContent = 'Director\u2019s Clearance: ON'; }
+  else { btn.classList.remove('on'); lbl.textContent = 'Director\u2019s Clearance: OFF'; }
+}
+
+/* ── Inline story reader (fetch + marked, same feel as main reader) ── */
+function openStory(path, title) {
+  var overlay = document.getElementById('readerOverlay');
+  document.getElementById('rTitle').textContent = title || 'Story';
+  var body = document.getElementById('rBody');
+  body.innerHTML = '<p style="text-align:center;color:#888;">Loading\u2026</p>';
+  overlay.classList.add('active');
+  fetch(path).then(function (r) {
+    if (!r.ok) throw new Error('not found');
+    return r.text();
+  }).then(function (md) {
+    try {
+      body.innerHTML = (typeof marked !== 'undefined')
+        ? (marked.parse ? marked.parse(md) : marked(md))
+        : '<pre style="white-space:pre-wrap">' + esc(md) + '</pre>';
+    } catch (e) {
+      body.innerHTML = '<pre style="white-space:pre-wrap">' + esc(md) + '</pre>';
+    }
+    document.querySelector('.reader-body').scrollTop = 0;
+  }).catch(function () {
+    body.innerHTML = '<p style="color:#f87171;text-align:center;">Could not load this story file.</p>';
+  });
+}
+function closeStory() {
+  document.getElementById('readerOverlay').classList.remove('active');
+}
+
+/* ── Boot ── */
+try {
+  syncDirectorBtn();
+  refresh();
+} catch (e) { console.error('Timeline init error:', e); }
+
+/* PWA — guarded (throws in sandboxed preview; harmless) */
+if ('serviceWorker' in navigator) {
+  try { navigator.serviceWorker.register('service-worker.js').catch(function(){}); } catch (e) {}
+}
+</script>
+</body>
+</html>
