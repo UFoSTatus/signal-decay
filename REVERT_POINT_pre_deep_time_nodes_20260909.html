@@ -25,7 +25,6 @@
   --accent-entity: #10b981;
   --accent-loc: #a855f7;
   --accent-phenom: #f472b6;
-  --accent-deeptime: #7dd3fc;
   --card-bg: rgba(255,255,255,0.06);
   --card-border: rgba(255,255,255,0.1);
   --card-hover: rgba(255,255,255,0.12);
@@ -893,7 +892,6 @@ html, body { height: 100vh; height: 100dvh; }
         <option value="events">Events</option>
         <option value="entities">Entities</option>
         <option value="locations">Locations</option>
-        <option value="deep_time">Deep Time</option>
       </select>
     </div>
     <div class="form-group"><label>Year</label><input type="number" id="admin-year" placeholder="1947"></div>
@@ -1022,26 +1020,6 @@ const ENTRIES = [
   {id:'cattle_mutilations',title:'Cattle Mutilations',category:'phenomena',year:1967,level:3,
    summary:'Surgical precision with no blood. No tracks. Organs removed through incisions no human scalpel could make. Something is harvesting frequency-rich tissue.',
    article:'<p>Since 1967, thousands of cattle across the American West have been found dead with organs surgically removed — reproductive organs, eyes, tongues, rectums — with no blood at the scene and incisions showing cauterization at a cellular level beyond current medical technology.</p><p>No predator tracks, no signs of struggle, and carcasses are often avoided by scavengers for days. In Signal Decay\'s framework, the targeted organs are those with the highest bio-frequency concentration. Something is harvesting resonance-rich tissue — possibly to maintain coherence in the First Octave.</p>'}
-,
-  // ── DEEP TIME LAYER nodes (added 2026-09-09). Locked; the deep chronology beneath the whole board. ──
-  {id:'dt_first_octave',title:'The First Octave (~2.6B ya)',category:'deep_time',year:-2600000000,level:5,locked:true,
-   summary:'The Ancient Builders string the young Earth as an instrument — seven wells, a defense grid, stasis vaults with sleeping giants. The world was BUILT to sing.',
-   article:'<p>Two and a half billion years ago a patient old mind — the Ancient Builder Race, the deepest wing of the frequency-architects — tuned the whole solar system, singing matter into crystalline domes, obelisks, and seven amplifying "wells" set into Earth\'s thin places.</p><p>They hung a defense grid around the neighborhood and folded a few of their own down into time-dilation stasis vaults (30 minutes inside ≈ 30,000 years outside) to sleep out the long wait. The instrument they built is the planet itself; the note it was strung to make is still coming.</p><p><em>Deep Time Layer — read "The First Octave" in the Reader.</em></p>'},
-  {id:'dt_gold_flood',title:'The Gold and the Flood (~450,000 ya)',category:'deep_time',year:-450000,level:5,locked:true,
-   summary:'Miners from a dying world strip Earth for gold and MUTE the frequency channel in its people to make an obedient workforce. The clay remembers the theft and forgets the design.',
-   article:'<p>When the grid fell, scavenger-miners from a wandering world came for gold. Finding the frequency-vessel design already running, they did not create humanity — they crippled it, laying a "de-key" mute over the channel to make workers who could dig but could not hear the sunrise.</p><p>The Sumerian tablets record this as gods creating servants from clay; that is the cover story. The Flood carried the "woken bloodline" — the ache-carriers — through the bottleneck. This is why the Resonant gift lay dormant for millennia.</p><p><em>Deep Time Layer — read "The Gold and the Flood" in the Reader.</em></p>'},
-  {id:'dt_ice_kings',title:'The Ice Kings (~55,000 ya)',category:'deep_time',year:-55000,level:5,locked:true,
-   summary:'Giant elongated-skull refugees from a broken world build a kingdom around an Antarctic frequency well, inherit the Builders\' memory-archive, and freeze there in the pole shift.',
-   article:'<p>Refugees from Maldek and Mars — 12-to-14-foot giants with elongated skulls — found a warm blue well at the bottom of the world and built a descending kingdom around it, adopting the occupiers\' ancient tuning-engines as a memory-archive and singing 50,000 years of grief into it.</p><p>The ~13,000-year pole shift flash-froze them at their posts. Their bodies and their sealed archive are what the modern Legacy would one day find the edge of, and guard, without ever hearing the song still playing on the far side of the ice.</p><p><em>Deep Time Layer — read "The Ice Kings" in the Reader.</em></p>'},
-  {id:'dt_poles_moved',title:'The Day the Poles Moved (~13,000 ya)',category:'deep_time',year:-13000,level:5,locked:true,
-   summary:'The stars slid, the water came, and a listening coastal people drowned. "Atlantis" is the human cover-name for the loss. The ache survived in the blood.',
-   article:'<p>Thirteen thousand years ago Earth\'s crust slipped on its molten bearing — the sky rotated in a single night, the sea stood up, and the temperate world fell off a cliff into the Younger Dryas cold. A gentle coastal people who had built their culture around listening to the world\'s hum were scoured away.</p><p>They survived only as memory — painted on cave walls, carried in a thousand names, remembered at last as "Atlantis." The freeze sealed the Antarctic vault. But the closed channel rode through in the blood: the not-forgetting, the ache.</p><p><em>Deep Time Layer — read "The Day the Poles Moved" in the Reader.</em></p>'},
-  {id:'dt_magenta_bell',title:'The Magenta Bell (1933)',category:'deep_time',year:1933,level:4,locked:true,
-   summary:'Marconi\'s 347 MHz "false well" pulls a Second-Octave maintenance craft out of the sky over Italy. RS/33. The origin hinge of The Legacy.',
-   article:'<p>For eleven days in June 1933, Marconi held 347 MHz pulsed in perfect fifths at full power, and something answered. His signal forged a "false well" that a Type-Shepherd maintenance vessel mistook for a real one and descended to service — locking into matter over a wheat field near Magenta.</p><p>Mussolini\'s Cabinet RS/33, the Vatican, and later the OSS handled the craft; it went to Wright-Patterson. Marconi died in 1937 of frequency saturation, his last question unanswered: "How does one build a machine that asks a question?" The bell has been waiting for a pilot ever since.</p><p><em>Deep Time Layer — read "The Magenta Bell" in the Reader. (See also the 1933 Magenta Crash node.)</em></p>'},
-  {id:'dt_harmonic_manifest',title:'The Harmonic Manifest (1989)',category:'deep_time',year:1989,level:5,locked:true,
-   summary:'At S-4, a 347 MHz test makes the Magenta bell read a MANIFEST aloud: five soul-signatures, not yet born, inbound. Someone was listening. This is why the band are Resonant.',
-   article:'<p>On December 3, 1989, Propulsion Test #7 fed 347 MHz — Marconi\'s frequency — into the recovered Magenta craft ("the Sport Model") at S-4. For 4.7 seconds it sang five braided soul-signatures and lit with aquarium-blue glyphs. A frightened scientist caught a ghost of it on a pocket cassette: Tape #14.</p><p>Foundation Document #447 identified the five tones as a pre-incarnation manifest — five consciousnesses scheduled to embody on Earth. Five souls. Coming. The Legacy has been waiting for five children to be born ever since. They are the band.</p><p><em>Deep Time Layer — read "The Harmonic Manifest" in the Reader.</em></p>'}
 ]
 
 const CONNECTIONS = [
@@ -1065,20 +1043,6 @@ const CONNECTIONS = [
   {from:'grusch',to:'cosmic_disclosure',label:'accelerated'},
   {from:'phoenix',to:'cosmic_disclosure',label:'public awareness'},
   {from:'usos',to:'inner_earth',label:'entrance to'},
-  // ── DEEP TIME LAYER connections (2026-09-09) ──
-  {from:'dt_first_octave',to:'dt_gold_flood',label:'grid falls',critical:true},
-  {from:'dt_first_octave',to:'ancient_builders',label:'is'},
-  {from:'dt_first_octave',to:'usos',label:'built the wells'},
-  {from:'dt_gold_flood',to:'dt_ice_kings',label:'left tech in the ice'},
-  {from:'dt_gold_flood',to:'dampener',label:'the first mute',critical:true},
-  {from:'dt_ice_kings',to:'dt_poles_moved',label:'frozen by'},
-  {from:'dt_ice_kings',to:'inner_earth',label:'sealed kingdom'},
-  {from:'dt_poles_moved',to:'dt_magenta_bell',label:'wells wait'},
-  {from:'dt_magenta_bell',to:'magenta',label:'the true story of',critical:true},
-  {from:'dt_magenta_bell',to:'dt_harmonic_manifest',label:'same bell, 347 MHz'},
-  {from:'dt_magenta_bell',to:'mj12',label:'precursor to The Legacy'},
-  {from:'dt_harmonic_manifest',to:'lazar',label:'S-4, Test #7'},
-  {from:'dt_harmonic_manifest',to:'dampener',label:'the manifest The Legacy guards',critical:true},
   {from:'looking_glass',to:'dampener',label:'detected',critical:true},
   {from:'kennedy',to:'cosmic_disclosure',label:'legacy'},
   // New entry connections
@@ -1153,8 +1117,7 @@ const CATEGORY_COLORS = {
   events:'var(--accent-event)',
   entities:'var(--accent-entity)',
   locations:'var(--accent-loc)',
-  phenomena:'var(--accent-phenom)',
-  deep_time:'var(--accent-deeptime)'
+  phenomena:'var(--accent-phenom)'
 };
 
 const STORY_STEPS = [
@@ -1583,7 +1546,7 @@ function updateMinimap() {
   const offX = (mw - bounds.w * scale) / 2 - bounds.x * scale;
   const offY = (mh - bounds.h * scale) / 2 - bounds.y * scale;
   
-colorMap = {government:'#f59e0b',technology:'#22d3ee',events:'#ef4444',entities:'#10b981',locations:'#a855f7',phenomena:'#f472b6',deep_time:'#7dd3fc'};
+colorMap = {government:'#f59e0b',technology:'#22d3ee',events:'#ef4444',entities:'#10b981',locations:'#a855f7',phenomena:'#f472b6'};
   document.querySelectorAll('.card').forEach(c => {
     const x = parseFloat(c.style.left) * scale + offX;
     const y = parseFloat(c.style.top) * scale + offY;
