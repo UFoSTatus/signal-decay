@@ -1,7 +1,7 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v45';
+const CACHE_NAME = 'signal-decay-v46';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
