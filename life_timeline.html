@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Signal Decay — Five Parallel Lives</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   SIGNAL DECAY — FIVE PARALLEL LIVES  (life_timeline.html)
+   Five lanes, 2001 -> 2026, each starting at the member's birth,
+   all converging on THE MEETING (2026). Life-beats keyed to canon ages.
+   Matches the reader's dark-glass / per-character-color theme.
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0a0a0a; --bg2:#111; --card:#141414; --line:rgba(255,255,255,0.08);
+  --txt:#f5f5f5; --mut:#8a94a0; --amber:#f59e0b;
+  --oren:#f59e0b; --mira:#ef4444; --jude:#8b5cf6; --zara:#06b6d4; --kael:#10b981;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+body{padding:max(18px,env(safe-area-inset-top)) 0 calc(30px + env(safe-area-inset-bottom));}
+a{color:var(--amber);text-decoration:none;}
+.wrap{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.back-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);
+  color:var(--mut);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-decoration:none;}
+.back-btn:hover{background:rgba(245,158,11,0.12);color:var(--amber);}
+h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;
+  background:linear-gradient(110deg,#f59e0b,#ef4444,#8b5cf6,#06b6d4,#10b981);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+h1 .sub{display:block;font-size:0.74rem;font-weight:500;color:var(--mut);margin-top:3px;-webkit-text-fill-color:var(--mut);}
+.hint{font-size:0.68rem;color:var(--mut);margin:10px 0 6px;}
+
+/* horizontal scroll region */
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px;margin-top:6px;}
+.grid{position:relative;}
+/* year axis */
+.years{display:flex;position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg),rgba(10,10,10,0.85));padding-bottom:4px;}
+.year{flex:0 0 var(--yw);text-align:center;font-size:0.58rem;color:var(--mut);font-variant-numeric:tabular-nums;
+  border-left:1px solid var(--line);padding:2px 0;}
+.year.decade{color:var(--txt);font-weight:700;}
+.year.meet{color:var(--amber);font-weight:800;}
+
+/* lanes */
+.lane{position:relative;height:var(--lh);margin:10px 0;border-radius:12px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);}
+.lane-label{position:sticky;left:0;z-index:4;display:inline-flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--line);border-radius:100px;padding:5px 12px 5px 6px;
+  font-size:0.76rem;font-weight:700;margin-bottom:4px;}
+.lane-ico{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
+.lane-track{position:relative;height:calc(var(--lh) - 30px);}
+.life-line{position:absolute;top:50%;height:3px;border-radius:2px;transform:translateY(-50%);opacity:0.5;}
+.birth-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);
+  border:2px solid var(--bg);z-index:3;}
+.beat{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:3;cursor:pointer;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;}
+.beat-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);transition:transform .15s;}
+.beat:hover .beat-dot,.beat.sel .beat-dot{transform:scale(1.4);}
+.beat.sel .beat-dot{box-shadow:0 0 0 3px rgba(255,255,255,0.25);}
+.beat .age{position:absolute;top:26px;left:50%;transform:translateX(-50%);font-size:0.52rem;color:var(--mut);white-space:nowrap;pointer-events:none;}
+.detail{background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;
+  padding:14px 16px;margin-top:14px;min-height:64px;transition:border-color .2s;}
+.detail .dh{font-size:0.7rem;font-weight:800;letter-spacing:0.5px;margin-bottom:4px;}
+.detail .dt{font-size:0.9rem;font-weight:700;margin-bottom:4px;}
+.detail .dd{font-size:0.78rem;color:var(--mut);line-height:1.5;}
+.detail .empty{font-size:0.76rem;color:var(--mut);}
+
+/* the converging meeting marker */
+.meet-line{position:absolute;top:-6px;bottom:-6px;width:2px;background:linear-gradient(180deg,transparent,var(--amber),transparent);z-index:6;}
+.meet-flag{position:absolute;top:-2px;transform:translateX(-50%);background:var(--amber);color:#2a1a00;
+  font-size:0.56rem;font-weight:800;padding:2px 7px;border-radius:100px;white-space:nowrap;z-index:7;}
+
+/* legend / ages-now cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:18px;}
+.pcard{background:var(--card);border:1px solid var(--line);border-left-width:3px;border-radius:10px;padding:10px 12px;}
+.pcard .nm{font-size:0.82rem;font-weight:700;}
+.pcard .meta{font-size:0.64rem;color:var(--mut);margin-top:2px;}
+.pcard .age{font-size:1.3rem;font-weight:800;margin-top:4px;}
+.foot{text-align:center;color:var(--mut);font-size:0.66rem;margin-top:22px;line-height:1.6;}
+@media(min-width:900px){ h1{font-size:1.6rem;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back-btn" href="index.html" title="Back"><i class="fa-solid fa-arrow-left"></i></a>
+    <h1>Five Parallel Lives
+      <span class="sub">2001 → 2026 · five strangers growing toward the night they meet</span>
+    </h1>
+  </div>
+  <div class="hint"><i class="fa-solid fa-hand-pointer"></i> Scroll sideways to move through the years · tap/hover a dot for the moment · every lane converges on <b style="color:var(--amber)">2026</b>.</div>
+</div>
+
+<div class="wrap"><div class="scroller"><div class="grid" id="grid"></div></div></div>
+<div class="wrap"><div class="detail" id="detail" style="border-left-color:#f59e0b;"><div class="empty">👆 Tap any dot on a life-line to see that moment.</div></div></div>
+
+<div class="wrap">
+  <div class="cards" id="cards"></div>
+  <div class="foot">
+    All ages are canon (from each member's FULL_ARC). Birth years locked in CANON_BIRTH_YEARS.<br>
+    The lanes begin at each birth and all end together at The Meeting — 2026.
+  </div>
+</div>
+
+<script>
+var START = 2001, MEET = 2026;              // timeline span
+var YEARS = MEET - START;                    // 25 columns
+var MEMBERS = [
+  { id:'oren', name:'Oren Malik',  color:'#f59e0b', ico:'\uD83E\uDD41', role:'Drums',        born:1999,
+    beats:[
+      { y:2004, t:'The first time-skip', d:'A 5-year-old loses 20 minutes. The sealed door opens for a heartbeat.' },
+      { y:2013, t:'High school begins', d:'"The Boy Who Lost Time." Learns to hide the gaps.' },
+      { y:2017, t:'Graduates', d:'Buries the rhythm behind a locked door; chooses the steadiest job he can find.' },
+      { y:2021, t:'Becomes an ER nurse', d:'A place where time is measured and death is near — his frequency, disguised as duty.' },
+      { y:2026, t:'The Meeting — 27', d:'The eldest. The metronome. The one already half-ready.' }
+    ]},
+  { id:'jude', name:'Jude Okafor', color:'#8b5cf6', ico:'\uD83C\uDFA4', role:'Rhythm guitar', born:2000,
+    beats:[
+      { y:2000, t:'Born — the immigrant\u2019s son', d:'Rage he can\u2019t name pressing against walls from the start.' },
+      { y:2014, t:'High school begins', d:'The anger has a shape now, and nowhere to go.' },
+      { y:2019, t:'The conviction', d:'The cage he\u2019ll spend years learning wasn\u2019t built by anyone but him.' },
+      { y:2024, t:'Out — seismic', d:'Structural resonance: he can feel buildings breathe. Construction work hides it.' },
+      { y:2026, t:'The Meeting — 26', d:'The one whose cage only love can open.' }
+    ]},
+  { id:'zara', name:'Zara Kova\u010d', color:'#06b6d4', ico:'\uD83C\uDFB5', role:'Bass', born:2001,
+    beats:[
+      { y:2001, t:'First Breath', d:'The alien soul arrives fully conscious. Infinity inside an infant. Alone.' },
+      { y:2009, t:'Lena is born', d:'Zara is 8. For the first time, she has someone to protect.' },
+      { y:2015, t:'High school', d:'"The Alien in Homeroom." Performs human like a costume.' },
+      { y:2024, t:'Sound tech at The Frequency', d:'Hides in the low end. A frequency-highway builder coiling cables.' },
+      { y:2026, t:'The Meeting — 25', d:'The only one awake the whole time — waiting 25 years for anyone to come.' }
+    ]},
+  { id:'kael', name:'Kael Voss',   color:'#10b981', ico:'\uD83C\uDFA4', role:'Vocals', born:2002,
+    beats:[
+      { y:2002, t:'Born to a deaf mother', d:'Learns voice is physical — a hand on the chest to feel it.' },
+      { y:2016, t:'High school — "The Silent One"', d:'Barely speaks. The voice sleeps, waiting.' },
+      { y:2020, t:'Graduates into lockdown', d:'A silent world for the one who\u2019ll one day bind the other four.' },
+      { y:2026, t:'The Meeting — 24', d:'The catalyst. The voice of integration, still unaware.' }
+    ]},
+  { id:'mira', name:'Mira Chen',   color:'#ef4444', ico:'\uD83C\uDFB8', role:'Lead guitar', born:2004,
+    beats:[
+      { y:2004, t:'Born seeing both worlds', d:'The entities are the first faces she sees. Chromatic sight from day one.' },
+      { y:2012, t:'Misdiagnosed', d:'"Possible early-onset schizophrenia." She decides: never tell them anything again.' },
+      { y:2018, t:'High school — "The Crazy Girl"', d:'Stops talking about what she sees. Picks up a guitar instead.' },
+      { y:2022, t:'Graduates; teaches guitar', d:'Private lessons by day; the ghost band finds her at night.' },
+      { y:2026, t:'The Meeting — 22', d:'The youngest. The bridge to the entities no one else can see.' }
+    ]}
+];
+
+var LH = 78;          // lane height px
+function yearWidth(){ return Math.max(30, Math.min(64, Math.floor((window.innerWidth - 40) / 12))); }
+
+function build(){
+  var YW = yearWidth();
+  var totalW = (YEARS + 1) * YW;
+  var grid = document.getElementById('grid');
+  grid.style.setProperty('--yw', YW + 'px');
+  grid.style.setProperty('--lh', LH + 'px');
+  grid.style.width = totalW + 'px';
+
+  // year axis
+  var yearsHTML = '<div class="years" style="width:' + totalW + 'px;">';
+  for (var yr = START; yr <= MEET; yr++){
+    var cls = 'year' + (yr % 5 === 0 ? ' decade' : '') + (yr === MEET ? ' meet' : '');
+    var label = (yr === MEET) ? '2026' : ("\u2019" + String(yr).slice(2));
+    yearsHTML += '<div class="' + cls + '">' + label + '</div>';
+  }
+  yearsHTML += '</div>';
+
+  function xFor(yr){ return (yr - START) * YW + YW/2; }
+
+  var lanesHTML = '';
+  for (var i=0;i<MEMBERS.length;i++){
+    var m = MEMBERS[i];
+    var bx = xFor(m.born), mx = xFor(MEET);
+    lanesHTML += '<div class="lane">';
+    lanesHTML += '<div class="lane-label"><span class="lane-ico" style="background:' + m.color + '22;">' + m.ico + '</span>' + m.name + ' <span style="color:var(--mut);font-weight:500;">\u00b7 ' + m.role + '</span></div>';
+    lanesHTML += '<div class="lane-track">';
+    // life line from birth to meeting
+    lanesHTML += '<div class="life-line" style="left:' + bx + 'px;width:' + (mx-bx) + 'px;background:' + m.color + ';"></div>';
+    // birth dot
+    lanesHTML += '<div class="birth-dot" style="left:' + bx + 'px;background:' + m.color + ';"></div>';
+    // beats
+    for (var b=0;b<m.beats.length;b++){
+      var beat = m.beats[b]; var x = xFor(beat.y); var age = beat.y - m.born;
+      lanesHTML += '<div class="beat" data-m="' + i + '" data-b="' + b + '" style="left:' + x + 'px;">'
+        + '<div class="beat-dot" style="background:' + m.color + ';"></div>'
+        + '<div class="age">' + age + '</div>'
+        + '</div>';
+    }
+    lanesHTML += '</div></div>';
+  }
+
+  // converging meeting line across the whole stack
+  var meetX = xFor(MEET);
+  var meetHTML = '<div class="meet-line" style="left:' + meetX + 'px;"></div>'
+    + '<div class="meet-flag" style="left:' + meetX + 'px;">\uD83C\uDF1F THE MEETING</div>';
+
+  grid.innerHTML = yearsHTML + '<div style="position:relative;padding-top:6px;">' + lanesHTML + meetHTML + '</div>';
+
+  // ages-now cards
+  var cards = '';
+  var sorted = MEMBERS.slice().sort(function(a,b){ return a.born - b.born; }); // oldest first
+  for (var c=0;c<sorted.length;c++){
+    var mm = sorted[c];
+    cards += '<div class="pcard" style="border-left-color:' + mm.color + ';">'
+      + '<div class="nm">' + mm.ico + ' ' + mm.name + '</div>'
+      + '<div class="meta">' + mm.role + ' \u00b7 born ' + mm.born + '</div>'
+      + '<div class="age" style="color:' + mm.color + ';">' + (MEET - mm.born) + '<span style="font-size:0.7rem;color:var(--mut);font-weight:500;"> in 2026</span></div>'
+      + '</div>';
+  }
+  document.getElementById('cards').innerHTML = cards;
+
+  // Tap/click a beat -> fill the detail card (phone-friendly; no hover needed)
+  var beats = grid.querySelectorAll('.beat');
+  for (var k=0;k<beats.length;k++){
+    beats[k].addEventListener('click', function(){
+      var mi = parseInt(this.getAttribute('data-m'),10), bi = parseInt(this.getAttribute('data-b'),10);
+      selectBeat(mi, bi, this);
+    });
+  }
+}
+
+function selectBeat(mi, bi, el){
+  var m = MEMBERS[mi], beat = m.beats[bi]; if(!m||!beat) return;
+  var age = beat.y - m.born;
+  var prev = document.querySelector('.beat.sel'); if(prev) prev.classList.remove('sel');
+  if(el) el.classList.add('sel');
+  var d = document.getElementById('detail');
+  d.style.borderLeftColor = m.color;
+  d.innerHTML = '<div class="dh" style="color:' + m.color + ';">' + m.ico + ' ' + m.name + ' \u00b7 ' + beat.y + ' \u00b7 age ' + age + '</div>'
+    + '<div class="dt">' + beat.t + '</div>'
+    + '<div class="dd">' + beat.d + '</div>';
+  d.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+var _rt;
+window.addEventListener('resize', function(){ clearTimeout(_rt); _rt = setTimeout(build, 150); });
+try { build(); } catch(e){ console.error('life-timeline init', e); }
+
+if ('serviceWorker' in navigator){ try { navigator.serviceWorker.register('service-worker.js').catch(function(){}); } catch(e){} }
+</script>
+</body>
+</html>
