@@ -1,7 +1,7 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v68';
+const CACHE_NAME = 'signal-decay-v70';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
@@ -135,4 +135,13 @@ self.addEventListener('fetch', (event) => {
       })
     );
   }
+});
+
+// ── Report cache version to the page (for the in-app version label) ──
+self.addEventListener('message', (event) => {
+  try {
+    if (event.data && event.data.type === 'GET_VERSION') {
+      if (event.ports && event.ports[0]) event.ports[0].postMessage({ version: CACHE_NAME });
+    }
+  } catch (e) {}
 });
