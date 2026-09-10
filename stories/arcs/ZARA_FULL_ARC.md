@@ -51,7 +51,7 @@ She doesn't know. And it's the ONLY thing she doesn't know. Which makes it the t
 
 ---
 
-### The First Breath (1997)
+### The First Breath (2001)
 
 The first thing Za-Rah registers in a human body is: **constriction.**
 
@@ -201,7 +201,7 @@ Not contempt. Not hatred. More like... compassion mixed with impatience. The way
 
 ## PART 3: LENA — "The Recognition"
 
-### The Pregnancy (2004-2005)
+### The Pregnancy (2008-2009)
 
 Monique is pregnant again. Third child. Zara (7, turning 8) doesn't react. Another human baby. Fine. She hopes it's a girl — not for sisterhood, but because she's observed that Marko (now 2) requires an enormous amount of energy and Monique could use another calm presence.
 
@@ -753,9 +753,9 @@ Over the next two years, he listens to it obsessively. Late at night. Headphones
 
 He doesn't understand it. But it changes him. After listening — especially after long sessions — his hearing is sharper. He can feel electrical currents in the wires he works with. He starts doing his electrical work by SENSE rather than measurement — knowing where a short is before he finds it, feeling the resistance in a wire through his fingertips.
 
-He meets Monique in 1996. At a bar. She's singing backup for a jazz band. He's drinking alone, headphones off for the first time in weeks. She sings. He listens. And something about her voice — the FREQUENCY of it, the warmth, the way it fills a space — resonates with something the cassette put inside him.
+He meets Monique in 1999. At a bar. She's singing backup for a jazz band. He's drinking alone, headphones off for the first time in weeks. She sings. He listens. And something about her voice — the FREQUENCY of it, the warmth, the way it fills a space — resonates with something the cassette put inside him.
 
-They marry in 1997. Zara is born 9 months later.
+They marry in 2000. Zara is born 9 months later (2001).
 
 ---
 
