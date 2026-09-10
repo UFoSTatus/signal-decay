@@ -1889,8 +1889,7 @@ html, body { height: 100vh; height: 100dvh; }
 
     <!-- BROWSE PAGE -->
     <div class="page" id="page-browse">
-      <h2 style="font-size:1.2rem; margin-bottom:6px;">Browse the Universe</h2>
-      <div id="browseIntro"></div>
+      <h2 style="font-size:1.2rem; margin-bottom:16px;">Browse Universe</h2>
       <div class="filter-row" id="filterRow"></div>
       <div class="story-grid" id="browseGrid"></div>
     </div>
@@ -2204,7 +2203,6 @@ let loreUnlocked = storageGet('sd_lore', ["public"]);
 function init() {
   renderCharacters();
   renderFeaturedStories();
-  renderBrowseIntro();
   renderBrowseFilters();
   renderBrowseGrid();
   renderCharacterProfiles();
@@ -2270,66 +2268,24 @@ function renderStoryCard(s) {
 }
 
 // ═══ BROWSE PAGE ═══
-const BROWSE_CATS = [
-  { id:'arcs',        label:'Character Arcs', desc:'The five band members’ full life stories — the best place to start.' },
-  { id:'episodes',    label:'Episodes',       desc:'Scripted episodes of the unfolding present-day story.' },
-  { id:'side_stories',label:'Side Stories',   desc:'Standalone tales around the main cast — origins, the Legacy, supporting characters.' },
-  { id:'world',       label:'World & Lore',   desc:'The universe bible: frequency physics, factions, in-world culture.' },
-  { id:'deep_time',   label:'Deep Time',      desc:'The unlockable deep-past & off-world anthology (also gated in the Codex & Timeline).' },
-  { id:'reference',   label:'Reference',      desc:'Research & source documents (not stories — background material).' }
-];
-function catCount(id){ return STORIES.filter(function(s){return s.category===id;}).length; }
-
-function renderBrowseIntro() {
-  var el = document.getElementById('browseIntro');
-  if (!el) return;
-  el.innerHTML =
-    '<div style="background:linear-gradient(135deg,var(--amber-dim),transparent);border:1px solid var(--border-subtle);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:0.8rem;line-height:1.5;color:var(--text-secondary);">'
-    + '<b style="color:var(--text-primary);">👋 New here? Start with a <span style="color:var(--amber);">Character Arc</span>.</b> '
-    + 'The five arcs are the heart of the story. Then explore Episodes and Side Stories. '
-    + '<b style="color:var(--text-primary);">Everything here is free to read</b> — the 🔒 locks you’ll see elsewhere (the Codex and Deep Time Timeline) are a bonus game layer, not a wall. '
-    + 'Use the filters below to jump to a section.'
-    + '</div>';
-}
-
 function renderBrowseFilters() {
-  var chips = [{ id:'all', label:'All Stories' }].concat(
-    BROWSE_CATS.map(function(c){ return { id:c.id, label:c.label }; })
-  );
-  document.getElementById('filterRow').innerHTML = chips.map(function(c){
-    var n = c.id === 'all' ? STORIES.filter(function(s){return s.category!=='reference';}).length : catCount(c.id);
-    return '<button class="filter-chip ' + (c.id===currentFilter?'active':'') + '" onclick="filterBrowse(\''+c.id+'\')">'
-      + c.label + ' <span style="opacity:0.6;font-size:0.85em;">' + n + '</span></button>';
-  }).join('');
+  const cats = ['all', 'arcs', 'episodes', 'side_stories', 'world', 'reference'];
+  const labels = ['All', 'Story Arcs', 'Episodes', 'Side Stories', 'World', 'Reference'];
+  document.getElementById('filterRow').innerHTML = cats.map((c, i) => 
+    `<button class="filter-chip ${c === 'all' ? 'active' : ''}" onclick="filterBrowse('${c}')">${labels[i]}</button>`
+  ).join('');
 }
 
 function filterBrowse(cat) {
   currentFilter = cat;
-  renderBrowseFilters();
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
   renderBrowseGrid();
 }
 
 function renderBrowseGrid() {
-  var grid = document.getElementById('browseGrid');
-  if (currentFilter === 'all') {
-    var html = '';
-    BROWSE_CATS.forEach(function(c){
-      if (c.id === 'reference') return;
-      var items = STORIES.filter(function(s){return s.category===c.id;});
-      if (!items.length) return;
-      html += '<div class="browse-section" style="margin:20px 0 8px;">'
-        + '<div style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">' + c.label
-        + ' <span style="color:var(--text-muted);font-weight:500;">(' + items.length + ')</span></div>'
-        + '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">' + c.desc + '</div></div>';
-      html += '<div class="story-grid">' + items.map(renderStoryCard).join('') + '</div>';
-    });
-    grid.innerHTML = html;
-  } else {
-    var meta = null; for (var i=0;i<BROWSE_CATS.length;i++){ if(BROWSE_CATS[i].id===currentFilter) meta=BROWSE_CATS[i]; }
-    var head = meta ? '<div class="browse-section" style="margin:4px 0 12px;"><div style="font-size:0.72rem;color:var(--text-muted);">' + meta.desc + '</div></div>' : '';
-    var filtered = STORIES.filter(function(s){return s.category===currentFilter;});
-    grid.innerHTML = head + '<div class="story-grid">' + filtered.map(renderStoryCard).join('') + '</div>';
-  }
+  const filtered = currentFilter === 'all' ? STORIES : STORIES.filter(s => s.category === currentFilter);
+  document.getElementById('browseGrid').innerHTML = filtered.map(s => renderStoryCard(s)).join('');
 }
 
 // ═══ CHARACTER PROFILES ═══
