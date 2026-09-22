@@ -259,7 +259,7 @@ The night was quiet...
 
 [PANEL]
 
-&quot;Hello,&quot; Marcus said.
+&quot;Hello,&quot; Kael said.
 
 [SFX:door]"></textarea>
 <div class="btn-row">
@@ -321,32 +321,38 @@ function getReadingAmbience() {
 
 // ===== VOICE MAP =====
 const voiceMap = {
-  'Narrator': {pitch:0.85, rate:0.88, volume:1.0},
-  'Marcus': {pitch:1.0, rate:1.0, volume:0.95},
-  'Marcus Chen': {pitch:1.0, rate:1.0, volume:0.95},
-  'Oren': {pitch:1.15, rate:1.08, volume:0.9},
-  'Oren Malik': {pitch:1.15, rate:1.08, volume:0.9},
-  'Hass': {pitch:0.75, rate:0.92, volume:0.95},
-  'Hass Rivera': {pitch:0.75, rate:0.92, volume:0.95},
-  'Juno': {pitch:1.35, rate:0.98, volume:0.9},
-  'Juno Park': {pitch:1.35, rate:0.98, volume:0.9},
-  'Mira': {pitch:1.1, rate:0.85, volume:0.9},
-  'Mira Chen': {pitch:1.1, rate:0.85, volume:0.9},
-  'Sunny': {pitch:1.5, rate:1.05, volume:0.85},
-  'Sunny Martinez': {pitch:1.5, rate:1.05, volume:0.85},
-  'Legacy Agent': {pitch:0.6, rate:0.8, volume:1.0},
-  'Abuela Rosa': {pitch:1.2, rate:0.8, volume:0.9},
-  'Abuela': {pitch:1.2, rate:0.8, volume:0.9}
+  // ── CANON ROSTER (realigned 2026-09-22 — was off-canon (draft names purged)) ──
+  'Narrator':    {pitch:0.90, rate:0.90, volume:1.0},
+  // The Five
+  'Kael':        {pitch:0.78, rate:0.84, volume:1.0},   'Kael Voss':   {pitch:0.78, rate:0.84, volume:1.0},   // vocals — deep, locked, deliberate
+  'Mira':        {pitch:1.18, rate:0.90, volume:0.92},  'Mira Chen':   {pitch:1.18, rate:0.90, volume:0.92},  // lead guitar — soft, synesthete
+  'Oren':        {pitch:1.05, rate:1.02, volume:0.92},  'Oren Malik':  {pitch:1.05, rate:1.02, volume:0.92},  // drums — steady, metronomic
+  'Jude':        {pitch:0.70, rate:0.80, volume:0.95},  'Jude Okafor': {pitch:0.70, rate:0.80, volume:0.95},  // rhythm — heavy, slow, grounded
+  'Zara':        {pitch:0.82, rate:0.88, volume:0.95},  'Zara Kovac':  {pitch:0.82, rate:0.88, volume:0.95},  'Zara Kovač': {pitch:0.82, rate:0.88, volume:0.95},  // bass — low, calm, ancient
+  'Sunny':       {pitch:1.55, rate:1.06, volume:0.85},  // plasmoid guide — bright, quick
+  // Supporting cast (appear in stories)
+  'Lena':        {pitch:1.30, rate:0.95, volume:0.9},   'Lena Kovac':  {pitch:1.30, rate:0.95, volume:0.9},   'Lena Kovač': {pitch:1.30, rate:0.95, volume:0.9},  // Zara's 17yo sister
+  'Troy':        {pitch:0.95, rate:1.0,  volume:0.95},  // Kael's friend
+  'Hass':        {pitch:1.0,  rate:1.05, volume:0.95},  // Oren's DJ friend
+  'Darius':      {pitch:0.85, rate:0.92, volume:0.95},  // Jude's blues duo partner
+  'Zhao':        {pitch:0.98, rate:0.9,  volume:0.95},  'Agent Zhao':  {pitch:0.98, rate:0.9,  volume:0.95},  // Legacy field agent
+  'Ashley':      {pitch:1.12, rate:0.95, volume:0.9},   'Ashley Cole': {pitch:1.12, rate:0.95, volume:0.9},   // sold-out Resonant
+  'Legacy Agent':{pitch:0.62, rate:0.82, volume:1.0}    // generic Legacy voice
 };
 
 const characterColors = {
-  'Narrator':'#8888aa','Marcus':'#6366f1','Marcus Chen':'#6366f1',
+  'Narrator':'#8888aa',
+  'Kael':'#ef4444','Kael Voss':'#ef4444',
+  'Mira':'#f59e0b','Mira Chen':'#f59e0b',
   'Oren':'#10b981','Oren Malik':'#10b981',
-  'Hass':'#f59e0b','Hass Rivera':'#f59e0b',
-  'Juno':'#ec4899','Juno Park':'#ec4899',
-  'Mira':'#8b5cf6','Mira Chen':'#8b5cf6',
-  'Sunny':'#fbbf24','Sunny Martinez':'#fbbf24',
-  'Legacy Agent':'#ef4444','Abuela Rosa':'#f97316','Abuela':'#f97316'
+  'Jude':'#8b5cf6','Jude Okafor':'#8b5cf6',
+  'Zara':'#22d3ee','Zara Kovac':'#22d3ee','Zara Kovač':'#22d3ee',
+  'Sunny':'#fbbf24',
+  'Lena':'#67e8f9','Lena Kovac':'#67e8f9','Lena Kovač':'#67e8f9',
+  'Troy':'#fca5a5','Hass':'#6ee7b7','Darius':'#c4b5fd',
+  'Zhao':'#94a3b8','Agent Zhao':'#94a3b8',
+  'Ashley':'#f472b6','Ashley Cole':'#f472b6',
+  'Legacy Agent':'#ef4444'
 };
 
 // ===== AUDIO ENGINE =====
@@ -586,29 +592,31 @@ function speakBrowser(text, character='Narrator', callback){
 // ===== AZURE SPEECH (Character Voices) =====
 const azureVoiceMap = {
   'Narrator': 'en-US-GuyNeural',
-  'Marcus': 'en-US-DavisNeural',
-  'Kael': 'en-US-DavisNeural',
-  'Oren': 'en-US-JasonNeural',
-  'Hass': 'en-US-TonyNeural',
-  'Jude': 'en-US-TonyNeural',
-  'Juno': 'en-US-JennyNeural',
-  'Zara': 'en-US-JennyNeural',
-  'Mira': 'en-US-AriaNeural',
+  'Kael': 'en-US-DavisNeural','Kael Voss': 'en-US-DavisNeural',
+  'Mira': 'en-US-AriaNeural','Mira Chen': 'en-US-AriaNeural',
+  'Oren': 'en-US-JasonNeural','Oren Malik': 'en-US-JasonNeural',
+  'Jude': 'en-US-TonyNeural','Jude Okafor': 'en-US-TonyNeural',
+  'Zara': 'en-US-JennyNeural','Zara Kovac': 'en-US-JennyNeural','Zara Kovač': 'en-US-JennyNeural',
   'Sunny': 'en-US-SaraNeural',
+  'Lena': 'en-US-AmberNeural','Lena Kovac': 'en-US-AmberNeural','Lena Kovač': 'en-US-AmberNeural',
+  'Troy': 'en-US-BrandonNeural','Hass': 'en-US-TonyNeural','Darius': 'en-US-ChristopherNeural',
+  'Zhao': 'en-US-MichelleNeural','Agent Zhao': 'en-US-MichelleNeural',
+  'Ashley': 'en-US-NancyNeural','Ashley Cole': 'en-US-NancyNeural',
   'Legacy Agent': 'en-US-GuyNeural'
 };
 
 const elevenLabsVoiceMap = {
   'Narrator': 'pNInz6obpgDQGcFmaJgB',
-  'Marcus': '29vD33N1CtxCmqQRPOHJ',
-  'Kael': '29vD33N1CtxCmqQRPOHJ',
-  'Oren': 'yoZ06aMxZJJ28mfd3POQ',
-  'Hass': 'VR6AewLTigWG4xSOukaG',
-  'Jude': 'VR6AewLTigWG4xSOukaG',
-  'Juno': 'EXAVITQu4vr4xnSDxMaL',
-  'Zara': 'EXAVITQu4vr4xnSDxMaL',
-  'Mira': 'MF3mGyEYCl7XYWbV9V6O',
+  'Kael': '29vD33N1CtxCmqQRPOHJ','Kael Voss': '29vD33N1CtxCmqQRPOHJ',
+  'Mira': 'MF3mGyEYCl7XYWbV9V6O','Mira Chen': 'MF3mGyEYCl7XYWbV9V6O',
+  'Oren': 'yoZ06aMxZJJ28mfd3POQ','Oren Malik': 'yoZ06aMxZJJ28mfd3POQ',
+  'Jude': 'VR6AewLTigWG4xSOukaG','Jude Okafor': 'VR6AewLTigWG4xSOukaG',
+  'Zara': 'EXAVITQu4vr4xnSDxMaL','Zara Kovac': 'EXAVITQu4vr4xnSDxMaL','Zara Kovač': 'EXAVITQu4vr4xnSDxMaL',
   'Sunny': 'jBpfuIE2acCO8z3wKNLl',
+  'Lena': 'ThT5KcBeYPX3keUQqHPh','Lena Kovac': 'ThT5KcBeYPX3keUQqHPh','Lena Kovač': 'ThT5KcBeYPX3keUQqHPh',
+  'Troy': 'TxGEqnHWrfWFTfGW9XjX','Hass': 'VR6AewLTigWG4xSOukaG','Darius': 'onwK4e9ZLuTAKqWW03F9',
+  'Zhao': 'oWAx4uKzC0Fw3kdmDcnb','Agent Zhao': 'oWAx4uKzC0Fw3kdmDcnb',
+  'Ashley': 'pMsXgVXv3BLzUgSXRplE','Ashley Cole': 'pMsXgVXv3BLzUgSXRplE',
   'Legacy Agent': 'pNInz6obpgDQGcFmaJgB'
 };
 
@@ -967,11 +975,11 @@ The bar had no name anymore. Its neon sign had burned out three years ago, leavi
 
 [SFX:door]
 
-Marcus Chen pushed through the heavy door, letting the cold night air chase him inside. The smell hit first: old wood, cheap whiskey, and something metallic underneath that nobody talked about.
+Kael Voss pushed through the heavy door, letting the cold night air chase him inside. The smell hit first: old wood, cheap whiskey, and something metallic underneath that nobody talked about.
 
 [PANEL]
 
-Five mismatched stools lined the bar. Three were already occupied. Marcus made four.
+Five mismatched stools lined the bar. Three were already occupied. Kael made four.
 
 [PANEL]
 
@@ -985,7 +993,7 @@ The bartender, a weathered man with signal-scarred hands, slid a glass across wi
 
 [PANEL]
 
-"Guilty." Marcus replied, settling onto his stool. "You responded in fourteen seconds. Either you're desperate or you already knew."
+"Guilty." Kael replied, settling onto his stool. "You responded in fourteen seconds. Either you're desperate or you already knew."
 
 [PANEL]
 
@@ -1015,7 +1023,7 @@ Everyone at the bar tensed. They all recognized it. The Frequency Drift. It was 
 
 [PANEL]
 
-"That's new." Juno whispered from her corner booth. She'd been so still Marcus hadn't noticed her \u2014 a woman who seemed to exist slightly out of phase with the room around her.
+"That's new." Mira whispered from her corner booth. She'd been so still Kael hadn't noticed her \u2014 a woman who seemed to exist slightly out of phase with the room around her.
 
 [PANEL]
 
@@ -1023,7 +1031,7 @@ Everyone at the bar tensed. They all recognized it. The Frequency Drift. It was 
 
 [PANEL]
 
-"Five." Marcus counted, looking around. "The signal called for five."
+"Five." Kael counted, looking around. "The signal called for five."
 
 [PANEL]
 
@@ -1035,7 +1043,7 @@ A low hum filled the bar \u2014 below hearing but felt in the chest, in the teet
 
 [PANEL]
 
-"I've been tracking it for six months." Juno said, pulling a battered tablet from her bag. Lines of data scrolled across the cracked screen. "It's not random. It's a message."
+"I've been tracking it for six months." Mira said, pulling a battered tablet from her bag. Lines of data scrolled across the cracked screen. "It's not random. It's a message."
 
 [PANEL]
 
@@ -1043,11 +1051,11 @@ A low hum filled the bar \u2014 below hearing but felt in the chest, in the teet
 
 [PANEL]
 
-Juno looked at each of them in turn. Her eyes held something ancient and frightened.
+Mira looked at each of them in turn. Her eyes held something ancient and frightened.
 
 [PANEL]
 
-"From the network itself." Juno whispered. "The old infrastructure. The system everyone thought died in the Collapse. It's not dead. It's been... dreaming."
+"From the network itself." Mira whispered. "The old infrastructure. The system everyone thought died in the Collapse. It's not dead. It's been... dreaming."
 
 [PANEL]
 
@@ -1055,7 +1063,7 @@ Juno looked at each of them in turn. Her eyes held something ancient and frighte
 
 [MOOD:tense]
 
-Silence. The kind that presses against your eardrums. Marcus felt his heartbeat sync with that impossible hum, felt the signal threading through his thoughts like cold water.
+Silence. The kind that presses against your eardrums. Kael felt his heartbeat sync with that impossible hum, felt the signal threading through his thoughts like cold water.
 
 [PANEL]
 
@@ -1063,11 +1071,11 @@ Silence. The kind that presses against your eardrums. Marcus felt his heartbeat 
 
 [PANEL]
 
-Marcus looked at his hands. The same hands that had built networks, routed signals, connected people across impossible distances. Now they trembled slightly.
+Kael looked at his hands. The same hands that had built networks, routed signals, connected people across impossible distances. Now they trembled slightly.
 
 [PANEL]
 
-"We answer it." Marcus said. "Together. That's why it called five \u2014 because one person can receive a signal, but it takes a network to decode it."
+"We answer it." Kael said. "Together. That's why it called five \u2014 because one person can receive a signal, but it takes a network to decode it."
 
 [PANEL]
 
@@ -1077,7 +1085,7 @@ Marcus looked at his hands. The same hands that had built networks, routed signa
 
 [PANEL]
 
-"Then we'll be the first to know what's coming." Marcus replied. "And the only ones who can stop it."
+"Then we'll be the first to know what's coming." Kael replied. "And the only ones who can stop it."
 
 [PANEL]
 
@@ -1101,7 +1109,7 @@ The bartender refilled their glasses without being asked. His scarred hands move
 
 [PANEL]
 
-"Same time every night." Marcus said. "Until we crack it or it cracks us."
+"Same time every night." Kael said. "Until we crack it or it cracks us."
 
 [PANEL]
 

@@ -20,8 +20,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 var VOICE_ENGINE = {
-  version: "1.0.0",
-  lastUpdated: "2026-09-06",
+  version: "2.0.0",
+  lastUpdated: "2026-09-22", // accents + emotional SSML
 
   // ── 1. COMPLETE VOICE PROFILES ────────────────────────────────────────────
   // ONE profile per character drives ALL backends. Browser numbers are the
@@ -72,7 +72,7 @@ var VOICE_ENGINE = {
       backends: {
         eleven: { voiceId: "VR6AewLTigWG4xSOukaG", // Arnold
                   settings: { stability: 0.7, similarity_boost: 0.8, style: 0.1, use_speaker_boost: true } },
-        azure:  { voiceName: "en-US-TonyNeural", style: "chat" },
+        azure:  { voiceName: "en-NG-AbeoNeural", style: "chat" }, // Nigerian accent (canon: Okafor)
         browser:{ pitch: 0.70, rate: 0.95, volume: 1.00 }
       }
     },
@@ -140,6 +140,56 @@ var VOICE_ENGINE = {
     return "browser";
   },
 
+  // ── 4b. EMOTION -> AZURE STYLE (uses sd_emotion_director when present) ─────
+  // Azure Neural voices accept a limited set of styles per voice. We keep a
+  // safe fallback list and only emit styles that are broadly supported.
+  azureSafeStyles: ["angry","cheerful","sad","excited","hopeful","friendly",
+                    "unfriendly","terrified","whispering","shouting","chat",
+                    "narration-relaxed","calm"],
+  resolveEmotion: function(text, opts){
+    opts = opts || {};
+    // Prefer the Emotion Director engine if loaded
+    if (typeof window !== "undefined" && window.SD_EMOTION && text){
+      try { return window.SD_EMOTION.directEmotion(text, opts); } catch(e){}
+    }
+    // Fallback: numeric emotion nudge -> rough style
+    var emo = opts.emotion;
+    if (emo){
+      if ((emo.anxiety||0) >= 65) return {style:"terrified", degree:1.4};
+      if ((emo.energy||50) >= 70 && (emo.warmth||50) >= 60) return {style:"excited", degree:1.3};
+      if ((emo.energy||50) >= 70) return {style:"angry", degree:1.4};
+      if ((emo.warmth||50) >= 70) return {style:"cheerful", degree:1.2};
+    }
+    return null;
+  },
+  _safeStyle: function(style, fallback){
+    for (var i=0;i<this.azureSafeStyles.length;i++){ if (this.azureSafeStyles[i]===style) return style; }
+    return fallback || "chat";
+  },
+
+  // ── 4c. BUILD AZURE SSML (accent voice + emotional style + prosody) ────────
+  buildSSML: function(text, characterId, opts){
+    opts = opts || {};
+    var p = this.profiles[characterId] || this.profiles.narrator;
+    var arc = opts.arcState || this._readArc(characterId);
+    var mod = this.arcModifiers[arc] || this.arcModifiers.dormant;
+    var voice = p.backends.azure.voiceName;
+    var emo = this.resolveEmotion(text, opts);
+    var style = emo ? this._safeStyle(emo.style, p.backends.azure.style) : p.backends.azure.style;
+    var degree = emo && emo.degree ? emo.degree : 1;
+    var pitch = Math.round((p.base.pitch * mod.pitchMul - 1) * 50);
+    var rate  = Math.round((p.base.rate  * mod.rateMul  - 1) * 100);
+    var esc = String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    var inner = '<prosody pitch="'+pitch+'%" rate="'+rate+'%">'+esc+'</prosody>';
+    // express-as only if the style is a real emotional style (not plain "chat")
+    if (style && style !== "chat"){
+      inner = '<mstts:express-as style="'+style+'" styledegree="'+degree.toFixed(1)+'">'+inner+'</mstts:express-as>';
+    }
+    return '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+         + 'xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">'
+         + '<voice name="'+voice+'">'+inner+'</voice></speak>';
+  },
+
   // ── 5. BUILD A SPEAK INSTRUCTION for a character (arc + emotion applied) ───
   getSpeakPlan: function(characterId, opts){
     opts = opts || {};
@@ -163,11 +213,15 @@ var VOICE_ENGINE = {
       plan.model_id = opts.lowLatency ? "eleven_flash_v2_5" : "eleven_multilingual_v2";
     } else if (backend === "azure"){
       plan.voiceName = p.backends.azure.voiceName;
-      plan.style     = p.backends.azure.style;
+      var emoA = this.resolveEmotion(opts.text || "", opts);
+      plan.style     = emoA ? this._safeStyle(emoA.style, p.backends.azure.style) : p.backends.azure.style;
+      plan.styledegree = emoA && emoA.degree ? emoA.degree : 1;
       plan.prosody   = {
         pitch: Math.round((p.base.pitch * mod.pitchMul - 1) * 50) + "%", // -> SSML pitch
         rate:  Math.round((p.base.rate  * mod.rateMul) * 100) + "%"
       };
+      // Ready-to-send SSML (accent voice + emotion) for the Azure backend fn
+      plan.ssml = this.buildSSML(opts.text || "", characterId, opts);
     } else { // browser (or local, which reuses browser-style numbers)
       plan.pitch  = p.base.pitch  * mod.pitchMul;
       plan.rate   = p.base.rate   * mod.rateMul;
@@ -185,6 +239,8 @@ var VOICE_ENGINE = {
   speak: function(text, characterId, cb, opts){
     if (!this.runtime.outputEnabled){ if (cb) cb(); return; }
     if (!text || !text.trim()){ if (cb) cb(); return; }
+    opts = opts || {};
+    if (!opts.text) opts.text = text;   // so getSpeakPlan/buildSSML can read the line for emotion
     var plan = this.getSpeakPlan(characterId, opts);
     var self = this;
     function fallback(){ // graceful degrade: eleven -> azure -> browser

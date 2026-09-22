@@ -14,8 +14,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Inter:wght@400;600;700&family=OpenDyslexic&display=swap">
 <script src="sd_receiver.js"></script>
-<script src="voice_engine.js"></script>
-<script src="sd_emotion_director.js"></script>
 <script src="sd_cast_index.js"></script>
 <script src="sd_layers.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -1895,7 +1893,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v81</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v80</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2118,7 +2116,7 @@ html, body { height: 100vh; height: 100dvh; }
     <button class="aa-opt" data-mv="on"  onclick="raSetMultiVoice(true)">Character voices</button>
     <button class="aa-opt" data-mv="off" onclick="raSetMultiVoice(false)">Single narrator</button>
   </div>
-  <p style="font-size:0.68rem;color:var(--text-muted);margin:-4px 2px 8px;line-height:1.5;">Character voices give the narrator and each character a distinct voice. With an Azure Speech key set, voices gain real emotion (angry/happy/sad) and accents automatically; otherwise your device's built-in voices are used. Tap the headphones in the reader bar to listen.</p>
+  <p style="font-size:0.68rem;color:var(--text-muted);margin:-4px 2px 8px;line-height:1.5;">Character voices give the narrator and each character a distinct voice. Tap the headphones in the reader bar to listen.</p>
   <button class="aa-done" onclick="closeAaSheet()">Done</button>
 </div>
 
@@ -2856,77 +2854,18 @@ function _raHighlight(i){
   }
 }
 
-// ── PREMIUM VOICE PATH (Azure emotional SSML + accents) ───────────────────
-// If an Azure Speech key is present, route each line through VOICE_ENGINE
-// (accent voice + emotional style from sd_emotion_director). Otherwise the
-// browser multi-voice path (below) runs. Fully graceful: any failure falls
-// back to the browser voice mid-story.
-function _raAzureCreds(){
-  try{
-    var k=JSON.parse(localStorage.getItem('sd_api_keys')||'{}');
-    var key=k.azureSpeech||k.azure||k.azureSpeechKey||'';
-    var region=k.azureRegion||'eastus2';
-    return key? {key:key, region:region} : null;
-  }catch(e){ return null; }
-}
-function _raSceneMood(){
-  // nearest [MOOD:] isn't in rendered text; use a stored per-story mood if any
-  try{ return RA.mood || null; }catch(e){ return null; }
-}
-function _raSpeakAzure(text, speakerKey, onDone, onFail){
-  var creds=_raAzureCreds();
-  if(!creds || typeof VOICE_ENGINE==='undefined'){ onFail&&onFail(); return; }
-  var cid = (speakerKey && speakerKey!=='narrator') ? speakerKey : 'narrator';
-  var ssml;
-  try{
-    ssml = VOICE_ENGINE.buildSSML(text, cid, {mood:_raSceneMood(), isDialogue:(speakerKey&&speakerKey!=='narrator')});
-  }catch(e){ onFail&&onFail(); return; }
-  // token -> synth -> play
-  fetch('https://'+creds.region+'.api.cognitive.microsoft.com/sts/v1.0/issueToken',{
-    method:'POST', headers:{'Ocp-Apim-Subscription-Key':creds.key,'Content-Length':'0'}
-  }).then(function(r){ if(!r.ok) throw new Error('token'); return r.text(); })
-  .then(function(token){
-    return fetch('https://'+creds.region+'.tts.speech.microsoft.com/cognitiveservices/v1',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/ssml+xml','X-Microsoft-OutputFormat':'audio-24khz-96kbitrate-mono-mp3'},
-      body:ssml
-    });
-  }).then(function(r){ if(!r.ok) throw new Error('synth'); return r.arrayBuffer(); })
-  .then(function(buf){
-    try{
-      var blob=new Blob([buf],{type:'audio/mpeg'});
-      var url=URL.createObjectURL(blob);
-      var a=new Audio(url);
-      window.__raAudio=a;
-      window.__voiceStopAudio=function(){ try{a.pause();}catch(e){} };
-      a.onended=function(){ URL.revokeObjectURL(url); onDone&&onDone(); };
-      a.onerror=function(){ URL.revokeObjectURL(url); onFail&&onFail(); };
-      a.play().catch(function(){ onFail&&onFail(); });
-    }catch(e){ onFail&&onFail(); }
-  }).catch(function(){ onFail&&onFail(); });
-}
-
 function _raSpeakNext(){
   if(!RA.on || RA.idx>=RA.chunks.length){ stopReadAloud(); return; }
   _raHighlight(RA.idx);
-  var spk = (RA.multiVoice && RA.speakers[RA.idx]) ? RA.speakers[RA.idx] : 'narrator';
-  function advance(){ if(RA.on && !RA.paused){ RA.idx++; _raSpeakNext(); } }
-  // PREMIUM: Azure emotional voice when a key exists + premium not disabled
-  if(RA.premium!==false && _raAzureCreds()){
-    _raSpeakAzure(RA.chunks[RA.idx], spk, advance, function(){ _raSpeakBrowser(spk, advance); });
-    return;
-  }
-  _raSpeakBrowser(spk, advance);
-}
-function _raSpeakBrowser(spk, advance){
-  var prof = RA_SPEAKERS[spk] || RA_SPEAKERS.narrator;
   var u=new SpeechSynthesisUtterance(RA.chunks[RA.idx]);
+  var spk = (RA.multiVoice && RA.speakers[RA.idx]) ? RA.speakers[RA.idx] : 'narrator';
+  var prof = RA_SPEAKERS[spk] || RA_SPEAKERS.narrator;
   var v = RA.multiVoice ? _raVoiceFor(spk) : RA.voice;
   if(v) u.voice=v;
   u.pitch = prof.pitch;
   u.rate  = prof.rate * _raSpeed();
-  u.onend=advance;
-  u.onerror=advance;
+  u.onend=function(){ if(RA.on && !RA.paused){ RA.idx++; _raSpeakNext(); } };
+  u.onerror=function(){ if(RA.on && !RA.paused){ RA.idx++; _raSpeakNext(); } };
   try{ window.speechSynthesis.speak(u); }catch(e){ stopReadAloud(); }
 }
 
@@ -2971,7 +2910,6 @@ function startReadAloud(){
 function pauseReadAloud(){
   RA.paused=true;
   try{ window.speechSynthesis.cancel(); }catch(e){}   // cancel = clean stop; we resume from RA.idx
-  try{ if(window.__raAudio){ window.__raAudio.pause(); } }catch(e){}
   _raSetBtn('paused');
 }
 function resumeReadAloud(){
@@ -2982,7 +2920,6 @@ function resumeReadAloud(){
 function stopReadAloud(){
   RA.on=false; RA.paused=false;
   try{ window.speechSynthesis.cancel(); }catch(e){}
-  try{ if(window.__raAudio){ window.__raAudio.pause(); window.__raAudio=null; } }catch(e){}
   RA.spans.forEach(function(sp){ sp.style.background=''; });
   RA.chunks=[]; RA.idx=0;
   _raSetBtn('idle');
