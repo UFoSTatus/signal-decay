@@ -17,6 +17,8 @@
 <script src="sd_pronunciation.js"></script>
 <script src="voice_engine.js"></script>
 <script src="sd_emotion_director.js"></script>
+<script src="sd_cast_index.js"></script>
+<script src="sd_tap_to_know.js"></script>
 <script src="sd_layers.js"></script>
 <script src="sd_ambient_director.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -1896,7 +1898,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v86</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v87</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2951,6 +2953,9 @@ function stopReadAloud(){
   RA.spans.forEach(function(sp){ sp.style.background=''; });
   RA.chunks=[]; RA.idx=0;
   _raSetBtn('idle');
+  // read-aloud rewrote paragraphs into speak-spans (flattening tap-to-know chips);
+  // restore the chips now that listening has ended.
+  try{ if(window.SD_TAPKNOW && RA.spans.length){ SD_TAPKNOW.annotate(document.querySelector('#readerBody .story-content')); } }catch(e){}
 }
 // Some browsers load voices async — warm them up.
 try{ if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged=function(){ RA.voice=_raPickVoice(); }; } }catch(e){}
@@ -2999,6 +3004,7 @@ function openStory(id) {
       document.getElementById('readerBody').innerHTML = header + '<div class="story-content">' + html + '</div>';
       // Reveal layers (Stage 2): enrich with hero art / ambient / gallery IF present. Text already rendered — bonus only.
       try { if (window.SD_LAYERS) SD_LAYERS.apply(id, document.getElementById('readerBody')); } catch (e) {}
+      try { if (window.SD_TAPKNOW) SD_TAPKNOW.annotate(document.querySelector('#readerBody .story-content') || document.getElementById('readerBody')); } catch (e) {}
       document.getElementById('readerBody').scrollTop = 0;
       
       // Track reading
@@ -3128,6 +3134,7 @@ function readerBodyTap(e){
 function closeReader() {
   document.getElementById('readerView').classList.remove('active');
   try { stopReadAloud(); } catch (e) {}
+  try { if (window.SD_TAPKNOW) SD_TAPKNOW.close(); } catch (e) {}
   try { if (window.SD_LAYERS) SD_LAYERS.stopAmbient(); } catch (e) {}
   // Save progress
   if (currentStoryId && readingHistory[currentStoryId]) {
