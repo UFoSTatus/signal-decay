@@ -180,6 +180,8 @@ var VOICE_ENGINE = {
     var pitch = Math.round((p.base.pitch * mod.pitchMul - 1) * 50);
     var rate  = Math.round((p.base.rate  * mod.rateMul  - 1) * 100);
     var esc = String(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    // Pronunciation lexicon: wrap canon names in <sub alias> so Azure says them right.
+    try{ if (typeof window !== "undefined" && window.SD_PRON) esc = window.SD_PRON.ssmlSub(esc); }catch(e){}
     var inner = '<prosody pitch="'+pitch+'%" rate="'+rate+'%">'+esc+'</prosody>';
     // express-as only if the style is a real emotional style (not plain "chat")
     if (style && style !== "chat"){

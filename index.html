@@ -14,9 +14,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Inter:wght@400;600;700&family=OpenDyslexic&display=swap">
 <script src="sd_receiver.js"></script>
+<script src="sd_pronunciation.js"></script>
 <script src="voice_engine.js"></script>
 <script src="sd_emotion_director.js"></script>
 <script src="sd_layers.js"></script>
+<script src="sd_ambient_director.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
@@ -1894,7 +1896,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v84</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v86</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2304,7 +2306,13 @@ function init() {
   renderCharacterProfiles();
   renderLoreEntries();
   renderHeroStats();
-  if (window.SD_LAYERS) SD_LAYERS.load();
+  if (window.SD_LAYERS) SD_LAYERS.load(function(){
+    try {
+      if (window.SD_AMBIENT && typeof STORIES !== 'undefined') {
+        SD_AMBIENT.enrich(STORIES, SD_LAYERS._manifest());
+      }
+    } catch (e) {}
+  });
   showAppVersion();
   updateStreak();
   renderContinueReading();
@@ -2875,7 +2883,9 @@ function _raSpeakNext(){
 }
 function _raSpeakBrowser(spk, advance){
   var prof = RA_SPEAKERS[spk] || RA_SPEAKERS.narrator;
-  var u=new SpeechSynthesisUtterance(RA.chunks[RA.idx]);
+  var say = RA.chunks[RA.idx];
+  try{ if(window.SD_PRON) say = SD_PRON.respell(say); }catch(e){}
+  var u=new SpeechSynthesisUtterance(say);
   var v = RA.multiVoice ? _raVoiceFor(spk) : RA.voice;
   if(v) u.voice=v;
   u.pitch = prof.pitch;
