@@ -35,7 +35,6 @@ var SD_CANON = {
     "Juno Park":"Mira Chen", "Juno":"(off-canon — likely Mira)",
     "Kael Nakamura":"Kael Voss", "Kael Morrison":"Kael Voss",
     "Zara Volkov":"Zara Kovač", "Oren Sato":"Oren Malik",
-    "Abuela Rosa":"(off-canon — Spanish-app leftover)", "Sunny Martinez":"Sunny (Soleil Martinez)"
   },
   // surnames that are NEVER canon for the Five (draft variants)
   badSurnames: ["Solana","Vasquez","Nakamura","Sato","Volkov","Morrison"],
