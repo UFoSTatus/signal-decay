@@ -1888,7 +1888,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v114</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v115</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2863,6 +2863,22 @@ function _raSpeed(){
   try{ var st=JSON.parse(localStorage.getItem('sd_reader_settings')||'{}'); return st.readSpeed || 1; }catch(e){ return 1; }
 }
 
+// Strip stage/production tags so the voice never reads "[PANEL]", "[SFX: alarm]",
+// "[MOOD: eerie]" etc. out loud. Known stage-direction labels are removed entirely;
+// any OTHER bracketed text (e.g. [11:02 PM], [REDACTED]) keeps its words but loses
+// the brackets. Source .md files and the immersive reader are untouched — this only
+// affects what read-aloud speaks.
+var _RA_STAGE_TAGS = /^(PANEL|SFX|SOUND|MOOD|MUSIC|CAMERA|CAM|SCENE|BEAT|CUT|FADE|ANGLE|CLOSE|CLOSEUP|CLOSE-UP|WIDE|VISUAL|IMAGE|IMG|SHOT|TITLE CARD|TITLECARD|CARD|LIGHTING|LIGHT|VFX|SETTING|LOCATION|INT|EXT|VO|V\.O|VOICEOVER|NARRATION|AMBIENT|AMBIENCE|TRANSITION|MONTAGE|FLASHBACK|SUPER|CAPTION|TEXT ON SCREEN|ON SCREEN|SILENCE)\b/i;
+function _raStripTags(s){
+  if(!s) return s;
+  s = s.replace(/\[([^\]\n]{1,80})\]/g, function(full, inner){
+    var label = inner.split(':')[0].trim();
+    if(_RA_STAGE_TAGS.test(label)) return ' ';   // drop whole stage tag
+    return ' ' + inner + ' ';                     // keep words, drop the brackets
+  });
+  return s.replace(/\s+/g,' ').trim();
+}
+
 // Split the rendered story body into speakable sentence chunks, wrapping each
 // in a <span data-ra="i"> so we can highlight what's being read.
 function _raBuildChunks(){
@@ -2878,9 +2894,18 @@ function _raBuildChunks(){
     var html='';
     parts.forEach(function(sent){
       var t=sent.trim(); if(!t) return;
-      var spk = RA.multiVoice ? _raDetectSpeaker(t, lastSpeaker) : null;
+      // What gets SPOKEN: stage/production tags removed so the voice never
+      // says "bracket PANEL bracket" or "SFX alarm". The visible text (sent)
+      // is left exactly as written.
+      var say=_raStripTags(t);
+      if(!say){
+        // sentence was nothing but a stage tag — show it, but don't speak it
+        html += '<span data-ra-skip="1">'+_raEsc(sent)+'</span>';
+        return;
+      }
+      var spk = RA.multiVoice ? _raDetectSpeaker(say, lastSpeaker) : null;
       if(spk) lastSpeaker=spk;
-      RA.chunks.push(t);
+      RA.chunks.push(say);
       RA.speakers.push(spk || 'narrator');
       html += '<span data-ra="'+counter+'" data-spk="'+(spk||'narrator')+'">'+_raEsc(sent)+'</span>';
       counter++;
