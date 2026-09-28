@@ -700,11 +700,18 @@ function parseStory(markdown){
       if(currentPanel.text.trim()){panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:null,sfx:null};}
       continue;
     }
-    const moodMatch=line.match(/\[MOOD:(\w+)\]/i);
-    if(moodMatch){currentPanel.mood=moodMatch[1].toLowerCase();if(!currentPanel.text)continue;panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:moodMatch[1].toLowerCase(),sfx:null};continue;}
-    const sfxMatch=line.match(/\[SFX:(\w+)\]/i);
+    const moodMatch=line.match(/\[MOOD:\s*([\w -]+)\]/i);
+    if(moodMatch){var _mv=moodMatch[1].trim().toLowerCase();currentPanel.mood=_mv;if(!currentPanel.text)continue;panels.push({...currentPanel});currentPanel={type:'narration',text:'',speaker:'Narrator',mood:_mv,sfx:null};continue;}
+    const sfxMatch=line.match(/\[SFX:\s*(\w+)/i);
     if(sfxMatch){currentPanel.sfx=sfxMatch[1].toLowerCase();continue;}
     
+    // Strip any leftover stage/production tags so they are never SHOWN or SPOKEN.
+    // Recognized PANEL/MOOD/SFX (handled above) already drive panels/mood/sound.
+    // Anything left ([SOUND:], [CAMERA:], [MUSIC:], stray [SFX:multi word], inline
+    // [PANEL], etc.) is a director's note, not prose — remove it.
+    line = line.replace(/\[(?:PANEL|SFX|SOUND|MOOD|MUSIC|CAMERA|CAM|SCENE|BEAT|CUT|FADE|ANGLE|CLOSE|CLOSEUP|CLOSE-UP|WIDE|VISUAL|IMAGE|IMG|SHOT|TITLE ?CARD|CARD|LIGHTING|LIGHT|VFX|SETTING|LOCATION|INT|EXT|VO|VOICEOVER|NARRATION|AMBIENT|AMBIENCE|TRANSITION|MONTAGE|FLASHBACK|SUPER|CAPTION|ON SCREEN|SILENCE)\b[^\]\n]*\]/gi, ' ').replace(/\s+/g,' ').trim();
+    if(!line)continue;
+
     // Check for dialog
     const dialogMatch=line.match(/^["\u201c](.+?)["\u201d]\s*[,.]?\s*(.*)$/);
     if(dialogMatch){
