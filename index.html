@@ -1888,7 +1888,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v111</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v112</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2794,14 +2794,16 @@ var RA_SPEAKERS = {
   'troy':  {pitch:0.95, rate:1.0},
   'hass':  {pitch:1.0,  rate:1.05},
   'darius':{pitch:0.86, rate:0.92},
-  'zhao':  {pitch:1.0,  rate:0.9},
-  'ashley':{pitch:1.12, rate:0.95}
+  'zhao':  {pitch:1.02, rate:0.9},   // composed, controlled — grief underneath
+  'ashley':{pitch:1.12, rate:0.95},
+  'ami':   {pitch:1.22, rate:0.94}   // Ami Solana — warm, attentive, unhurried
 };
 // Aliases → canon key
 var RA_ALIASES = {
   'kael voss':'kael','mira chen':'mira','oren malik':'oren','jude okafor':'jude',
   'zara kovac':'zara','zara kovač':'zara','agent zhao':'zhao','ashley cole':'ashley',
-  'lena kovac':'lena','lena kovač':'lena'
+  'lena kovac':'lena','lena kovač':'lena',
+  'amihan solana':'ami','ami solana':'ami','amihan':'ami','corinne':'zhao','corinne zhao':'zhao'
 };
 function _raCanonSpeaker(name){
   if(!name) return null;

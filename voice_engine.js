@@ -48,7 +48,7 @@ var VOICE_ENGINE = {
       backends: {
         eleven: { voiceId: "29vD33N1CtxCmqQRPOHJ", // Drew
                   settings: { stability: 0.65, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true } },
-        azure:  { voiceName: "en-US-DavisNeural", style: "chat" },
+        azure:  { voiceName: "en-US-DavisNeural", style: "chat" }, // American — quiet, restrained US male
         browser:{ pitch: 1.00, rate: 1.05, volume: 0.95 }
       }
     },
@@ -60,7 +60,7 @@ var VOICE_ENGINE = {
       backends: {
         eleven: { voiceId: "yoZ06aMxZJJ28mfd3POQ", // Josh
                   settings: { stability: 0.4, similarity_boost: 0.75, style: 0.5, use_speaker_boost: true } },
-        azure:  { voiceName: "en-US-JasonNeural", style: "cheerful" },
+        azure:  { voiceName: "en-US-JasonNeural", style: "cheerful" }, // Pakistani/Egyptian-American, US-born — bright US male
         browser:{ pitch: 1.20, rate: 1.10, volume: 0.90 }
       }
     },
@@ -84,7 +84,7 @@ var VOICE_ENGINE = {
       backends: {
         eleven: { voiceId: "EXAVITQu4vr4xnSDxMaL", // Bella
                   settings: { stability: 0.55, similarity_boost: 0.7, style: 0.35, use_speaker_boost: true } },
-        azure:  { voiceName: "en-US-JennyNeural", style: "chat" },
+        azure:  { voiceName: "en-US-JennyNeural", style: "chat" }, // Croatian-heritage but performs American perfectly (canon)
         browser:{ pitch: 1.40, rate: 1.00, volume: 0.90 }
       }
     },
@@ -96,7 +96,7 @@ var VOICE_ENGINE = {
       backends: {
         eleven: { voiceId: "MF3mGyEYCl7XYWbV9V6O", // Elli
                   settings: { stability: 0.5, similarity_boost: 0.75, style: 0.4, use_speaker_boost: true } },
-        azure:  { voiceName: "en-US-AriaNeural", style: "chat" },
+        azure:  { voiceName: "en-US-NancyNeural", style: "chat" }, // Chinese-American, US-born — distinct warm US female
         browser:{ pitch: 1.10, rate: 0.90, volume: 0.92 }
       }
     },
@@ -110,6 +110,34 @@ var VOICE_ENGINE = {
                   settings: { stability: 0.45, similarity_boost: 0.7, style: 0.55, use_speaker_boost: true } },
         azure:  { voiceName: "en-US-SaraNeural", style: "cheerful" },
         browser:{ pitch: 1.60, rate: 1.10, volume: 0.90 }
+      }
+    },
+    zhao: {
+      displayName: "Agent Zhao",
+      // Canon: Corinne Wei Zhao, 34, Chinese-American; composed Legacy field operative,
+      // cellist's daughter, coming apart underneath a controlled surface.
+      persona: "measured, controlled, precise; grief held just under the surface",
+      base:    { pitch: 1.05, rate: 0.92, volume: 0.92 },
+      tone:    { warmth: 0.4, energy: 0.4, breathiness: 0.3, gravel: 0.2 },
+      backends: {
+        eleven: { voiceId: "XrExE9yKIg1WjnnlVkGX", // Matilda — mature, composed female
+                  settings: { stability: 0.7, similarity_boost: 0.8, style: 0.2, use_speaker_boost: true } },
+        azure:  { voiceName: "en-US-MichelleNeural", style: "sad" }, // controlled US female; grief-capable
+        browser:{ pitch: 1.05, rate: 0.92, volume: 0.92 }
+      }
+    },
+    ami_solana: {
+      displayName: "Ami Solana",
+      // Canon: Amihan "Ami" Solana, Filipina-American from Daly City, mid-20s; guitarist/
+      // vocalist, the listener who hears the gaps. Warm, curious, easy — a musician's ear.
+      persona: "warm, attentive, unhurried; listens more than she speaks",
+      base:    { pitch: 1.22, rate: 0.94, volume: 0.92 },
+      tone:    { warmth: 0.8, energy: 0.6, breathiness: 0.3, gravel: 0.1 },
+      backends: {
+        eleven: { voiceId: "pFZP5JQG7iQjIQuC4Bku", // Lily — warm younger female
+                  settings: { stability: 0.55, similarity_boost: 0.75, style: 0.35, use_speaker_boost: true } },
+        azure:  { voiceName: "en-PH-RosaNeural", style: "chat" }, // light Filipino-American lilt (Daly City heritage)
+        browser:{ pitch: 1.22, rate: 0.94, volume: 0.92 }
       }
     }
   },
