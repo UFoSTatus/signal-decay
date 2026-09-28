@@ -555,6 +555,70 @@ html, body {
 /* Deep Time / Zero Octave clearance tier (2026-09-09) */
 .tier-deep-time { background: linear-gradient(135deg, rgba(6,182,212,0.18), rgba(139,92,246,0.18)); color: #7dd3fc; letter-spacing: 0.5px; }
 .lore-entry.lore-deeptime { border-color: rgba(125,211,252,0.28); }
+
+/* ─── Codex collapsible tier sections (2026-09-28: kill the long scroll) ─── */
+.lore-section { margin-bottom: 10px; }
+.lore-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.lore-sec-head:hover { border-color: var(--border-medium); }
+.lore-section.open .lore-sec-head {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.lore-sec-count {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.lore-sec-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 100px;
+  overflow: hidden;
+  min-width: 30px;
+}
+.lore-sec-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), #d97706);
+  border-radius: 100px;
+  transition: width 0.3s;
+}
+.lore-sec-chev {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  width: 14px;
+  text-align: center;
+}
+.lore-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid var(--border-subtle);
+  border-top: none;
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+.lore-grid .lore-entry { margin-bottom: 0; }
+@media (min-width: 600px) {
+  .lore-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .lore-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
 .lore-entry.lore-deeptime:hover { border-color: rgba(125,211,252,0.6); box-shadow: 0 0 18px rgba(125,211,252,0.12); }
 /* a deep-time locked entry keeps its aura even while redacted (telegraph that something big is here) */
 .lore-entry.lore-deeptime.locked { opacity: 0.62; }
@@ -1888,7 +1952,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v116</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v117</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2677,7 +2741,8 @@ function renderLoreEntries() {
   const tierLabels = { public: 'PUBLIC', reader: 'READER', detective: 'DETECTIVE', harmonic: 'HARMONIC', deep_time: 'ZERO OCTAVE' };
   const tierClasses = { public: 'tier-public', reader: 'tier-reader', detective: 'tier-detective', harmonic: 'tier-harmonic', deep_time: 'tier-deep-time' };
 
-  const html = lore.map(function(l){
+  // Build one entry card (unchanged behavior: tap to open, 📻 tune to declassify)
+  function _loreCard(l){
     const eff = loreEffectiveReq(l);
     const unlocked = loreIsUnlocked(l, rc);
     const cls = 'lore-entry' + (unlocked ? '' : ' locked') + (l.tier === 'deep_time' ? ' lore-deeptime' : '');
@@ -2686,7 +2751,6 @@ function renderLoreEntries() {
     if (unlocked) {
       desc = l.desc;
     } else if (l.tier === 'deep_time') {
-      // telegraph the unlock condition (research: show the NEXT milestone)
       const remaining = Math.max(0, eff - rc);
       desc = '🔒 [CLASSIFIED — DEEP TIME] · Reach Research Level ' + eff + ' (read ' + remaining + ' more) to declassify';
     } else {
@@ -2695,12 +2759,37 @@ function renderLoreEntries() {
     const onclick = (unlocked && l.story) ? ' onclick="openStory(\'' + l.story + '\')" style="cursor:pointer;"' : '';
     var tuneBtn = (!unlocked && l.story) ? '<div class="lore-tune" data-tune="' + l.story + '" data-tunetitle="' + l.title + '" data-req="' + eff + '" style="cursor:pointer;margin-top:6px;font-size:0.7rem;font-weight:700;color:#7dd3fc;">\uD83D\uDCFB Tune in to declassify now \u2192</div>' : '';
     return '<div class="' + cls + '"' + onclick + '>' +
-             '<span class="lore-tier ' + tierClasses[l.tier] + '">' + tierLabels[l.tier] + '</span>' +
              '<div class="lore-title">' + title + '</div>' +
              '<div class="lore-desc">' + desc + '</div>' +
              tuneBtn +
            '</div>';
-  }).join('');
+  }
+
+  // Group entries by tier, render each tier as a collapsible section with an
+  // "unlocked / total" count. Fully-locked tiers start collapsed so the page
+  // is a short list of headers instead of one long scroll.
+  const tierOrder = ['public','reader','detective','harmonic','deep_time'];
+  if (typeof window._loreOpen === 'undefined') window._loreOpen = {};
+  let html = '';
+  tierOrder.forEach(function(t){
+    const items = lore.filter(function(l){ return l.tier === t; });
+    if (!items.length) return;
+    const unlockedCount = items.filter(function(l){ return loreIsUnlocked(l, rc); }).length;
+    // default open state: open if any entry unlocked; else collapsed
+    if (typeof window._loreOpen[t] === 'undefined') window._loreOpen[t] = unlockedCount > 0;
+    const open = window._loreOpen[t];
+    const cards = items.map(_loreCard).join('');
+    const pct = Math.round((unlockedCount / items.length) * 100);
+    html += '<div class="lore-section' + (open ? ' open' : '') + '" data-tier="' + t + '">' +
+              '<div class="lore-sec-head" onclick="toggleLoreSection(\'' + t + '\')">' +
+                '<span class="lore-tier ' + tierClasses[t] + '">' + tierLabels[t] + '</span>' +
+                '<span class="lore-sec-count">' + unlockedCount + ' / ' + items.length + ' unlocked</span>' +
+                '<span class="lore-sec-bar"><span class="lore-sec-fill" style="width:' + pct + '%"></span></span>' +
+                '<span class="lore-sec-chev">' + (open ? '▾' : '▸') + '</span>' +
+              '</div>' +
+              '<div class="lore-grid" style="' + (open ? '' : 'display:none;') + '">' + cards + '</div>' +
+            '</div>';
+  });
   document.getElementById('loreEntries').innerHTML = html;
   // wire "Tune in" gate buttons on locked lore entries
   var lt = document.querySelectorAll('.lore-tune');
@@ -2716,6 +2805,19 @@ function renderLoreEntries() {
       }
     });
   }
+}
+
+function toggleLoreSection(t){
+  if (typeof window._loreOpen === 'undefined') window._loreOpen = {};
+  window._loreOpen[t] = !window._loreOpen[t];
+  var sec = document.querySelector('.lore-section[data-tier="' + t + '"]');
+  if (!sec) return;
+  var grid = sec.querySelector('.lore-grid');
+  var chev = sec.querySelector('.lore-sec-chev');
+  var open = window._loreOpen[t];
+  if (grid) grid.style.display = open ? '' : 'none';
+  if (chev) chev.textContent = open ? '▾' : '▸';
+  sec.classList.toggle('open', open);
 }
 
 function getReadCount() {
