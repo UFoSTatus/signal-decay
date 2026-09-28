@@ -171,16 +171,7 @@ body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-siz
 <h2>Story Library</h2>
 <button class="btn" onclick="showScreen('titleScreen')">&#8592; Back</button>
 </div>
-<div class="story-card" onclick="startDemo()">
-<h3>Signal Decay: The Five Meet</h3>
-<p>The opening chapter — five strangers gather at a dying bar on the edge of the Zone, drawn by a cryptic signal none of them can explain.</p>
-<div class="meta">30 panels &bull; ~12 min read &bull; 5 characters</div>
-</div>
-<div class="story-card" onclick="showLoadModal()">
-<h3>+ Load Custom Story</h3>
-<p>Paste markdown text or upload a .md file to read in the immersive reader.</p>
-<div class="meta">Supports markdown with [PANEL], [MOOD:], and [SFX:] tags</div>
-</div>
+<div id="libraryList" style="overflow-y:auto;padding-bottom:24px;flex:1;"></div>
 </div>
 
 <!-- READER SCREEN -->
@@ -275,6 +266,9 @@ The night was quiet...
 <script src="daily_life_engine.js"></script>
 <script src="locations_engine.js"></script>
 <script src="emotional_state_machine.js"></script>
+<!-- Immersive Reader revive (2026-09-28): real story library + metadata cleaner -->
+<script src="sd_story_index.js"></script>
+<script src="sd_story_clean.js"></script>
 
 <script>
 window.onerror = function(msg, url, line, col, error) {
@@ -951,6 +945,8 @@ try{
 // Init settings UI
 window.addEventListener('load',()=>{
   try{
+    try{ renderLibrary(); }catch(e){}
+    try{ irCheckURL(); }catch(e){}
     if(!state.voicesEnabled)document.getElementById('toggleVoices').classList.remove('on');
     if(!state.musicEnabled)document.getElementById('toggleMusic').classList.remove('on');
     if(!state.sfxEnabled)document.getElementById('toggleSfx').classList.remove('on');
@@ -961,6 +957,78 @@ window.addEventListener('load',()=>{
     document.getElementById('musicVolume').value=state.musicVol*100;
   }catch(e){console.warn('Init error:',e)}
 });
+
+// ===== REAL STORY LIBRARY (revive 2026-09-28) =====
+// Loads any of the 117 real stories into the immersive panel player.
+var IR_CAT_LABELS = {
+  arcs:'Character Arcs', episodes:'Episodes', side_stories:'Side Stories',
+  world:'World & Lore', deep_time:'Deep Time', root:'Signal Decay'
+};
+var IR_CAT_ORDER = ['episodes','arcs','side_stories','deep_time','world','root'];
+
+function irStories(){ return (window.SD_STORY_INDEX || []); }
+
+function loadStoryById(id){
+  var list = irStories();
+  var meta = null;
+  for (var i=0;i<list.length;i++){ if(list[i].id===id){ meta=list[i]; break; } }
+  if(!meta){ showToast('Story not found'); showScreen('storySelect'); return; }
+  // Loading state
+  document.getElementById('storyTitle').textContent = meta.title;
+  showScreen('readerScreen');
+  var pc = document.getElementById('panelContainer');
+  if(pc) pc.innerHTML = '<div class="panel visible"><div class="panel-narration" style="opacity:.7">Loading…</div></div>';
+  fetch(meta.path)
+    .then(function(r){ if(!r.ok) throw new Error('not found: '+meta.path); return r.text(); })
+    .then(function(md){
+      // Strip production metadata so panels are prose, not spec-sheet
+      if(window.SD_CLEAN) md = SD_CLEAN.clean(md);
+      var data = parseStory(md);
+      if(!data.title || data.title==='Story') data.title = meta.title;
+      if(pc) pc.innerHTML='';
+      loadStory(data);
+    })
+    .catch(function(e){
+      if(pc) pc.innerHTML = '<div class="panel visible"><div class="panel-narration">Could not load this story.<br><span style="color:var(--dim);font-size:.8rem">'+(e.message||'')+'</span></div></div>';
+    });
+}
+
+function renderLibrary(){
+  var host = document.getElementById('libraryList');
+  if(!host) return;
+  var list = irStories();
+  if(!list.length){ host.innerHTML = '<p style="color:var(--dim)">No stories indexed yet.</p>'; return; }
+  var byCat = {};
+  list.forEach(function(s){ (byCat[s.category]=byCat[s.category]||[]).push(s); });
+  var html = '';
+  IR_CAT_ORDER.forEach(function(cat){
+    var items = byCat[cat]; if(!items || !items.length) return;
+    html += '<div style="margin:18px 2px 8px;font-size:.85rem;font-weight:700;color:var(--text);letter-spacing:.02em;">'
+         + (IR_CAT_LABELS[cat]||cat) + ' <span style="color:var(--dim);font-weight:500;">(' + items.length + ')</span></div>';
+    items.forEach(function(s){
+      var desc = (s.description||'').replace(/</g,'&lt;');
+      html += '<div class="story-card" onclick="loadStoryById(\'' + s.id + '\')">'
+           + '<h3>' + s.title + '</h3>'
+           + (desc ? '<p>' + desc + '</p>' : '')
+           + '<div class="meta">' + (s.reading_time?('~'+s.reading_time+' min'):'') + ' &bull; 🎬 immersive</div>'
+           + '</div>';
+    });
+  });
+  // keep the custom-load card at the bottom
+  html += '<div class="story-card" onclick="showLoadModal()"><h3>+ Load Custom Story</h3>'
+       + '<p>Paste markdown or upload a .md file. Supports [PANEL], [MOOD:], [SFX:] tags.</p>'
+       + '<div class="meta">custom</div></div>';
+  host.innerHTML = html;
+}
+
+// Auto-load a specific story if opened as immersive_reader.html?story=ID
+function irCheckURL(){
+  try {
+    var m = (location.search||'').match(/[?&]story=([^&]+)/);
+    if(m && m[1]){ loadStoryById(decodeURIComponent(m[1])); return true; }
+  } catch(e){}
+  return false;
+}
 
 // ===== DEMO STORY =====
 function startDemo(){
