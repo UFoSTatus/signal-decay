@@ -1,7 +1,7 @@
 // Signal Decay — Service Worker (Offline Support)
 // Cache-first for HTML apps, network-first for other assets
 
-const CACHE_NAME = 'signal-decay-v119';
+const CACHE_NAME = 'signal-decay-v120';
 
 // Core HTML apps to pre-cache
 const HTML_APPS = [
@@ -52,7 +52,8 @@ const ENGINE_FILES = [
   './voice_engine.js',
   './sd_engine_footers.js',
   './sd_story_clean.js',
-  './sd_story_index.js'
+  './sd_story_index.js',
+  './sd_name_fix.js'
 ];
 
 // ═══ INSTALL: Pre-cache all HTML apps ═══

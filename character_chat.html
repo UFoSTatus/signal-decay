@@ -879,7 +879,9 @@ html, body { min-height: 100vh; min-height: 100dvh; }
 <script src="timeline_engine.js"></script>
 <script src="relationship_dynamics_engine.js"></script>
 <script src="voice_engine.js"></script>
-<script src="sd_engine_footers.js"></script><!-- Phase A step 2: real engine footers (after engines, before bootstrap) -->
+<script src="sd_engine_footers.js"></script>
+<script src="sd_cast_index.js"></script>
+<script src="sd_name_fix.js"></script><!-- Phase A step 2: real engine footers (after engines, before bootstrap) -->
 
 <script>
 
@@ -1107,6 +1109,7 @@ function makeRecognizer(onText, onDone){
   r.onresult = function(e){
     var t = '';
     for (var i = e.resultIndex; i < e.results.length; i++){ t += e.results[i][0].transcript; }
+    try { if (window.SD_NAMEFIX) t = SD_NAMEFIX.fix(t); } catch(_e){}   // fix misheard canon names (v120)
     if (onText) onText(t, e.results[e.results.length-1].isFinal);
   };
   r.onerror = function(e){ if (window.console) console.warn('STT error:', e.error); };
@@ -1434,7 +1437,7 @@ function stopAzureRecording(){
       try { if (__recStream) __recStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
       var blob = new Blob(__recChunks, { type: (__mediaRecorder && __mediaRecorder.mimeType) || 'audio/webm' });
       __recStream = null; __mediaRecorder = null;
-      transcribeAzure(blob).then(resolve).catch(reject);
+      transcribeAzure(blob).then(function(txt){ try { if (window.SD_NAMEFIX) txt = SD_NAMEFIX.fix(txt); } catch(_e){} resolve(txt); }).catch(reject);
     };
     try { __mediaRecorder.stop(); } catch(e){ resolve(''); }
   });

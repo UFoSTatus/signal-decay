@@ -1952,7 +1952,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v119</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v120</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2436,12 +2436,13 @@ const BROWSE_CATS = [
 function catCount(id){ return STORIES.filter(function(s){return s.category===id;}).length; }
 
 // Deep-time unlock requirements (mirror of the lore-tier reqs) for card badges.
-var DEEP_TIME_REQS = {
-  dt_first_octave:35, dt_detuning:38, dt_ring_makers:40, dt_gold_and_flood:40,
-  dt_extraction:42, dt_europa_crypt:42, dt_home_note:44, dt_proxima_signal:44,
-  dt_ice_kings:45, dt_first_wave:46, dt_maldek:46, dt_elder_brother:48, dt_capstone:48,
-  dt_poles_moved:50, dt_magenta_bell:55, dt_grid_falls:60, dt_harmonic_manifest:60,
-  dt_the_chase:62, dt_twenty_two:64, dt_the_escort:64, dt_dark_object:66, dt_creditors:68
+var DEEP_TIME_REQS = {  // synced to Codex thresholds (v118 rescale; fixed 2026-10-05)
+  dt_first_octave:8, dt_detuning:10, dt_gold_and_flood:11, dt_home_note:12,
+  dt_maldek:13, dt_capstone:14, dt_ice_kings:15, dt_extraction:16,
+  dt_first_wave:17, dt_elder_brother:18, dt_ring_makers:19, dt_europa_crypt:20,
+  dt_proxima_signal:21, dt_poles_moved:22, dt_magenta_bell:23, dt_harmonic_manifest:24,
+  dt_grid_falls:28, dt_the_chase:29, dt_twenty_two:30, dt_the_escort:31,
+  dt_creditors:32, dt_dark_object:33
 };
 // Returns null for non-gated stories, or {unlocked, req} for deep_time entries.
 function storyUnlockState(st) {
@@ -3440,31 +3441,364 @@ function postComment() {
 }
 
 // ═══ SEARCH ═══
+// Full-story keyword search (added 2026-10-05).
+//  • Instant title / description / character results show immediately.
+//  • The first time search opens, search_index.json (built by
+//    reference\tools\build_search_index.py) loads in the background; then
+//    results also rank words found INSIDE the stories (BM25) with a snippet.
+//  • If the index can't load (e.g. offline the first time), instant results
+//    are used alone.
+//  • SPOILER SAFE: any story whose storyUnlockState() says locked never
+//    appears in results, snippets or counts.
+//  The tokenizer/stemmer below is an EXACT copy of the Python builder's rules.
+var SD_FTS = (function () {
+  var STOP = Object.create(null);
+  ('a about above after again against all am an and any are as at be because been before being below ' +
+   'between both but by can could did do does doing down during each few for from further had has have having he her ' +
+   'here hers herself him himself his how i if in into is it its itself just me more most my myself no nor not now of ' +
+   'off on once only or other our ours ourselves out over own same she should so some such than that the their theirs ' +
+   'them themselves then there these they this those through to too under until up very was we were what when where ' +
+   'which while who whom why will with would you your yours yourself yourselves s t don didn wasn isn aren couldn wouldn ' +
+   'll re ve d m o y im its thats like one said').split(' ').forEach(function (w) { if (w) STOP[w] = 1; });
+
+  function ends(w, x) { return w.length >= x.length && w.slice(w.length - x.length) === x; }
+  function stem(w) {
+    if (w.length <= 3) return w;
+    if (ends(w, 'ies') && w.length > 4) {
+      w = w.slice(0, -3) + 'y';
+    } else if (ends(w, 'ing') && w.length > 5) {
+      w = w.slice(0, -3);
+      if (w.length > 2 && w.charAt(w.length - 1) === w.charAt(w.length - 2) && 'lsz'.indexOf(w.charAt(w.length - 1)) < 0) w = w.slice(0, -1);
+    } else if (ends(w, 'ed') && w.length > 4) {
+      w = w.slice(0, -2);
+      if (w.length > 2 && w.charAt(w.length - 1) === w.charAt(w.length - 2) && 'lsz'.indexOf(w.charAt(w.length - 1)) < 0) w = w.slice(0, -1);
+    } else if (ends(w, 's') && w.length > 3 && !(ends(w, 'ss') || ends(w, 'us') || ends(w, 'is'))) {
+      w = w.slice(0, -1);
+    }
+    if (ends(w, 'e') && w.length > 3) w = w.slice(0, -1);
+    return w;
+  }
+  function tokenize(text) {
+    text = String(text == null ? '' : text).toLowerCase().replace(/\u2019/g, '').replace(/'/g, '');
+    var parts = text.split(/[^a-z0-9]+/), out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var w = parts[i];
+      if (w.length < 2 || STOP[w]) continue;
+      out.push(stem(w));
+    }
+    return out;
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function norm(s) {   // used to match a snippet to the rendered paragraph
+    return String(s == null ? '' : s).toLowerCase().replace(/[\u2019']/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/^\s+|\s+$/g, '');
+  }
+  function own(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+
+  // one-time styles for highlights (kept here so the CSS block is untouched)
+  try {
+    var css = document.createElement('style');
+    css.textContent = 'mark.sd-hit{background:rgba(245,158,11,0.32);color:inherit;border-radius:2px;padding:0 1px;}' +
+      '.sd-snippet{margin-top:8px;font-size:0.76rem;line-height:1.5;color:var(--text-secondary,#bbb);border-left:2px solid var(--amber,#f59e0b);padding-left:8px;}' +
+      '.sd-search-status{font-size:0.7rem;color:var(--text-muted,#888);margin:4px 2px 12px;}' +
+      '.sd-search-flash{background:rgba(245,158,11,0.22);box-shadow:0 0 0 6px rgba(245,158,11,0.22);border-radius:4px;transition:background 1.5s ease,box-shadow 1.5s ease;}';
+    document.head.appendChild(css);
+  } catch (e) {}
+
+  var state = 'idle', data = null, waiters = [];
+  var storyPos = {};      // story id -> position in data.s
+  var titleTok = {};      // story id -> {stem:1}
+  var charTok = {};       // story id -> {stem:1}
+
+  function tokSet(text) { var o = {}, t = tokenize(text); for (var i = 0; i < t.length; i++) o[t[i]] = 1; return o; }
+  function prepare(obj) {
+    if (!obj || obj.v !== 1 || !obj.p || !obj.t || !obj.dl || !obj.s) throw new Error('bad search index');
+    data = obj; storyPos = {};
+    for (var i = 0; i < obj.s.length; i++) storyPos[obj.s[i]] = i;
+  }
+  function storyMeta(st) {
+    if (!own(titleTok, st.id)) {
+      titleTok[st.id] = tokSet(st.title);
+      var names = [];
+      var ids = st.characters || [];
+      for (var i = 0; i < ids.length; i++) {
+        names.push(String(ids[i]).replace(/_/g, ' '));
+        try {
+          for (var j = 0; j < CHARACTERS.length; j++) {
+            if (CHARACTERS[j].id === ids[i]) names.push(CHARACTERS[j].name + ' ' + (CHARACTERS[j].soul || ''));
+          }
+        } catch (e) {}
+      }
+      charTok[st.id] = tokSet(names.join(' '));
+    }
+  }
+  function finish(ok, obj) {
+    if (ok) { try { prepare(obj); state = 'ready'; } catch (e) { state = 'failed'; ok = false; } }
+    else { state = 'failed'; }
+    var w = waiters; waiters = [];
+    for (var i = 0; i < w.length; i++) { try { w[i](ok); } catch (e) {} }
+  }
+  function viaXHR() {
+    try {
+      var x = new XMLHttpRequest();
+      x.open('GET', 'search_index.json', true);
+      x.onreadystatechange = function () {
+        if (x.readyState !== 4) return;
+        if (x.status === 200 || (x.status === 0 && x.responseText)) {
+          var o = null; try { o = JSON.parse(x.responseText); } catch (e) {}
+          finish(!!o, o);
+        } else { finish(false); }
+      };
+      x.send();
+    } catch (e) { finish(false); }
+  }
+  // Lazy load. retry=true lets a previous failure (e.g. offline) try again.
+  function load(cb, retry) {
+    if (state === 'failed' && retry) state = 'idle';
+    if (state === 'ready') { if (cb) cb(true); return; }
+    if (state === 'failed') { if (cb) cb(false); return; }
+    if (cb) waiters.push(cb);
+    if (state === 'loading') return;
+    state = 'loading';
+    if (typeof fetch === 'function') {
+      fetch('search_index.json').then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (o) { finish(true, o); })['catch'](function () { viaXHR(); });
+    } else { viaXHR(); }
+  }
+
+  // BM25 over passages, combined per story, + title / character boosts.
+  // allowFn(story) must return false for locked stories (they are skipped entirely).
+  function search(query, allowFn) {
+    var qt = tokenize(query), seen = {}, terms = [];
+    for (var i = 0; i < qt.length; i++) if (!seen[qt[i]]) { seen[qt[i]] = 1; terms.push(qt[i]); }
+    var out = [];
+    if (!terms.length || !data) return out;
+    var N = data.p.length, avg = data.avg || 1, k1 = 1.2, b = 0.75;
+    var allowedPos = {};
+    var byId = {};
+    for (i = 0; i < STORIES.length; i++) byId[STORIES[i].id] = STORIES[i];
+    for (i = 0; i < data.s.length; i++) {
+      var sst = byId[data.s[i]];
+      allowedPos[i] = !!(sst && allowFn(sst));
+    }
+    var pscore = {}, phits = {}, pterms = {};
+    for (var t = 0; t < terms.length; t++) {
+      if (!own(data.t, terms[t])) continue;
+      var arr = data.t[terms[t]], df = arr.length / 2;
+      var idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+      var pi = 0;
+      for (var j = 0; j < arr.length; j += 2) {
+        pi += arr[j];
+        var tf = arr[j + 1];
+        if (!allowedPos[data.p[pi][0]]) continue;          // locked story: skip
+        var dl = data.dl[pi];
+        var sc = idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * dl / avg));
+        pscore[pi] = (pscore[pi] || 0) + sc;
+        phits[pi] = (phits[pi] || 0) + 1;
+        (pterms[pi] || (pterms[pi] = {}))[terms[t]] = 1;
+      }
+    }
+    // per story: best passage + a little credit for the 2nd and 3rd best
+    var per = {};
+    for (var key in pscore) {
+      if (!own(pscore, key)) continue;
+      var p = +key, s = pscore[p] * (0.5 + 0.5 * phits[p] / terms.length);
+      var sid = data.s[data.p[p][0]];
+      var e = per[sid] || (per[sid] = { top: [], best: -1, bestScore: -1 });
+      e.top.push(s);
+      if (s > e.bestScore) { e.bestScore = s; e.best = p; }
+    }
+    var nq = norm(query);
+    for (i = 0; i < STORIES.length; i++) {
+      var st = STORIES[i];
+      if (!allowFn(st)) continue;
+      storyMeta(st);
+      var tm = 0, cm = 0;
+      for (t = 0; t < terms.length; t++) {
+        if (titleTok[st.id][terms[t]]) tm++;
+        if (charTok[st.id][terms[t]]) cm++;
+      }
+      var ent = per[st.id];
+      var score = 0;
+      if (ent) {
+        ent.top.sort(function (x, y) { return y - x; });
+        score = ent.top[0] + 0.5 * (ent.top[1] || 0) + 0.25 * (ent.top[2] || 0);
+      }
+      var exact = nq && norm(st.title) === nq;
+      if (!ent && !tm && !exact) continue;                 // character-only boost needs a text hit
+      score += 8 * tm / terms.length;
+      if (ent) score += 4 * cm / terms.length;
+      if (nq.length > 2 && norm(st.title).indexOf(nq) >= 0) score += 6;
+      if (exact) score += 1e6;
+      var said = [];   // the reader's own words that this passage contains
+      if (ent) {
+        var raw = String(query).split(/[^A-Za-z0-9\u2019']+/), got = {};
+        for (var r = 0; r < raw.length; r++) {
+          var rt = tokenize(raw[r]);
+          if (rt.length && pterms[ent.best] && pterms[ent.best][rt[0]] && !got[rt[0]]) { got[rt[0]] = 1; said.push(raw[r]); }
+        }
+      }
+      out.push({ story: st, score: score, best: ent ? ent.best : -1, words: said });
+    }
+    out.sort(function (x, y) { return y.score - x.score; });
+    return out;
+  }
+
+  // snippet HTML with the query words highlighted (everything escaped)
+  function highlight(snip, query) {
+    var qs = {}, qt = tokenize(query);
+    for (var i = 0; i < qt.length; i++) qs[qt[i]] = 1;
+    var parts = String(snip || '').split(/([A-Za-z0-9\u2019']+)/), html = '';
+    for (i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {
+        var w = parts[i].toLowerCase().replace(/[\u2019']/g, '');
+        if (w.length >= 2 && !STOP[w] && qs[stem(w)]) { html += '<mark class="sd-hit">' + esc(parts[i]) + '</mark>'; continue; }
+      }
+      html += esc(parts[i]);
+    }
+    return html;
+  }
+  function snippet(pIdx) { return (data && data.p[pIdx]) ? data.p[pIdx][2] : ''; }
+
+  // After openStory() renders, scroll to the paragraph that starts this passage.
+  function findTarget(root, snip) {
+    var words = norm(String(snip || '').replace(/\u2026\s*$/, '')).split(' ');
+    var sets = ['p,h1,h2,h3,h4,h5,h6,li,td,pre', 'blockquote,div'];
+    var lens = [8, 5, 3];
+    for (var L = 0; L < lens.length; L++) {
+      var k = ' ' + words.slice(0, lens[L]).join(' ') + ' ';
+      if (k.length < 6) continue;
+      for (var S = 0; S < sets.length; S++) {
+        var nodes = root.querySelectorAll(sets[S]);
+        for (var i = 0; i < nodes.length; i++) {
+          if ((' ' + norm(nodes[i].textContent) + ' ').indexOf(k) >= 0) return nodes[i];
+        }
+      }
+    }
+    var k8 = words.slice(0, 8).join(' ');          // short heading-style first paragraph
+    var all = root.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li');
+    for (i = 0; i < all.length; i++) {
+      var n = norm(all[i].textContent);
+      if (n.split(' ').length >= 2 && k8.indexOf(n) === 0) return all[i];
+    }
+    return null;
+  }
+  function jumpTo(id, pIdx) {
+    if (!data || pIdx < 0) return;
+    var snip = snippet(pIdx);
+    var hadHist = (typeof readingHistory !== 'undefined' && readingHistory[id]);
+    var prevProgress = hadHist ? (readingHistory[id].progress || 0) : 0;
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      if (currentStoryId !== id || tries > 80) { clearInterval(timer); return; }
+      var root = document.querySelector('#readerBody .story-content');
+      if (!root) return;
+      clearInterval(timer);
+      var el = findTarget(root, snip);
+      if (!el) return;
+      function go() { try { el.scrollIntoView({ block: 'center' }); } catch (e) { try { el.scrollIntoView(true); } catch (e2) {} } }
+      go();
+      el.classList.add('sd-search-flash');
+      setTimeout(function () { if (currentStoryId === id) go(); }, 600);     // art/layers may shift layout
+      setTimeout(function () { try { el.classList.remove('sd-search-flash'); } catch (e) {} }, 2800);
+      // A search jump is not "reading": put the reading progress back so it can't count as read / unlock anything.
+      setTimeout(function () {
+        try { if (readingHistory[id]) { readingHistory[id].progress = prevProgress; saveState(); } } catch (e) {}
+      }, 900);
+    }, 120);
+  }
+
+  return { load: load, search: search, highlight: highlight, snippet: snippet, jumpTo: jumpTo,
+           esc: esc, tokenize: tokenize, stem: stem, ready: function () { return state === 'ready'; },
+           state: function () { return state; } };
+})();
+
 function toggleSearch() {
   const overlay = document.getElementById('searchOverlay');
   overlay.classList.toggle('active');
   if (overlay.classList.contains('active')) {
     document.getElementById('searchInput').focus();
+    try { SD_FTS.load(null, true); } catch (e) {}      // lazy: first open starts loading the index
   }
 }
 
+// Tap a search result: close search, open the story, then scroll to the matching passage.
+function sdSearchOpen(id, pIdx) {
+  toggleSearch();
+  openStory(id);
+  try { SD_FTS.jumpTo(id, pIdx); } catch (e) {}
+}
+
+// true = the reader may see this story (non-gated, or gated + unlocked)
+function sdSearchAllowed(s) {
+  var u = null;
+  try { u = storyUnlockState(s); } catch (e) { u = (s && s.category === 'deep_time') ? { unlocked: false } : null; }
+  return !u || u.unlocked !== false;
+}
+
+var _sdSearchLast = '';
 function performSearch(query) {
-  if (!query.trim()) { document.getElementById('searchResults').innerHTML = ''; return; }
-  const q = query.toLowerCase();
-  const results = STORIES.filter(s => 
-    s.title.toLowerCase().includes(q) || 
-    (s.description && s.description.toLowerCase().includes(q)) ||
-    s.category.toLowerCase().includes(q)
-  ).slice(0, 10);
-  
-  const charResults = CHARACTERS.filter(c => 
-    c.name.toLowerCase().includes(q) || c.ability.toLowerCase().includes(q)
-  );
-  
-  document.getElementById('searchResults').innerHTML = 
-    (charResults.length > 0 ? '<div style="margin-bottom:16px;">' + charResults.map(c => '\n      <div class="story-card" onclick="toggleSearch(); showCharacterDetail(\'' + c.id + '\')">\n        <div style="display:flex;align-items:center;gap:10px;">\n          <span style="font-size:1.2rem;">' + c.icon + '</span>\n          <div>\n            <div class="card-title">' + c.name + '</div>\n            <div style="font-size:0.7rem;color:var(--text-muted);">' + c.ability + ' • ' + c.role + '</div>\n          </div>\n        </div>\n      </div>\n    ').join('') + '</div>' : '') +
-    results.map(s => '\n      <div class="story-card" onclick="toggleSearch(); openStory(\'' + s.id + '\')">\n        <div class="card-top">\n          <div class="card-title">' + s.title + '</div>\n          <span class="category-badge">' + s.category.replace('_',' ') + '</span>\n        </div>\n        <div class="card-desc">' + s.description || '' + '</div>\n      </div>\n    ').join('') ||
-    '<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>No results for "' + query + '"</p></div>';
+  var box = document.getElementById('searchResults');
+  query = String(query == null ? '' : query);
+  _sdSearchLast = query;
+  if (!query.trim()) { box.innerHTML = ''; return; }
+  var q = query.toLowerCase().trim();
+  var esc = SD_FTS.esc;
+
+  // instant matches (titles, descriptions, categories) — locked stories filtered out
+  var instant = STORIES.filter(function (s) {
+    return sdSearchAllowed(s) && (
+      s.title.toLowerCase().indexOf(q) >= 0 ||
+      (s.description && s.description.toLowerCase().indexOf(q) >= 0) ||
+      s.category.toLowerCase().indexOf(q) >= 0);
+  });
+  var charResults = CHARACTERS.filter(function (c) {
+    return c.name.toLowerCase().indexOf(q) >= 0 || (c.ability || '').toLowerCase().indexOf(q) >= 0;
+  });
+
+  var rows = [], status = '';
+  if (SD_FTS.ready()) {
+    var ranked = SD_FTS.search(query, sdSearchAllowed), inRanked = {};
+    for (var i = 0; i < ranked.length; i++) { inRanked[ranked[i].story.id] = 1; rows.push(ranked[i]); }
+    for (i = 0; i < instant.length; i++) if (!inRanked[instant[i].id]) rows.push({ story: instant[i], best: -1 });
+    status = rows.length ? (rows.length + (rows.length === 1 ? ' story matches' : ' stories match') + (rows.length > 20 ? ' · showing the top 20' : '')) : '';
+  } else {
+    for (i = 0; i < instant.length; i++) rows.push({ story: instant[i], best: -1 });
+    var stt = SD_FTS.state();
+    if (stt === 'failed') status = 'Searching inside stories isn\u2019t available right now (offline?) \u2014 showing title matches only.';
+    else status = '<i class="fa-solid fa-spinner fa-spin"></i> Searching inside the stories\u2026';
+    SD_FTS.load(function () {
+      var ov = document.getElementById('searchOverlay');
+      if (_sdSearchLast === query && ov && ov.classList.contains('active')) performSearch(query);
+    });
+  }
+  rows = rows.slice(0, 20);
+
+  var charHtml = charResults.length ? '<div style="margin-bottom:16px;">' + charResults.map(function (c) {
+    var cid = String(c.id).replace(/[^\w\-]/g, '');
+    return '\n      <div class="story-card" onclick="toggleSearch(); showCharacterDetail(\'' + cid + '\')">\n        <div style="display:flex;align-items:center;gap:10px;">\n          <span style="font-size:1.2rem;">' + esc(c.icon) + '</span>\n          <div>\n            <div class="card-title">' + esc(c.name) + '</div>\n            <div style="font-size:0.7rem;color:var(--text-muted);">' + esc(c.ability) + ' \u2022 ' + esc(c.role) + '</div>\n          </div>\n        </div>\n      </div>\n    ';
+  }).join('') + '</div>' : '';
+
+  var storyHtml = rows.map(function (r) {
+    var s = r.story, sid = String(s.id).replace(/[^\w\-]/g, '');
+    var snip = r.best >= 0 ? SD_FTS.snippet(r.best) : '';
+    return '\n      <div class="story-card" onclick="sdSearchOpen(\'' + sid + '\',' + (r.best >= 0 ? r.best : -1) + ')">\n        <div class="card-top">\n          <div class="card-title">' + esc(s.title) + '</div>\n          <span class="category-badge">' + esc(s.category.replace('_', ' ')) + '</span>\n        </div>\n        <div class="card-desc">' + esc(s.description || '') + '</div>' +
+      (snip ? '\n        <div class="sd-snippet">' + SD_FTS.highlight(snip, query) +
+        (r.words && r.words.length ? '<div style="margin-top:4px;font-size:0.66rem;color:var(--text-muted);">\u21b3 this passage mentions: ' +
+          r.words.map(function (w) { return '<mark class="sd-hit">' + esc(w) + '</mark>'; }).join(' \u00b7 ') + '</div>' : '') +
+        '</div>' : '') + '\n      </div>\n    ';
+  }).join('');
+
+  var statusHtml = status ? '<div class="sd-search-status">' + status + '</div>' : '';
+  if (!charHtml && !storyHtml) {
+    box.innerHTML = statusHtml + '<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>No results for "' + esc(query) + '"</p></div>';
+  } else {
+    box.innerHTML = charHtml + statusHtml + storyHtml;
+  }
 }
 
 // ═══ AUDIO ═══

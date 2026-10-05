@@ -442,6 +442,46 @@ body::before {
   transform: none;
 }
 
+/* ═══ HOLD-TO-TALK MIC (added 2026-10-05) ═══ */
+.mic-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.10);
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.mic-btn:hover {
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+}
+.mic-btn.recording {
+  background: var(--amber);
+  color: #06060f;
+  border-color: var(--amber);
+  animation: micPulse 1.1s ease-in-out infinite;
+}
+.mic-btn.working {
+  opacity: 0.6;
+  cursor: progress;
+}
+.mic-btn.hidden { display: none; }
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+}
+
 /* ═══ CROSS-LINKS NAV ═══ */
 .cross-links {
   display: flex;
@@ -649,6 +689,7 @@ body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-siz
   <div class="input-area">
     <div class="input-wrapper">
       <input type="text" id="userInput" placeholder="Ask about the Signal Decay universe..." autocomplete="off">
+      <button class="mic-btn hidden" id="micBtn" type="button" title="Hold to talk" aria-label="Hold to talk"><i class="fas fa-microphone"></i></button>
       <button class="send-btn" id="sendBtn" disabled><i class="fas fa-arrow-up"></i></button>
     </div>
   </div>
@@ -679,6 +720,9 @@ body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); box-siz
 <script src="timeline_engine.js"></script>
 <script src="legacy_operations_engine.js"></script>
 <script src="locations_engine.js"></script>
+<script src="sd_cast_index.js"></script>
+<script src="sd_pronunciation.js"></script>
+<script src="sd_name_fix.js"></script>
 
 <script>
 
@@ -1317,6 +1361,239 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// HOLD-TO-TALK MIC (added 2026-10-05) — same pattern as Character Chat.
+// Hold the mic button, speak, let go. Your words go INTO the text box
+// (never auto-sent) so you can fix them, then tap send.
+// Browser speech where it works; on iPhone home-screen app it uses the
+// Azure Speech key (if saved), otherwise the mic is hidden.
+// Misheard canon names are fixed by sd_name_fix.js (SD_NAMEFIX).
+// ═══════════════════════════════════════════════════════════════
+var __loAudioUnlocked = false;
+var __loRecog = null;
+var __loRecogActive = false;
+var __loAzureActive = false;
+var __loHolding = false;
+var __loMicBase = '';
+var __loPlaceholder = userInput ? userInput.placeholder : '';
+var __loMediaRecorder = null;
+var __loRecChunks = [];
+var __loRecStream = null;
+
+function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function isStandalonePWA(){
+  return (window.navigator.standalone === true) ||
+         (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+}
+function hasBrowserSTT(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+function useBrowserMic(){ return hasBrowserSTT() && !(isIOS() && isStandalonePWA()); }
+function hasAzureSTT(){
+  var hasKey = false;
+  try { hasKey = !!(getApiKey('azure_speech') || getApiKey('azure')); } catch(e){}
+  return hasKey && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && !!window.MediaRecorder;
+}
+function canUseMic(){ return useBrowserMic() || hasAzureSTT(); }
+
+function unlockAudio(){
+  if (__loAudioUnlocked) return;
+  try {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    var ctx = new Ctx();
+    var buf = ctx.createBuffer(1, 1, 22050);
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    src.connect(ctx.destination); src.start(0);
+    if (ctx.resume) ctx.resume();
+    __loAudioUnlocked = true;
+  } catch(e){}
+}
+
+function loFixNames(t){
+  try { if (window.SD_NAMEFIX && t) t = SD_NAMEFIX.fix(t); } catch(_e){}
+  return t;
+}
+
+// Put recognized words into the box (after anything already typed) and
+// fire the same 'input' event typing does, so the send button turns on.
+function loPutText(t){
+  if (!userInput) return;
+  t = (t || '').trim();
+  var base = __loMicBase ? __loMicBase.replace(/\s+$/, '') : '';
+  userInput.value = base && t ? (base + ' ' + t) : (base || t);
+  try { userInput.dispatchEvent(new Event('input', { bubbles: true })); }
+  catch(e){ sendBtn.disabled = !userInput.value.trim() || isStreaming; }
+}
+
+function loSetPlaceholder(msg){
+  if (!userInput) return;
+  userInput.placeholder = msg;
+  setTimeout(function(){ userInput.placeholder = __loPlaceholder; }, 4000);
+}
+
+function makeRecognizer(onText, onDone){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  var r = new SR();
+  r.lang = 'en-US';
+  r.interimResults = true;
+  r.continuous = true;
+  r.onresult = function(e){
+    var t = '';
+    for (var i = 0; i < e.results.length; i++){ t += e.results[i][0].transcript; }
+    t = loFixNames(t);
+    if (onText) onText(t, e.results[e.results.length-1].isFinal);
+  };
+  r.onerror = function(e){
+    if (window.console) console.warn('STT error:', e.error);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') loSetPlaceholder('Microphone blocked — please allow it, or just type.');
+  };
+  r.onend = function(){ __loRecogActive = false; if (onDone) onDone(); };
+  return r;
+}
+
+// ── Azure fallback (iPhone home-screen app) ──
+function startAzureRecording(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.reject('no mic');
+  return navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream){
+    __loRecStream = stream;
+    __loRecChunks = [];
+    var mime = '';
+    var candidates = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/aac',''];
+    for (var i=0;i<candidates.length;i++){
+      if (candidates[i] === '' || (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(candidates[i]))){ mime = candidates[i]; break; }
+    }
+    __loMediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+    __loMediaRecorder.ondataavailable = function(e){ if (e.data && e.data.size > 0) __loRecChunks.push(e.data); };
+    __loMediaRecorder.start();
+    return true;
+  });
+}
+function stopAzureRecording(){
+  return new Promise(function(resolve, reject){
+    if (!__loMediaRecorder){ resolve(''); return; }
+    __loMediaRecorder.onstop = function(){
+      try { if (__loRecStream) __loRecStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+      var blob = new Blob(__loRecChunks, { type: (__loMediaRecorder && __loMediaRecorder.mimeType) || 'audio/webm' });
+      __loRecStream = null; __loMediaRecorder = null;
+      transcribeAzure(blob).then(function(txt){ resolve(loFixNames(txt)); }).catch(reject);
+    };
+    try { __loMediaRecorder.stop(); } catch(e){ resolve(''); }
+  });
+}
+function transcribeAzure(blob){
+  var key = '';
+  try { key = getApiKey('azure_speech') || getApiKey('azure'); } catch(e){}
+  var region = (typeof VOICE_ENGINE !== 'undefined' && VOICE_ENGINE.runtime && VOICE_ENGINE.runtime.azureRegion) || 'eastus2';
+  if (!key) return Promise.resolve('');
+  var ctype = blob.type || 'audio/webm; codecs=opus';
+  var url = 'https://' + region + '.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US';
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Ocp-Apim-Subscription-Key': key, 'Content-Type': ctype, 'Accept': 'application/json' },
+    body: blob
+  }).then(function(resp){
+    if (!resp.ok) throw new Error('Azure STT ' + resp.status);
+    return resp.json();
+  }).then(function(json){
+    if (json && json.DisplayText) return json.DisplayText;
+    if (json && json.NBest && json.NBest[0]) return json.NBest[0].Display || json.NBest[0].Lexical || '';
+    return '';
+  });
+}
+
+// ── Hold to talk ──
+function micPressStart(ev){
+  if (ev && ev.preventDefault) ev.preventDefault();
+  var mic = document.getElementById('micBtn');
+  if (!mic || __loHolding || __loRecogActive || __loAzureActive) return;
+  if (ev && ev.pointerId !== undefined && mic.setPointerCapture){ try { mic.setPointerCapture(ev.pointerId); } catch(e){} }
+  __loHolding = true;
+  unlockAudio();
+  __loMicBase = userInput ? userInput.value : '';
+  if (useBrowserMic()){
+    __loRecog = makeRecognizer(function(text){ loPutText(text); }, function(){
+      mic.classList.remove('recording');
+      __loHolding = false;
+      if (userInput) userInput.focus();
+    });
+    if (!__loRecog){ __loHolding = false; return; }
+    try { __loRecog.start(); __loRecogActive = true; mic.classList.add('recording'); }
+    catch(e){ __loRecogActive = false; __loHolding = false; mic.classList.remove('recording'); }
+  } else if (hasAzureSTT()){
+    __loAzureActive = true;
+    mic.classList.add('recording');
+    startAzureRecording().then(function(){
+      // If he already let go while the mic permission prompt was up, finish now.
+      if (!__loHolding) micFinishAzure();
+    }).catch(function(){
+      __loAzureActive = false; __loHolding = false;
+      mic.classList.remove('recording');
+      loSetPlaceholder('Mic unavailable — please type.');
+    });
+  } else {
+    __loHolding = false;
+    loSetPlaceholder('Voice input is not available here — please type.');
+  }
+}
+function micFinishAzure(){
+  var mic = document.getElementById('micBtn');
+  if (!__loMediaRecorder) return;   // still starting; startAzureRecording().then will call us
+  if (mic){ mic.classList.remove('recording'); mic.classList.add('working'); }
+  stopAzureRecording().then(function(text){
+    if (text) loPutText(text);
+    else loSetPlaceholder("Didn't catch that — hold the mic and try again, or type.");
+  }).catch(function(){
+    loSetPlaceholder('Voice service error — please type.');
+  }).then(function(){
+    __loAzureActive = false;
+    if (mic) mic.classList.remove('working');
+    if (userInput) userInput.focus();
+  });
+}
+function micPressEnd(ev){
+  if (ev && ev.preventDefault) ev.preventDefault();
+  if (!__loHolding) return;
+  __loHolding = false;
+  var mic = document.getElementById('micBtn');
+  if (__loRecogActive && __loRecog){
+    try { __loRecog.stop(); } catch(e){}
+    if (mic) mic.classList.remove('recording');
+  } else if (__loAzureActive){
+    micFinishAzure();
+  }
+}
+
+// Show the mic only where speech can actually work.
+function loUpdateMicVisibility(){
+  var mic = document.getElementById('micBtn');
+  if (!mic) return;
+  if (canUseMic()) mic.classList.remove('hidden');
+  else mic.classList.add('hidden');
+}
+
+(function wireMic(){
+  var mic = document.getElementById('micBtn');
+  if (!mic) return;
+  if (window.PointerEvent){
+    mic.addEventListener('pointerdown', micPressStart);
+    mic.addEventListener('pointerup', micPressEnd);
+    mic.addEventListener('pointercancel', micPressEnd);
+  } else {
+    mic.addEventListener('touchstart', micPressStart, { passive: false });
+    mic.addEventListener('touchend', micPressEnd, { passive: false });
+    mic.addEventListener('touchcancel', micPressEnd, { passive: false });
+    mic.addEventListener('mousedown', micPressStart);
+    mic.addEventListener('mouseup', micPressEnd);
+    mic.addEventListener('mouseleave', micPressEnd);
+  }
+  mic.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  mic.addEventListener('click', function(e){ e.preventDefault(); });
+  loUpdateMicVisibility();
+  // Re-check if an Azure key gets saved later (e.g., on another page).
+  window.addEventListener('focus', loUpdateMicVisibility);
+  window.addEventListener('storage', loUpdateMicVisibility);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) loUpdateMicVisibility(); });
+})();
 </script>
 </body>
 </html>
