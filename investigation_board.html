@@ -755,6 +755,7 @@ html, body { height: 100vh; height: 100dvh; }
 #minimap       { bottom: calc(20px + var(--safe-bottom)); left:  calc(20px + var(--safe-left)); }
 #back-btn      { bottom: calc(80px + var(--safe-bottom)); }
 </style>
+<script src="sd_unlocks.js"></script>
 </head>
 <body>
 <!-- Background Layers -->
@@ -1891,7 +1892,7 @@ function renderBoard() {
     const pos = cardPositions[i];
     const rotation = (Math.random() * 4 - 2).toFixed(1);
     const isExplored = state.explored.includes(entry.id);
-    const isLocked = entry.locked && !state.unlocked.includes(entry.id);
+    const isLocked = entry.locked && !state.unlocked.includes(entry.id) && !sdDtOpen(entry.id);
     const isFog = !isExplored && !isLocked && state.explored.length >= 3;
     
     const card = document.createElement('div');
@@ -1998,9 +1999,37 @@ function saveState(state) {
   try { localStorage.setItem('signalDecay_state', JSON.stringify(state)); } catch(e){}
 }
 
+/* ═══ DEEP TIME NODES follow the Reader (sd_unlocks.js, 2026-10-06) ═══
+   A Deep Time node opens when its story is unlocked in the Reader (read count,
+   📻 tuning game, drop switch or Director's Clearance). Redacted until then. */
+function sdDtOpen(id) {
+  try { return !!(window.SD_UNLOCK && SD_UNLOCK.has(id) && SD_UNLOCK.isUnlocked(id)); } catch (e) { return false; }
+}
+function sdDtLockMsg(id) {
+  try {
+    if (window.SD_UNLOCK && SD_UNLOCK.has(id)) {
+      var s = SD_UNLOCK.state(id);
+      return '\ud83d\udd12 CLASSIFIED \u2014 read ' + s.remaining + ' more stor' + (s.remaining === 1 ? 'y' : 'ies') + ' in the Reader to declassify (or \ud83d\udcfb tune in on the Timeline)';
+    }
+  } catch (e) {}
+  return null;
+}
+function sdDtSync() {  /* live: open / re-lock Deep Time cards without a reload */
+  if (!window.SD_UNLOCK || typeof ENTRIES === 'undefined') return;
+  var st = loadState();
+  ENTRIES.forEach(function (e) {
+    if (!e.locked || !SD_UNLOCK.has(e.id)) return;
+    var card = document.querySelector('[data-id="' + e.id + '"]');
+    if (!card) return;
+    var open = sdDtOpen(e.id) || st.unlocked.includes(e.id);
+    if (open && card.classList.contains('locked')) refreshCard(e.id);
+    else if (!open && !card.classList.contains('locked')) { card.classList.add('locked'); var b = card.querySelector('.card-body'); if (b) b.textContent = ''; }
+  });
+}
+
 function onCardClick(entry, cardEl) {
-  if (entry.locked && !loadState().unlocked.includes(entry.id)) {
-    showToast('\ud83d\udd12 CLASSIFIED \u2014 Explore more nodes to unlock');
+  if (entry.locked && !loadState().unlocked.includes(entry.id) && !sdDtOpen(entry.id)) {
+    showToast(sdDtLockMsg(entry.id) || '\ud83d\udd12 CLASSIFIED \u2014 Explore more nodes to unlock');
     return;
   }
   if (cardEl.classList.contains('fog')) {
@@ -2547,6 +2576,8 @@ function initBoard() {
 
 // Start
 document.addEventListener('DOMContentLoaded', handleBootup);
+// live: a Deep Time story unlocked in another app -> open its node here
+try { if (window.SD_UNLOCK) SD_UNLOCK.onChange(function () { try { sdDtSync(); } catch (e) {} }); } catch (e) {}
 </script>
 
 <!-- ═══ ENGINE DATA SOURCES ═══ -->

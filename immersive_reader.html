@@ -264,6 +264,7 @@ The night was quiet...
 <script src="emotional_state_machine.js"></script>
 <!-- Immersive Reader revive (2026-09-28): real story library + metadata cleaner -->
 <script src="sd_story_index.js"></script>
+<script src="sd_unlocks.js"></script>
 <script src="sd_story_clean.js"></script>
 
 <script>
@@ -949,6 +950,7 @@ try{
 window.addEventListener('load',()=>{
   try{
     try{ renderLibrary(); }catch(e){}
+    try{ if (window.SD_UNLOCK) SD_UNLOCK.onChange(function(){ try{ renderLibrary(); }catch(e){} }); }catch(e){}  // live unlocks
     try{ irCheckURL(); }catch(e){}
     if(!state.voicesEnabled)document.getElementById('toggleVoices').classList.remove('on');
     if(!state.musicEnabled)document.getElementById('toggleMusic').classList.remove('on');
@@ -971,7 +973,24 @@ var IR_CAT_ORDER = ['episodes','arcs','side_stories','deep_time','world','root']
 
 function irStories(){ return (window.SD_STORY_INDEX || []); }
 
+// 🔒 Deep Time lock — same rule as the Reader (sd_unlocks.js, 2026-10-06)
+function irLock(id){
+  try { if (window.SD_UNLOCK && SD_UNLOCK.has(id) && !SD_UNLOCK.isUnlocked(id)) return SD_UNLOCK.state(id); } catch(e){}
+  return null;
+}
+function irLockText(ls){
+  return 'Unlocks at Research Level ' + ls.req + ' \u2014 read ' + ls.remaining + ' more stor' + (ls.remaining===1?'y':'ies') + ' in the Reader, or \ud83d\udcfb tune in on the Deep Time Timeline.';
+}
+
 function loadStoryById(id){
+  var lk = irLock(id);
+  if (lk) {  // locked: never fetch or play it (also blocks ?story= links)
+    var tEl = document.getElementById('storyTitle'); if (tEl) tEl.textContent = '\ud83d\udd12 Classified';
+    showScreen('readerScreen');
+    var pc0 = document.getElementById('panelContainer');
+    if (pc0) pc0.innerHTML = '<div class="panel visible"><div class="panel-narration">\ud83d\udd12 <b>Classified.</b><br>This Deep Time story is still locked.<br><span style="color:var(--dim);font-size:.9rem">' + irLockText(lk) + '</span></div></div>';
+    return;
+  }
   var list = irStories();
   var meta = null;
   for (var i=0;i<list.length;i++){ if(list[i].id===id){ meta=list[i]; break; } }
@@ -1009,6 +1028,15 @@ function renderLibrary(){
     html += '<div style="margin:18px 2px 8px;font-size:.85rem;font-weight:700;color:var(--text);letter-spacing:.02em;">'
          + (IR_CAT_LABELS[cat]||cat) + ' <span style="color:var(--dim);font-weight:500;">(' + items.length + ')</span></div>';
     items.forEach(function(s){
+      var lk = irLock(s.id);
+      if (lk) {  // 🔒 teaser card (no description = no spoilers)
+        html += '<div class="story-card" style="opacity:.6" onclick="loadStoryById(\'' + s.id + '\')">'
+             + '<h3>\ud83d\udd12 ' + s.title + '</h3>'
+             + '<p style="color:var(--dim)">Classified. ' + irLockText(lk) + '</p>'
+             + '<div class="meta">\ud83d\udd12 locked &bull; Deep Time</div>'
+             + '</div>';
+        return;
+      }
       var desc = (s.description||'').replace(/</g,'&lt;');
       html += '<div class="story-card" onclick="loadStoryById(\'' + s.id + '\')">'
            + '<h3>' + s.title + '</h3>'

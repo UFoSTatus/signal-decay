@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Inter:wght@400;600;700&family=OpenDyslexic&display=swap">
 <script src="sd_receiver.js"></script>
+<script src="sd_unlocks.js"></script>
 <script src="sd_pronunciation.js"></script>
 <script src="voice_engine.js"></script>
 <script src="sd_emotion_director.js"></script>
@@ -1952,7 +1953,7 @@ html, body { height: 100vh; height: 100dvh; }
         <button class="see-all" onclick="switchTab('browse')">See all</button>
       </div>
       <div class="story-grid" id="featuredStories"></div>
-      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v120</div>
+      <div id="versionLabel" style="text-align:center;color:var(--text-muted);font-size:0.6rem;letter-spacing:0.5px;margin:24px 0 8px;opacity:0.7;">Signal Decay · v121</div>
     </div>
 
     <!-- BROWSE PAGE -->
@@ -2361,6 +2362,12 @@ function init() {
   applySettings();
   // Merge the remote drop switch, then repaint the codex so drops appear here too.
   loadUnlocksManifest(function () { try { renderLoreEntries(); } catch (e) {} });
+  // live: a Deep Time story unlocked here or in another app -> repaint Codex + Browse + Featured
+  try { if (window.SD_UNLOCK) SD_UNLOCK.onChange(function () {
+    try { renderLoreEntries(); } catch (e) {}
+    try { renderBrowseGrid(); } catch (e) {}
+    try { renderFeaturedStories(); } catch (e) {}
+  }); } catch (e) {}
 }
 
 // ═══ TAB NAVIGATION ═══
@@ -2444,20 +2451,24 @@ var DEEP_TIME_REQS = {  // synced to Codex thresholds (v118 rescale; fixed 2026-
   dt_grid_falls:28, dt_the_chase:29, dt_twenty_two:30, dt_the_escort:31,
   dt_creditors:32, dt_dark_object:33
 };
+// ONE shared list (sd_unlocks.js, 2026-10-06): if it loaded, it is the source of truth.
+try { if (window.SD_UNLOCK && SD_UNLOCK.REQS) { for (var _dtk in SD_UNLOCK.REQS) { if (SD_UNLOCK.REQS.hasOwnProperty(_dtk)) DEEP_TIME_REQS[_dtk] = SD_UNLOCK.REQS[_dtk]; } } } catch (e) {}
 // Returns null for non-gated stories, or {unlocked, req} for deep_time entries.
 function storyUnlockState(st) {
   if (!st || st.category !== 'deep_time') return null;
   var req = DEEP_TIME_REQS[st.id];
   if (typeof req !== 'number') return null;
   var rc = getReadCount();
-  var director = (typeof SD_UNLOCKS !== 'undefined' && SD_UNLOCKS.director_clearance);
+  var director = (typeof SD_UNLOCKS !== 'undefined' && SD_UNLOCKS.director_clearance) || !!(window.SD_UNLOCK && SD_UNLOCK.directorOn());
   var forced = false, gated = false;
   try { if (typeof loreIsForced === 'function') forced = loreIsForced({title: st.title, story: st.id}); } catch(e){}
   try { if (window.SD_RECEIVER && SD_RECEIVER.isCleared(st.id)) gated = true; } catch(e){}
   // effective req respects the drop-switch multiplier/overrides if present
   var eff = req;
   try { if (typeof SD_UNLOCKS !== 'undefined') { if (SD_UNLOCKS.threshold_overrides && SD_UNLOCKS.threshold_overrides[st.title]!=null) eff = SD_UNLOCKS.threshold_overrides[st.title]; else if (typeof SD_UNLOCKS.global_threshold_multiplier==='number') eff = Math.ceil(req*SD_UNLOCKS.global_threshold_multiplier); } } catch(e){}
-  var unlocked = director || forced || gated || rc >= eff;
+  var shared = false;  /* shared rule (sd_unlocks.js) — can only ADD unlocks */
+  try { if (window.SD_UNLOCK && SD_UNLOCK.has(st.id)) { var _sr = SD_UNLOCK.reqFor(st.id); if (typeof _sr === 'number') eff = _sr; shared = SD_UNLOCK.isUnlocked(st.id); } } catch(e){}
+  var unlocked = director || forced || gated || shared || rc >= eff;
   return { unlocked: unlocked, req: eff };
 }
 
@@ -2684,7 +2695,7 @@ function renderHeroStats() {
 function renderLoreIntro() {
   var el = document.getElementById('loreIntro'); if (!el) return;
   var rc = getReadCount();
-  var director = (typeof SD_UNLOCKS !== 'undefined' && SD_UNLOCKS.director_clearance);
+  var director = (typeof SD_UNLOCKS !== 'undefined' && SD_UNLOCKS.director_clearance) || !!(window.SD_UNLOCK && SD_UNLOCK.directorOn());
   el.innerHTML =
     '<div style="background:linear-gradient(135deg,var(--deeptime-dim,rgba(125,211,252,0.12)),transparent);border:1px solid var(--border-subtle);border-radius:12px;padding:14px 16px;margin-bottom:16px;">'
     + '<div style="font-size:0.95rem;font-weight:700;color:#7dd3fc;margin-bottom:4px;">' + (director ? 'Director’s Clearance — all tiers revealed' : 'Research Level ' + rc) + '</div>'
@@ -2856,6 +2867,7 @@ function loadUnlocksManifest(cb) {
 }
 /* effective req for a lore entry (per-title override, else global multiplier) */
 function loreEffectiveReq(l) {
+  try { if (l.story && window.SD_UNLOCK && SD_UNLOCK.has(l.story)) { var _sr = SD_UNLOCK.reqFor(l.story); if (typeof _sr === 'number') return _sr; } } catch (e) {}
   const ov = SD_UNLOCKS.threshold_overrides;
   if (ov && Object.prototype.hasOwnProperty.call(ov, l.title)) return ov[l.title];
   return Math.ceil((l.req || 0) * SD_UNLOCKS.global_threshold_multiplier);
@@ -2868,7 +2880,9 @@ function loreIsForced(l) {
 }
 function loreIsUnlocked(l, rc) {
   var gated = (l.story && window.SD_RECEIVER && SD_RECEIVER.isCleared(l.story));
-  return SD_UNLOCKS.director_clearance || loreIsForced(l) || gated || rc >= loreEffectiveReq(l);
+  var shared = false;  /* shared rule (sd_unlocks.js) */
+  try { shared = !!(l.story && window.SD_UNLOCK && SD_UNLOCK.has(l.story) && SD_UNLOCK.isUnlocked(l.story)); } catch (e) {}
+  return SD_UNLOCKS.director_clearance || loreIsForced(l) || gated || shared || rc >= loreEffectiveReq(l);
 }
 
 // ═══ READER ═══
@@ -3842,6 +3856,7 @@ function bookmarkPosition() {
 // ═══ STATE ═══
 function saveState() {
   storageSet('sd_history', readingHistory);
+  try { if (window.SD_UNLOCK) SD_UNLOCK.ping(); } catch(e) {}  // tell other apps + repaint if a Deep Time story just unlocked
 }
 
 // ═══ INIT ═══

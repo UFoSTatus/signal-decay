@@ -254,6 +254,7 @@ h1 .sub { display: block; font-size: 0.78rem; font-weight: 500; color: var(--tex
 </div>
 
 <script src="sd_receiver.js"></script>
+<script src="sd_unlocks.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
 /* ── State: read the SAME reading history the home app writes ── */
@@ -310,6 +311,8 @@ function loadUnlocksManifest(cb) {
 }
 /* effective req = baked-in req, overridden per-title, else scaled by the global multiplier */
 function effectiveReq(e) {
+  /* Deep Time story markers: the ONE shared lock list (sd_unlocks.js, 2026-10-06) */
+  try { if (e.story && window.SD_UNLOCK && SD_UNLOCK.has(e.story)) { var sr = SD_UNLOCK.reqFor(e.story); if (typeof sr === 'number') return sr; } } catch (x) {}
   var ov = SD_UNLOCKS.threshold_overrides;
   if (ov && ov.hasOwnProperty(e.title)) return ov[e.title];
   return Math.ceil((e.req || 0) * SD_UNLOCKS.global_threshold_multiplier);
@@ -325,7 +328,9 @@ function isForced(e) {
 /* single source of truth for "is this entry open?" */
 function isEntryUnlocked(e, rc, director) {
   var gated = (e.story && window.SD_RECEIVER && SD_RECEIVER.isCleared(e.story));
-  return director || SD_UNLOCKS.director_clearance || isForced(e) || gated || rc >= effectiveReq(e);
+  var shared = false;  /* shared rule (sd_unlocks.js) — can only ADD unlocks */
+  try { shared = !!(e.story && window.SD_UNLOCK && SD_UNLOCK.has(e.story) && SD_UNLOCK.isUnlocked(e.story)); } catch (x) {}
+  return director || SD_UNLOCKS.director_clearance || isForced(e) || gated || shared || rc >= effectiveReq(e);
 }
 
 /* ── The master spine. Oldest → newest (top → bottom). ──
@@ -335,36 +340,36 @@ function isEntryUnlocked(e, rc, director) {
 var ERAS = [
   { band: 'Zero Octave · The Deep Past' },
 
-  { type:'story', when:'~2.6 billion years ago', title:'The First Octave', req:35, story:'dt_first_octave', path:'stories/deep_time/THE_FIRST_OCTAVE.md',
+  { type:'story', when:'~2.6 billion years ago', title:'The First Octave', req:8, story:'dt_first_octave', path:'stories/deep_time/THE_FIRST_OCTAVE.md',
     desc:'The Ancient Builders string the young Earth as an instrument — seven wells, a defense grid, stasis vaults with sleeping giants. The world was BUILT to sing.' },
 
-  { type:'story', when:'Deep in the First Octave', title:'The Setting of the Capstone', req:48, story:'dt_capstone', path:'stories/deep_time/THE_SETTING_OF_THE_CAPSTONE.md',
+  { type:'story', when:'Deep in the First Octave', title:'The Setting of the Capstone', req:14, story:'dt_capstone', path:'stories/deep_time/THE_SETTING_OF_THE_CAPSTONE.md',
     desc:'How the Moon began — a builder-hauler tows a grey dead world across the dark and tunes it into a capstone over the young Earth’s seven wells, set to reflect the song back down so the world can sing into itself. A gift the Legacy later inverts into the Dampener’s lock. Cosmogony — a making, not a breaking.' },
 
-  { type:'story', when:'~500,000 years ago', title:'The Grid Falls', req:60, story:'dt_grid_falls', path:'stories/deep_time/THE_GRID_FALLS.md',
+  { type:'story', when:'~500,000 years ago', title:'The Grid Falls', req:28, story:'dt_grid_falls', path:'stories/deep_time/THE_GRID_FALLS.md',
     desc:'Season 2 · The Builders’ two-billion-year defense grid decays and falls, opening the system to the gene-farmers. The last warden folds the alarm into the bedrock — the 3am watched-feeling we carry still. Tragedy.' },
 
-  { type:'story', when:'~250,000 years ago', title:'The Twenty-Two Programs', req:64, story:'dt_twenty_two', path:'stories/deep_time/THE_TWENTY_TWO_PROGRAMS.md',
+  { type:'story', when:'~250,000 years ago', title:'The Twenty-Two Programs', req:30, story:'dt_twenty_two', path:'stories/deep_time/THE_TWENTY_TWO_PROGRAMS.md',
     desc:'Season 2 · The Super Federation designs humanity BY COMMITTEE — 22 powers splice incompatible specs into one genome. Why we’re at war with ourselves; why music briefly makes us whole. Myth.' },
 
-  { type:'story', when:'~450,000–100,000 years ago', title:'The Creditors', req:68, story:'dt_creditors', path:'stories/deep_time/THE_CREDITORS.md',
+  { type:'story', when:'~450,000–100,000 years ago', title:'The Creditors', req:32, story:'dt_creditors', path:'stories/deep_time/THE_CREDITORS.md',
     desc:'Season 2 · The Anunnaki clamp humanity’s song to make docile mining labor (the ‘faulty splice’) — but Ea secretly rigs the clamp to fail. The slipping IS the promised return. Tragedy.' },
 
-  { type:'story', when:'The First Octave\u2019s twilight', title:'The Detuning', req:38, story:'dt_detuning', path:'stories/deep_time/THE_DETUNING.md',
+  { type:'story', when:'The First Octave\u2019s twilight', title:'The Detuning', req:10, story:'dt_detuning', path:'stories/deep_time/THE_DETUNING.md',
     desc:'The lattice world runs out of the difference between itself and silence. One frequency-highway builder folds herself to the width of a cup and rides a path to a young blue world — leaving seven waiting tones behind. An elegy.' },
 
   { type:'lore', when:'~65 million years ago', title:'The Seeders and the Reptile World', req:30,
     cover:'Science: a random asteroid ends the age of the dinosaurs.',
     truth:'The Builders\u2019 inheritors pruned a reptile-locked world to clear a channel for a species that could one day HEAR the Signal. The extinction was gardening \u2014 not an accident.' },
 
-  { type:'lore', when:'~500,000 years ago', title:'The Grid Falls', req:32,
+  { type:'lore', when:'~500,000 years ago', title:'The Grid Falls', req:28,
     cover:'There is no cover story \u2014 no one was meant to remember there had ever been a shield at all.',
     truth:'The Ancient Builders\u2019 solar defense grid finally went dark. Scavengers and gene-farmers poured through the open gate toward an undefended Earth. The First Octave\u2019s protection was over.' },
 
-  { type:'story', when:'~450,000 years ago', title:'The Gold and the Flood', req:40, story:'dt_gold_and_flood', path:'stories/deep_time/THE_GOLD_AND_THE_FLOOD.md',
+  { type:'story', when:'~450,000 years ago', title:'The Gold and the Flood', req:11, story:'dt_gold_and_flood', path:'stories/deep_time/THE_GOLD_AND_THE_FLOOD.md',
     desc:'Miners from a dying world strip Earth for gold and MUTE the frequency channel in its people. The clay remembers the theft and forgets the design. Why the Resonant gift sleeps.' },
 
-  { type:'lore', when:'~250,000 years ago', title:'The Twenty-Two Programs', req:34,
+  { type:'lore', when:'~250,000 years ago', title:'The Twenty-Two Programs', req:30,
     cover:'Textbooks: humans evolved slowly from apes, in a single unbroken line.',
     truth:'Twenty-two hands spliced twenty-two signatures into the same clay, all at once. It\u2019s why humans vary so wildly \u2014 and why the number twenty-two keeps recurring in the record.' },
 
@@ -372,13 +377,13 @@ var ERAS = [
     cover:'Medicine: humans are simply prone to autoimmune disease, and much of our DNA is inert \u201Cjunk.\u201D',
     truth:'The intruders muted the frequency channel to make an obedient workforce \u2014 four genes out, two in. The \u201Cjunk\u201D is the silenced instrument. This is why the Resonant gift lies dormant in everyone.' },
 
-  { type:'story', when:'~55,000 years ago — a single afternoon', title:'The Breaking of Maldek', req:46, story:'dt_maldek', path:'stories/deep_time/THE_BREAKING_OF_MALDEK.md',
+  { type:'story', when:'~55,000 years ago — a single afternoon', title:'The Breaking of Maldek', req:13, story:'dt_maldek', path:'stories/deep_time/THE_BREAKING_OF_MALDEK.md',
     desc:'A world of clever ‘reachers’ between Mars and Jupiter learned to FORCE frequency but never to tune it — and drove their own planet’s note past breaking in a single afternoon, becoming the asteroid belt. The last Tuner folds the death-note into a seed the refugees carry. Cosmogony — the prequel to The Ice Kings.' },
 
-  { type:'story', when:'~55,000 years ago', title:'The Ice Kings', req:45, story:'dt_ice_kings', path:'stories/deep_time/THE_ICE_KINGS.md',
+  { type:'story', when:'~55,000 years ago', title:'The Ice Kings', req:15, story:'dt_ice_kings', path:'stories/deep_time/THE_ICE_KINGS.md',
     desc:'Giant refugees from a broken world build a kingdom around an Antarctic frequency well, inherit the Builders\u2019 memory-archive \u2014 and freeze there at the pole shift.' },
 
-  { type:'story', when:'~13,000 years ago', title:'The Day the Poles Moved', req:50, story:'dt_poles_moved', path:'stories/deep_time/THE_DAY_THE_POLES_MOVED.md',
+  { type:'story', when:'~13,000 years ago', title:'The Day the Poles Moved', req:22, story:'dt_poles_moved', path:'stories/deep_time/THE_DAY_THE_POLES_MOVED.md',
     desc:'The stars slid, the water came, and a listening coastal people drowned. \u201CAtlantis\u201D is the human cover-name for the loss. The ache survived in the blood.' },
 
   { type:'lore', when:'~12,000 years ago', title:'The Seven Cities', req:36,
@@ -397,36 +402,36 @@ var ERAS = [
 
   { band: 'Off-World · The Other Voices' },
 
-  { type:'story', when:'Since before the Earth — still running', title:'The Ring Makers of Saturn', req:40, story:'dt_ring_makers', path:'stories/deep_time/THE_RING_MAKERS_OF_SATURN.md',
+  { type:'story', when:'Since before the Earth — still running', title:'The Ring Makers of Saturn', req:19, story:'dt_ring_makers', path:'stories/deep_time/THE_RING_MAKERS_OF_SATURN.md',
     desc:'A real Voyager 1 anomaly — the A-ring photographed incomplete — leads a JPL imager to the buried truth: Saturn’s rings are a decaying master recording of the Builders’ 347 MHz foundational note, kept re-inscribed by an ancient Loom, now proliferating to Jupiter and Uranus. The off-world flagship.' },
 
-  { type:'story', when:'The near future — under Jupiter’s ice', title:'Europa Crypt', req:42, story:'dt_europa_crypt', path:'stories/deep_time/EUROPA_CRYPT.md',
+  { type:'story', when:'The near future — under Jupiter’s ice', title:'Europa Crypt', req:20, story:'dt_europa_crypt', path:'stories/deep_time/EUROPA_CRYPT.md',
     desc:'The first crewed cryobot melts 19 km through Europa’s ice into an ocean holding twice Earth’s water — and finds it singing. A crypt of transfigured makers strung the sunless sea as an instrument, holding the Builders’ 347 MHz note against the Silence. One string is failing. (The Loom’s proliferation reaches Jupiter.)' },
 
-  { type:'story', when:'2019 — four light-years away', title:'Proxima Signal', req:44, story:'dt_proxima_signal', path:'stories/deep_time/PROXIMA_SIGNAL.md',
+  { type:'story', when:'2019 — four light-years away', title:'Proxima Signal', req:21, story:'dt_proxima_signal', path:'stories/deep_time/PROXIMA_SIGNAL.md',
     desc:'The real BLC-1 signal from the nearest star — the best technosignature candidate in history, ‘debunked’ as interference — was a Loom at Proxima backing up the 347 MHz floor-note outward against the death of suns. Not a beacon; a leak. Indifferent to us, and singing the note we carry in our blood. The proliferation reaches the stars.' },
 
   { band: 'The Outcome Files · Real Cases, True Endings' },
 
-  { type:'story', when:'Belgium, 1990', title:'The Chase', req:62, story:'dt_the_chase', path:'stories/deep_time/THE_CHASE.md',
+  { type:'story', when:'Belgium, 1990', title:'The Chase', req:29, story:'dt_the_chase', path:'stories/deep_time/THE_CHASE.md',
     desc:'The real Belgian F-16 chase — a pilot locks radar on a craft he can never see, and learns it let him chase so he wouldn’t fire. A true mystery that leads nowhere is the cover-up’s most durable weapon. Thriller.' },
 
-  { type:'story', when:'Texas, 1980', title:'The Escort', req:64, story:'dt_the_escort', path:'stories/deep_time/THE_ESCORT.md',
+  { type:'story', when:'Texas, 1980', title:'The Escort', req:31, story:'dt_the_escort', path:'stories/deep_time/THE_ESCORT.md',
     desc:'The real Cash–Landrum injuries — a recovered craft the Legacy can’t tune leaks radiation over a road; 23 helicopters are the containment box and the confession; three people burn. Tragedy.' },
 
-  { type:'story', when:'Nova Scotia, 1967', title:'The Dark Object', req:66, story:'dt_dark_object', path:'stories/deep_time/THE_DARK_OBJECT.md',
+  { type:'story', when:'Nova Scotia, 1967', title:'The Dark Object', req:33, story:'dt_dark_object', path:'stories/deep_time/THE_DARK_OBJECT.md',
     desc:'The real Shag Harbour case — a diver follows the object to a singing throat in the seafloor. It didn’t crash; it docked at a Builders’ well. The wells are the one thing the Legacy can never reach. Eerie/elegy.' },
 
-  { type:'story', when:'~65 million years ago', title:'The Home Note', req:44, story:'dt_home_note', path:'stories/deep_time/THE_HOME_NOTE.md',
+  { type:'story', when:'~65 million years ago', title:'The Home Note', req:12, story:'dt_home_note', path:'stories/deep_time/THE_HOME_NOTE.md',
     desc:'A Pa-Taal Seeder-gardener prunes the reptile-world and tunes the small warm survivors to an unreachable “home note” — signed with a fragment of her own voice. Why humanity aches upward. Register: myth.' },
 
-  { type:'story', when:'The long human 20th century', title:'The Extraction', req:42, story:'dt_extraction', path:'stories/deep_time/THE_EXTRACTION.md',
+  { type:'story', when:'The long human 20th century', title:'The Extraction', req:16, story:'dt_extraction', path:'stories/deep_time/THE_EXTRACTION.md',
     desc:'A Rigelian Grey performs its 9,417th abduction — and for the first time feels something. The Greys harvest because their own collective signal is dying and they can no longer make static. Register: procedural horror.' },
 
-  { type:'story', when:'The siege of the quarantine', title:'First Wave', req:46, story:'dt_first_wave', path:'stories/deep_time/FIRST_WAVE.md',
+  { type:'story', when:'The siege of the quarantine', title:'First Wave', req:17, story:'dt_first_wave', path:'stories/deep_time/FIRST_WAVE.md',
     desc:'A disposable scout of an enslaved reptile line is thrown at Earth by the Draco hierarchy — and the planet’s rising frequency fence unmakes him while showing him he was never a predator, only prey pointed at prey. Register: political-thriller horror.' },
 
-  { type:'story', when:'Now, and the sixty years before now', title:'Elder Brother', req:48, story:'dt_elder_brother', path:'stories/deep_time/ELDER_BROTHER.md',
+  { type:'story', when:'Now, and the sixty years before now', title:'Elder Brother', req:18, story:'dt_elder_brother', path:'stories/deep_time/ELDER_BROTHER.md',
     desc:'One of the Forest People has guarded a single tuned human since her birth, and can never let her see him — because the not-seeing keeps her door open. As the world’s signal decays, his hiding-seams widen. Register: elegy.' },
 
   { band: 'The Cover Story Era · The Bell Wakes  (1900\u20131950)' },
@@ -435,7 +440,7 @@ var ERAS = [
     cover:'Germany runs ordinary Antarctic expeditions in the years before the war.',
     truth:'They found the edge of the Ice Kings\u2019 frozen kingdom and the tuning-engines inside it. What they pulled out started a hidden arms race for the Signal that never truly ended.' },
 
-  { type:'story', when:'1933', title:'The Magenta Bell', req:55, story:'dt_magenta_bell', path:'stories/deep_time/THE_MAGENTA_BELL.md',
+  { type:'story', when:'1933', title:'The Magenta Bell', req:23, story:'dt_magenta_bell', path:'stories/deep_time/THE_MAGENTA_BELL.md',
     desc:'Marconi\u2019s 347 MHz \u201Cfalse well\u201D pulls a maintenance craft out of the sky over Italy. RS/33, the Vatican, the OSS. The origin hinge of The Legacy.' },
 
   { type:'lore', when:'1942 (Feb 25)', title:'The Battle of Los Angeles', req:8,
@@ -462,7 +467,7 @@ var ERAS = [
 
   { band: 'The Lazar Era  (1980\u20132000)' },
 
-  { type:'story', when:'1989', title:'The Harmonic Manifest', req:60, story:'dt_harmonic_manifest', path:'stories/deep_time/THE_HARMONIC_MANIFEST.md',
+  { type:'story', when:'1989', title:'The Harmonic Manifest', req:24, story:'dt_harmonic_manifest', path:'stories/deep_time/THE_HARMONIC_MANIFEST.md',
     desc:'At S-4, a 347 MHz test makes the Magenta bell read a MANIFEST aloud: five soul-signatures, not yet born, inbound. This is why the band are Resonant.' },
 
   { type:'lore', when:'1989 (Nov)', title:'Lazar Goes Public', req:5,
@@ -638,6 +643,7 @@ function refresh() { renderBanner(); renderProgress(); renderTimeline(); }
 function toggleDirector() {
   var on = !isDirector();
   try { localStorage.setItem('sd_director', on ? '1' : '0'); } catch (e) {}
+  try { if (window.SD_UNLOCK) SD_UNLOCK.ping(); } catch (e) {}
   syncDirectorBtn();
   refresh();
 }
@@ -680,6 +686,8 @@ function closeStory() {
 try {
   syncDirectorBtn();
   refresh();                       // paint immediately with baked-in defaults
+  /* live: another app/tab unlocked something (read a story, tuned in, director) -> repaint */
+  try { if (window.SD_UNLOCK) SD_UNLOCK.onChange(function () { try { syncDirectorBtn(); refresh(); } catch (x) {} }); } catch (e) {}
   loadUnlocksManifest(function () { // then merge the remote drop switch and repaint
     try { refresh(); } catch (e) {}
   });
